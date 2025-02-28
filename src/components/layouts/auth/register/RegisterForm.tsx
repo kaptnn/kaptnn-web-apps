@@ -1,65 +1,23 @@
 "use client";
 
-import {
-  AutoComplete,
-  Button,
-  Checkbox,
-  Flex,
-  Form,
-  Input,
-  Typography,
-} from "antd";
+import { AutoComplete, Button, Checkbox, Form, Input, Typography } from "antd";
 import Link from "next/link";
 
 const { Paragraph } = Typography;
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
-};
-
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
-
 const Register = () => {
-  const [form] = Form.useForm();
-
   const onFinish = (values: unknown) => {
     console.log("Received values of form: ", values);
   };
 
   return (
-    <Flex
-      vertical
-      gap={48}
-      align="center"
-      style={{ marginBottom: 64 }}
-      className="min-h-screen"
-    >
-      <div className="h-32 w-full bg-blue-600"></div>
-      <Flex vertical style={{ paddingInline: 20 }} className="w-full">
+    <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen mb-16 md:mb-0">
+      <div className="h-full min-h-32 md:min-h-screen w-full bg-blue-600"></div>
+      <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
         <Form
-          {...formItemLayout}
-          form={form}
-          name="register"
           onFinish={onFinish}
-          style={{ maxWidth: 600 }}
+          className="w-full"
+          layout="vertical"
           scrollToFirstError
         >
           <Form.Item
@@ -92,67 +50,71 @@ const Register = () => {
           >
             <Input />
           </Form.Item>
+          <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
+            <Form.Item
+              name="phone"
+              label="Nomor Telepon"
+              rules={[
+                { required: true, message: "Masukkan nomor telepon anda!" },
+              ]}
+            >
+              <Input addonBefore={"+62"} style={{ width: "100%" }} />
+            </Form.Item>
 
-          <Form.Item
-            name="phone"
-            label="Nomor Telepon"
-            rules={[
-              { required: true, message: "Masukkan nomor telepon anda!" },
-            ]}
-          >
-            <Input addonBefore={"+62"} style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item
-            name="company"
-            label="Nama Perusahaan"
-            rules={[
-              { required: true, message: "Masukkan nama perusahaan anda!" },
-            ]}
-          >
-            <AutoComplete placeholder="Masukkan Nama Perusahaan Anda">
-              <Input />
-            </AutoComplete>
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            label="Kata Sandi"
-            rules={[
-              {
-                required: true,
-                message: "Masukkan kata sandi anda!",
-              },
-            ]}
-            hasFeedback
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="confirm"
-            label="Konfirmasi Kata Sandi"
-            dependencies={["password"]}
-            hasFeedback
-            rules={[
-              {
-                required: true,
-                message: "Konfirmasi ulang kata sandi anda!",
-              },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error("match! Konfirmasi kata sandi anda tidak cocok!")
-                  );
+            <Form.Item
+              name="company"
+              label="Nama Perusahaan"
+              rules={[
+                { required: true, message: "Masukkan nama perusahaan anda!" },
+              ]}
+            >
+              <AutoComplete placeholder="Masukkan Nama Perusahaan">
+                <Input />
+              </AutoComplete>
+            </Form.Item>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
+            {" "}
+            <Form.Item
+              name="password"
+              label="Kata Sandi"
+              rules={[
+                {
+                  required: true,
+                  message: "Masukkan kata sandi anda!",
                 },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+              ]}
+              hasFeedback
+            >
+              <Input.Password />
+            </Form.Item>
+            <Form.Item
+              name="confirm"
+              label="Konfirmasi Kata Sandi"
+              dependencies={["password"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Konfirmasi ulang kata sandi anda!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "match! Konfirmasi kata sandi anda tidak cocok!"
+                      )
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+          </div>
 
           <Form.Item
             name="agreement"
@@ -165,14 +127,13 @@ const Register = () => {
                     : Promise.reject(new Error("Should accept agreement")),
               },
             ]}
-            {...tailFormItemLayout}
           >
             <Checkbox>
               I have read the <a href="">agreement</a>
             </Checkbox>
           </Form.Item>
 
-          <Form.Item {...tailFormItemLayout}>
+          <Form.Item>
             <Button type="primary" htmlType="submit" className="w-full">
               Daftar Sekarang
             </Button>
@@ -183,8 +144,8 @@ const Register = () => {
             <Link href="/login"> Masuk</Link>
           </Paragraph>
         </Form>
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

@@ -25,14 +25,14 @@ const getItem = (
 
 export const menuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
-  getItem("Docs", "/dashboard/document/", <PieChartOutlined />, [
+  getItem("Docs", "/document", <PieChartOutlined />, [
     getItem("All Docs", "/dashboard/document"),
-    getItem("Category", "/docs/category"),
+    getItem("Category", "/dashboard/document/category"),
   ]),
-  getItem("Calculator", "/calculator", <CalculatorOutlined />, [
-    getItem("Depreciation", "/calculator/depreciation"),
-    getItem("Present Value", "/calculator/present-value"),
-    getItem("Weighted Average", "/calculator/weighted-average"),
+  getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [
+    getItem("Depreciation", "/dashboard/calculator/depreciation"),
+    getItem("Present Value", "/dashboard/calculator/present-value"),
+    getItem("Weighted Average", "/dashboard/calculator/weighted-average"),
   ]),
 ];
 

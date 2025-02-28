@@ -1,13 +1,17 @@
-import { Card, Col, Row, Statistic } from "antd";
+import React from "react";
 import DashboardLayouts from "../../DashboardLayouts";
+import { Card, Col, Row, Statistic } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
-const Dashboard = () => {
+const AllCalculator = () => {
   return (
     <DashboardLayouts>
       <Row gutter={[24, 24]}>
         <Col span={24}>
-          <Card variant="borderless" className="border h-48 object-cover"></Card>
+          <Card
+            variant="borderless"
+            className="border h-48 object-cover"
+          ></Card>
         </Col>
         <Col span={8}>
           <Card variant="borderless" className="border">
@@ -50,4 +54,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AllCalculator;

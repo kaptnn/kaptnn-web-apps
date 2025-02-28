@@ -14,8 +14,10 @@ import {
 } from "antd";
 import type { MenuProps } from "antd";
 import { getDefaultOpenKeys, menuItems } from "@/utils/constants/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
 
 const { Header, Sider, Content } = Layout;
 
@@ -24,7 +26,6 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -61,10 +62,8 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <Layout>
       <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
         style={{
+          width: "100%",
           overflow: "auto",
           height: "100vh",
           position: "sticky",
@@ -73,21 +72,36 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           bottom: 0,
           scrollbarWidth: "thin",
           scrollbarGutter: "stable",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         }}
       >
-        <div className="w-full h-24 p-4">
-          <div className="w-full h-full bg-white rounded"></div>
-        </div>
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["/dashboard"]}
-          selectedKeys={[`${pathname}`]}
-          mode="inline"
-          items={menuItems}
-          onClick={handleMenuClick}
-          openKeys={openKeys}
-          onOpenChange={onOpenChange}
-        />
+        <Flex vertical>
+          <div className="w-full h-24 p-4 ml-1">
+            <div className="w-full h-full p-4 flex justify-center items-center bg-white rounded">
+              <Link href={"/"}>
+                <Image
+                  src={"/kaptnn-logo.webp"}
+                  alt="Logo KAP TNN"
+                  width={1024}
+                  height={1024}
+                ></Image>
+              </Link>
+            </div>
+          </div>
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["/dashboard"]}
+            selectedKeys={[`${pathname}`]}
+            mode="inline"
+            items={menuItems}
+            onClick={handleMenuClick}
+            openKeys={openKeys}
+            onOpenChange={onOpenChange}
+            style={{ marginLeft: 4 }}
+          />
+        </Flex>
       </Sider>
       <Layout>
         <Header
@@ -102,16 +116,15 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             justifyContent: "space-between",
             alignItems: "center",
           }}
+          className="shadow-md shadow-gray-200"
         >
-          <Title level={4} style={{ margin: 0, fontWeight: "bold" }}>
-            Welcome to KAP Tambunan & Nasafi Dashboard
-          </Title>
-          <Flex align="center" gap={24}>
+          <Breadcrumb items={breadcrumbItems} style={{ marginInline: 12 }} />
+          <Flex align="center" gap={24} style={{ marginInline: 12 }}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="size-8"
+              className="size-6"
             >
               <path
                 fillRule="evenodd"
@@ -126,21 +139,18 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
                 style={{ height: "44px", width: "44px" }}
               />
               <Flex vertical>
-                <Title level={5} style={{ margin: 0 }}>
+                <Paragraph style={{ margin: 0, fontWeight: "bold" }}>
                   Username
-                </Title>
+                </Paragraph>
                 <Paragraph style={{ margin: 0 }}>Company Name</Paragraph>
               </Flex>
             </Flex>
           </Flex>
         </Header>
-        <Breadcrumb
-          style={{ margin: "16px", padding: "16px 0px 0px 0px" }}
-          items={breadcrumbItems}
-        />
+
         <Content
           style={{
-            margin: "16px",
+            margin: "24px",
             padding: 24,
             minHeight: "100vh",
             background: colorBgContainer,

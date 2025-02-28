@@ -11,14 +11,13 @@ const Login = () => {
   const { form, isPending, onSubmit } = useLoginForm();
 
   return (
-    <Flex vertical gap={48} align="center" className="min-h-screen mb-16">
-      <div className="h-32 w-full bg-blue-600"></div>
-      <Flex vertical className="w-full px-5">
+    <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen md:mb-0">
+      <div className="h-full md:min-h-screen w-full bg-blue-600"></div>
+      <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
         <Form
           onFinish={form.handleSubmit(onSubmit)}
           className="w-full"
           layout="vertical"
-          style={{ maxWidth: 600 }}
           scrollToFirstError
         >
           <Form.Item label="E-mail">
@@ -82,8 +81,8 @@ const Login = () => {
             Belum mempunyai akun? <Link href="/register">Daftar Sekarang</Link>
           </Paragraph>
         </Form>
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   );
 };
 
