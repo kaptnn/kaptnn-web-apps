@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AntDesignOutlined } from "@ant-design/icons";
 import {
@@ -116,7 +116,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             justifyContent: "space-between",
             alignItems: "center",
           }}
-          className="shadow-md shadow-gray-200"
+          className="shadow-md shadow-gray-700/10"
         >
           <Breadcrumb items={breadcrumbItems} style={{ marginInline: 12 }} />
           <Flex align="center" gap={24} style={{ marginInline: 12 }}>
@@ -152,7 +152,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           style={{
             margin: "24px",
             padding: 24,
-            minHeight: "100vh",
+            height: "100%",
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}

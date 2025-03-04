@@ -10,7 +10,7 @@ const Home: React.FC = () => {
     <main>
       <div className="relative h-screen">
         <div className="absolute inset-0">
-          <div className="relative h-full w-full [&>div]:absolute [&>div]:bottom-0 [&>div]:right-0 [&>div]:z-[-2] [&>div]:h-full [&>div]:w-full [&>div]:bg-gradient-to-b [&>div]:from-blue-200 [&>div]:to-white">
+          <div className="relative h-full w-full [&>div]:absolute [&>div]:bottom-0 [&>div]:right-0 [&>div]:z-[-2] [&>div]:h-full [&>div]:w-full [&>div]:bg-gradient-to-b [&>div]:from-blue-200 [&>div]:to-white dark:[&>div]:bg-gradient-to-b dark:[&>div]:from-blue-200 dark:[&>div]:to-white">
             <div></div>
           </div>
         </div>

@@ -11,9 +11,9 @@ const Register = () => {
   };
 
   return (
-    <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen mb-16 md:mb-0">
+    <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen pb-16 md:pb-0 bg-white">
       <div className="h-full min-h-32 md:min-h-screen w-full bg-blue-600"></div>
-      <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
+      <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24 bg-white">
         <Form
           onFinish={onFinish}
           className="w-full"
