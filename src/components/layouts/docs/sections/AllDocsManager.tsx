@@ -15,6 +15,7 @@ import {
   Select,
   Upload,
   message,
+  Avatar,
 } from "antd";
 
 import type { UploadProps } from "antd";
@@ -38,14 +39,34 @@ type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
 const columns: TableColumnsType<DataType> = [
+  Table.SELECTION_COLUMN,
+  Table.EXPAND_COLUMN,
   { title: "Document Name", dataIndex: "name" },
-  { title: "Category", dataIndex: "category" },
   {
-    title: "Type",
+    title: "Target User",
     dataIndex: "type",
     render: (item: string) => (
       <Flex align="center" justify="center">
-        <Tag color="default">{item}</Tag>
+        <Avatar
+          style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }}
+          size="default"
+        >
+          {item.slice(0, 1)}
+        </Avatar>
+      </Flex>
+    ),
+  },
+  {
+    title: "User Uploader",
+    dataIndex: "type",
+    render: (item: string) => (
+      <Flex align="center" justify="center">
+        <Avatar
+          style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
+          size="default"
+        >
+          {item.slice(0, 1)}
+        </Avatar>
       </Flex>
     ),
   },
@@ -165,6 +186,10 @@ const AllDocsManager = () => {
           rowSelection={rowSelection}
           columns={columns}
           dataSource={dataSource}
+          expandable={{
+            expandedRowRender: (item) => <Flex>Dokumen dengan kategori {item.category} tipe {item.type} untuk {item.name}</Flex>,
+            rowExpandable: (item) => item.name !== 'Not Expandable',
+          }}
           className="rounded-lg"
           bordered
         />

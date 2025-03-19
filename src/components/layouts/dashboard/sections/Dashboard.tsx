@@ -12,8 +12,8 @@ const Dashboard = () => {
         <Col span={8}>
           <Card variant="borderless" className="border">
             <Statistic
-              title="Active"
-              value={11.28}
+              title="Presentase Pemenuhan Dokumen"
+              value={60}
               precision={2}
               valueStyle={{ color: "#3f8600" }}
               prefix={<ArrowUpOutlined />}
@@ -24,24 +24,22 @@ const Dashboard = () => {
         <Col span={8}>
           <Card variant="borderless" className="border">
             <Statistic
-              title="Idle"
-              value={9.3}
-              precision={2}
-              valueStyle={{ color: "#cf1322" }}
-              prefix={<ArrowDownOutlined />}
-              suffix="%"
+              title="Dokumen Terpenuhi"
+              value={60}
+              valueStyle={{ color: "#3f8600" }}
+              prefix={<ArrowUpOutlined />}
+              suffix=" Dokumen"
             />
           </Card>
         </Col>
         <Col span={8}>
           <Card variant="borderless" className="border">
             <Statistic
-              title="Idle"
-              value={9.3}
-              precision={2}
+              title="Dokumen Belum Terpenuhi"
+              value={40}
               valueStyle={{ color: "#cf1322" }}
               prefix={<ArrowDownOutlined />}
-              suffix="%"
+              suffix=" Dokumen"
             />
           </Card>
         </Col>

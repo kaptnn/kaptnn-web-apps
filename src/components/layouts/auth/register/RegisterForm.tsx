@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { AutoComplete, Button, Checkbox, Form, Input, Typography } from "antd";
 import Link from "next/link";
 
@@ -12,7 +13,11 @@ const Register = () => {
 
   return (
     <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen pb-16 md:pb-0 bg-white">
-      <div className="h-full min-h-32 md:min-h-screen w-full bg-blue-600"></div>
+      <div className="h-full min-h-32 md:min-h-screen w-full bg-blue-600 p-8">
+        <Button icon={<ArrowLeftOutlined />} href="/">
+          Back to Home
+        </Button>
+      </div>
       <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24 bg-white">
         <Form
           onFinish={onFinish}

@@ -4,6 +4,7 @@ import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 import useLoginForm from "./LoginService";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 const { Paragraph } = Typography;
 
@@ -12,7 +13,11 @@ const Login = () => {
 
   return (
     <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen md:mb-0 bg-white">
-      <div className="h-full md:min-h-screen w-full bg-blue-600"></div>
+      <div className="h-full md:min-h-screen w-full bg-blue-600 p-8">
+        <Button icon={<ArrowLeftOutlined />} href="/">
+          Back to Home
+        </Button>
+      </div>
       <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
         <Form
           onFinish={form.handleSubmit(onSubmit)}

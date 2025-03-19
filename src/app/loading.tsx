@@ -1,7 +1,11 @@
-import { Spin } from "antd";
+import { Flex, Spin } from "antd";
 
 const Loading = () => {
-  return <Spin />;
+  return (
+    <Flex className="w-full h-screen" justify="center" align="center">
+      <Spin />
+    </Flex>
+  );
 };
 
 export default Loading;
