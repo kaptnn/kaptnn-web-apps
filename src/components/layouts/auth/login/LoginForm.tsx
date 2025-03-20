@@ -65,7 +65,7 @@ const Login = () => {
                 control={form.control}
                 render={({ field }) => (
                   <Checkbox
-                    checked={field.value} // Fixed Ant Design warning
+                    checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
                   >
                     Remember me
@@ -78,7 +78,7 @@ const Login = () => {
 
           <Form.Item>
             <Button block type="primary" htmlType="submit" loading={isPending}>
-              Masuk
+              {isPending ? "Tunggu Sebentar" : "Masuk"}
             </Button>
           </Form.Item>
 

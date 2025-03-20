@@ -1,15 +1,15 @@
 "use client";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { AutoComplete, Button, Checkbox, Form, Input, Typography } from "antd";
+import { Button, Checkbox, Form, Input, Select, Typography } from "antd";
 import Link from "next/link";
+import { Controller } from "react-hook-form";
+import useRegisterForm from "./RegisterService";
 
 const { Paragraph } = Typography;
 
 const Register = () => {
-  const onFinish = (values: unknown) => {
-    console.log("Received values of form: ", values);
-  };
+  const { form, isPending, onSubmit } = useRegisterForm();
 
   return (
     <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen pb-16 md:pb-0 bg-white">
@@ -20,13 +20,13 @@ const Register = () => {
       </div>
       <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24 bg-white">
         <Form
-          onFinish={onFinish}
+          onFinish={form.handleSubmit(onSubmit)}
           className="w-full"
           layout="vertical"
           scrollToFirstError
         >
+          {/*  */}
           <Form.Item
-            name="name"
             label="Nama Lengkap"
             rules={[
               {
@@ -36,93 +36,127 @@ const Register = () => {
               },
             ]}
           >
-            <Input />
+            <Controller
+              name="name"
+              control={form.control}
+              rules={{
+                required: "Masukkan nama lengkap anda!",
+              }}
+              render={({ field, fieldState }) => (
+                <Input {...field} status={fieldState.error ? "error" : ""} />
+              )}
+            />
           </Form.Item>
 
-          <Form.Item
-            name="email"
-            label="E-mail"
-            rules={[
-              {
-                type: "email",
-                message: "E-mail tidak valid!",
-              },
-              {
-                required: true,
-                message: "Masukkan e-mail anda!",
-              },
-            ]}
-          >
-            <Input />
+          {/*  */}
+          <Form.Item label="E-mail">
+            <Controller
+              name="email"
+              control={form.control}
+              rules={{
+                required: "Masukkan e-mail anda!",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "E-mail tidak valid!",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <Input {...field} status={fieldState.error ? "error" : ""} />
+              )}
+            />
           </Form.Item>
+
           <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
+            {/*  */}
             <Form.Item
-              name="phone"
               label="Nomor Telepon"
               rules={[
                 { required: true, message: "Masukkan nomor telepon anda!" },
               ]}
             >
-              <Input addonBefore={"+62"} style={{ width: "100%" }} />
+              <Controller
+                name="phoneNumber"
+                control={form.control}
+                rules={{
+                  required: "Masukkan nomor telepon anda!",
+                }}
+                render={({ field, fieldState }) => (
+                  <Input
+                    {...field}
+                    status={fieldState.error ? "error" : ""}
+                    addonBefore={"+62"}
+                    style={{ width: "100%" }}
+                  />
+                )}
+              />
             </Form.Item>
 
+            {/*  */}
             <Form.Item
-              name="company"
               label="Nama Perusahaan"
               rules={[
                 { required: true, message: "Masukkan nama perusahaan anda!" },
               ]}
             >
-              <AutoComplete placeholder="Masukkan Nama Perusahaan">
-                <Input />
-              </AutoComplete>
-            </Form.Item>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
-            {" "}
-            <Form.Item
-              name="password"
-              label="Kata Sandi"
-              rules={[
-                {
-                  required: true,
-                  message: "Masukkan kata sandi anda!",
-                },
-              ]}
-              hasFeedback
-            >
-              <Input.Password />
-            </Form.Item>
-            <Form.Item
-              name="confirm"
-              label="Konfirmasi Kata Sandi"
-              dependencies={["password"]}
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Konfirmasi ulang kata sandi anda!",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error(
-                        "match! Konfirmasi kata sandi anda tidak cocok!"
-                      )
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password />
+              <Controller
+                name="company"
+                control={form.control}
+                rules={{ required: "Masukkan nama perusahaan anda!" }}
+                render={({ field, fieldState }) => (
+                  <Select
+                    {...field}
+                    status={fieldState.error ? "error" : ""}
+                    placeholder="Pilih Metode Perhitungan"
+                    options={[
+                      {
+                        value: "straight_line",
+                        label: <span>KAP Tambunan & Nasafi</span>,
+                      },
+                      {
+                        value: "double_declining",
+                        label: <span>Double Declining</span>,
+                      },
+                    ]}
+                  />
+                )}
+              />
             </Form.Item>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
+            {/*  */}
+            <Form.Item label="Kata Sandi" hasFeedback>
+              <Controller
+                name="password"
+                control={form.control}
+                rules={{ required: "Masukkan kata sandi anda!" }}
+                render={({ field, fieldState }) => (
+                  <Input.Password
+                    {...field}
+                    status={fieldState.error ? "error" : ""}
+                  />
+                )}
+              />
+            </Form.Item>
+
+            {/*  */}
+            <Form.Item label="Konfirmasi Kata Sandi" hasFeedback>
+              <Controller
+                name="confirmPassword"
+                control={form.control}
+                rules={{ required: "Konfirmasi kata sandi anda!" }}
+                render={({ field, fieldState }) => (
+                  <Input.Password
+                    {...field}
+                    status={fieldState.error ? "error" : ""}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+
+          {/*  */}
           <Form.Item
-            name="agreement"
             valuePropName="checked"
             rules={[
               {
@@ -133,14 +167,28 @@ const Register = () => {
               },
             ]}
           >
-            <Checkbox>
-              I have read the <a href="">agreement</a>
-            </Checkbox>
+            <Controller
+              name="agreement"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                >
+                  I have read the <a href="">agreement</a>
+                </Checkbox>
+              )}
+            />
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full">
-              Daftar Sekarang
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={isPending}
+            >
+              {isPending ? "Tunggu Sebentar" : "Daftar Sekarang"}
             </Button>
           </Form.Item>
 
