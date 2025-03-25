@@ -8,7 +8,7 @@ import useRegisterForm from "./RegisterService";
 
 const { Paragraph } = Typography;
 
-const Register = () => {
+const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
   const { form, isPending, onSubmit } = useRegisterForm();
 
   return (
@@ -107,16 +107,7 @@ const Register = () => {
                     {...field}
                     status={fieldState.error ? "error" : ""}
                     placeholder="Pilih Metode Perhitungan"
-                    options={[
-                      {
-                        value: "straight_line",
-                        label: <span>KAP Tambunan & Nasafi</span>,
-                      },
-                      {
-                        value: "double_declining",
-                        label: <span>Double Declining</span>,
-                      },
-                    ]}
+                    options={companies}
                   />
                 )}
               />

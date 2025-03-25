@@ -27,13 +27,11 @@ export default function useRegisterForm() {
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     startTransition(async () => {
       try {
-        const response = await axiosInstance.post("/auth/sign-in/email/", {
+        const response = await axiosInstance.post("/v1/auth/register/", {
           name: values.name,
           email: values.email,
-          phoneNumber: values.phoneNumber,
-          company: values.company,
+          company_id: values.company,
           password: values.password,
-          agreement: values.agreement,
         });
 
         if (response.status === 201) {
