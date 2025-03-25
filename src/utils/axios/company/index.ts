@@ -8,10 +8,12 @@ export interface CompanyProps {
 }
 
 export async function getAllCompanies() {
+  const token = ""
+
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {
-        Authorization: `Bearer TOKEN`,
+        Authorization: `Bearer ${token}`,
       },
     });
 

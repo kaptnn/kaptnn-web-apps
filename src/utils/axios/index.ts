@@ -1,5 +1,10 @@
 import axios from "axios";
 
+export function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("access_token");
+}
+
 const axiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
   headers: {

@@ -24,14 +24,14 @@ export default function useLoginForm() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     startTransition(async () => {
       try {
-        const { data } = await axiosInstance.post("/v1/auth/login/", {
+        const response = await axiosInstance.post("/v1/auth/login/", {
           email: values.email,
           password: values.password,
         });
 
-        if (data?.token) {
-          localStorage.setItem("token", data.access_token);
-          axiosInstance.defaults.headers.Authorization = `Bearer ${data.access_token}`;
+        if (response.data.data.access_token) {
+          localStorage.setItem("token", response.data.data.access_token);
+          axiosInstance.defaults.headers.Authorization = `Bearer ${response.data.data.access_token}`;
         }
 
         router.push("/dashboard");

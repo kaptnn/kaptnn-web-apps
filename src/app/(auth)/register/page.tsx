@@ -1,7 +1,6 @@
 import Register from "@/components/layouts/auth/register";
 import { getAllCompanies } from "@/utils/axios/company";
 
-
 const RegisterPage = async () => {
   const companies = await getAllCompanies()
 
