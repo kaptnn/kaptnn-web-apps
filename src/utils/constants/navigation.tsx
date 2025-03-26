@@ -27,6 +27,7 @@ export const menuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
     getItem("All Docs", "/dashboard/document"),
+    getItem("Company", "/dashboard/document/company"),
     getItem("Category", "/dashboard/document/category"),
   ]),
   getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [

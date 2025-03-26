@@ -8,19 +8,10 @@ export interface CompanyProps {
 }
 
 export async function getAllCompanies() {
-  const token = ""
-
   try {
-    const response = await axiosInstance.get("/v1/companies", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axiosInstance.get("/v1/companies");
 
-    return response.data?.data?.map((company: CompanyProps) => ({
-      value: company.id,
-      label: company.company_name,
-    }));
+    return response.data?.data;
   } catch (error) {
     console.error("Error fetching companies:", error);
     return [];
