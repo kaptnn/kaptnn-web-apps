@@ -1,3 +1,3 @@
-import PresentValueCalculator from "./sections/PresentValueCalculator";
+import PresentValueCalculator from "./form/PresentValueCalculator";
 
 export default PresentValueCalculator;

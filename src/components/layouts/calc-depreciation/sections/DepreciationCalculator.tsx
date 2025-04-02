@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayouts from "../../DashboardLayouts";
-import { Card, Col, Empty, Row, Typography } from "antd";
-import DepreciationCalculatorForm from "./Form";
+import { Card, Col, Empty, Flex, Row, Typography } from "antd";
+import DepreciationCalculatorForm from "../form/Form";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const DepreciationCalculator = () => {
+  const [calculationResult, setCalculationResult] = useState<any>(null);
+
   return (
     <DashboardLayouts>
       <Row gutter={[24, 24]}>
@@ -21,7 +23,9 @@ const DepreciationCalculator = () => {
           }}
         >
           <Title level={2}>Depreciation Calculator</Title>
-          <DepreciationCalculatorForm />
+          <DepreciationCalculatorForm
+            setCalculationResult={setCalculationResult}
+          />
         </Col>
         <Col span={12}>
           <Card
@@ -34,10 +38,23 @@ const DepreciationCalculator = () => {
             }}
           >
             <Title level={2}>Hasil Perhitungan</Title>
-            <Empty
-              description={"Belum Ada Hasil Perhitungan"}
-              style={{ marginTop: 32 }}
-            />
+            {calculationResult ? (
+              <Flex vertical>
+                <Text strong>Metode:</Text>
+                <Text> {calculationResult.metode}</Text>
+
+                <Text strong>Biaya Per Bulan:</Text>
+                <Text> {calculationResult.biaya_per_bulan} </Text>
+
+                <Text strong>Biaya Per Tahun:</Text>
+                <Text> {calculationResult.biaya_per_tahun} Tahun</Text>
+              </Flex>
+            ) : (
+              <Empty
+                description="Belum Ada Hasil Perhitungan"
+                style={{ marginTop: 32 }}
+              />
+            )}
           </Card>
         </Col>
       </Row>

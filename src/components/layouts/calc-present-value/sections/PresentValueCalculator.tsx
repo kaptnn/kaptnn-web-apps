@@ -3,7 +3,7 @@
 import React from "react";
 import DashboardLayouts from "../../DashboardLayouts";
 import { Card, Col, Empty, Row, Typography } from "antd";
-import PresentValueCalculatorForm from "./Form";
+import PresentValueCalculatorForm from "../form/Form";
 
 const { Title } = Typography;
 
