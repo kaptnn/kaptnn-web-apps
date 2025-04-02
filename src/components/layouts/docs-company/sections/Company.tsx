@@ -14,10 +14,13 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { columns, DataType, TableRowSelection } from "../utils/table";
+import useCreateCompanyForm from "../form/Service";
+import { Controller } from "react-hook-form";
 
 const { Search } = Input;
 const Company = ({ company }: { company: DataType[] }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const { form, isPending, onSubmit } = useCreateCompanyForm();
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -81,7 +84,7 @@ const Company = ({ company }: { company: DataType[] }) => {
         cancelText="Batalkan"
         onCancel={() => setOpen(false)}
       >
-        <Form layout="vertical">
+        {/* <Form layout="vertical">
           <Form.Item
             name="company_name"
             label="Nama Perusahaan"
@@ -135,6 +138,81 @@ const Company = ({ company }: { company: DataType[] }) => {
               <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </div>
+        </Form> */}
+        <Form
+          onFinish={form.handleSubmit(onSubmit)}
+          className="w-full"
+          layout="vertical"
+          scrollToFirstError
+        >
+          <Form.Item label="Nama Perusahaan">
+            <Controller
+              name="company_name"
+              control={form.control}
+              rules={{
+                required: "Masukkan e-mail anda!",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "E-mail tidak valid!",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <Input {...field} status={fieldState.error ? "error" : ""} />
+              )}
+            />
+          </Form.Item>
+
+          {/* Password Field */}
+          <Form.Item label="Tahun Penugasan">
+            <Controller
+              name="year_of_assignment"
+              control={form.control}
+              rules={{ required: "" }}
+              render={({ field, fieldState }) => (
+                <InputNumber
+                  {...field}
+                  style={{ width: "100%" }}
+                  status={fieldState.error ? "error" : ""}
+                />
+              )}
+            />
+          </Form.Item>
+
+          <div className="w-full grid grid-cols-2 gap-6">
+            <Form.Item>
+              <Controller
+                name="start_audit_period"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <DatePicker
+                    {...field}
+                    style={{ width: "100%" }}
+                    status={fieldState.error ? "error" : ""}
+                  />
+                )}
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Controller
+                name="end_audit_period"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <DatePicker
+                    {...field}
+                    style={{ width: "100%" }}
+                    status={fieldState.error ? "error" : ""}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item>
+            <Button block type="primary" htmlType="submit" loading={isPending}>
+              {isPending ? "Tunggu Sebentar" : "Masuk"}
+            </Button>
+          </Form.Item>
         </Form>
       </Modal>
     </DashboardLayouts>
