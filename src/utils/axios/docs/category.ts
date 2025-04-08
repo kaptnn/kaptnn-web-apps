@@ -7,7 +7,7 @@ export interface CompanyProps {
   updated_at: string | Date;
 }
 
-export async function getAllCompanies(token?: string) {
+export async function getAllDocumentCategories(token?: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {
@@ -22,23 +22,8 @@ export async function getAllCompanies(token?: string) {
   }
 }
 
-export async function getCompanyById(company_id: string, token: string) {
-  try {
-    const response = await axiosInstance.get("/v1/companies", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data?.data;
-  } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
-  }
-}
-
-export async function getCompanyByCompanyName(
-  company_name: string,
+export async function getDocumentCategoryById(
+  doc_category_id: string,
   token: string
 ) {
   try {

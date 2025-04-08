@@ -7,7 +7,7 @@ export interface CompanyProps {
   updated_at: string | Date;
 }
 
-export async function getAllCompanies(token?: string) {
+export async function getAllUsers(token?: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {
@@ -22,7 +22,7 @@ export async function getAllCompanies(token?: string) {
   }
 }
 
-export async function getCompanyById(company_id: string, token: string) {
+export async function getUserById(user_id: string, token: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {
@@ -37,10 +37,22 @@ export async function getCompanyById(company_id: string, token: string) {
   }
 }
 
-export async function getCompanyByCompanyName(
-  company_name: string,
-  token: string
-) {
+export async function getUserByEmail(user_email: string, token: string) {
+  try {
+    const response = await axiosInstance.get("/v1/companies", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data?.data;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    return [];
+  }
+}
+
+export async function getUserByCompanyId(company_id: string, token: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {

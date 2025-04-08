@@ -8,6 +8,7 @@ import { z } from "zod";
 import { depreciationCalculatorSchema } from "@/utils/constants/calculator";
 
 export default function useDepreciationCalculatorForm(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCalculationResult: (result: any) => void
 ) {
   const [isPending, startTransition] = useTransition();

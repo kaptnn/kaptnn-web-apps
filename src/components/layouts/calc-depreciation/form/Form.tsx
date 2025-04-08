@@ -7,6 +7,7 @@ import useDepreciationCalculatorForm from "./Service";
 const DepreciationCalculatorForm = ({
   setCalculationResult,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCalculationResult: (result: any) => void;
 }) => {
   const { form, isPending, onSubmit } =

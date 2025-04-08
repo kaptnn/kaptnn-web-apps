@@ -8,6 +8,7 @@ import DepreciationCalculatorForm from "../form/Form";
 const { Title, Text } = Typography;
 
 const DepreciationCalculator = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [calculationResult, setCalculationResult] = useState<any>(null);
 
   return (
