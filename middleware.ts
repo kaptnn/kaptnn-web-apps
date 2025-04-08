@@ -3,13 +3,16 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   console.log("Middleware running");
+  const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get("access_token");
-  console.log("Token found:", token);
+  if (pathname.startsWith("/dashboard")) {
+    const access_token = request.cookies.get("access_token")?.value;
+    console.log("Token found:", access_token);
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !token) {
-    console.log("Redirecting to /");
-    return NextResponse.redirect(new URL("/", request.url));
+    if (!access_token) {
+      console.log("Redirecting to /login");
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
   }
 
   return NextResponse.next();

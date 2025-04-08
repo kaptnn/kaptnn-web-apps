@@ -32,6 +32,13 @@ export default function useLoginForm() {
         if (response.data.data.access_token) {
           localStorage.setItem("token", response.data.data.access_token);
           axiosInstance.defaults.headers.Authorization = `Bearer ${response.data.data.access_token}`;
+
+          const now = new Date();
+          const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000); 
+          const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7);
+          
+          document.cookie = `access_token=${response.data.data.access_token}; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
+          document.cookie = `refresh_token=${response.data.data.refresh_token}; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
         }
 
         router.push("/dashboard");

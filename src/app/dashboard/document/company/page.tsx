@@ -1,9 +1,16 @@
 import Company from "@/components/layouts/docs-company";
 import { DataType } from "@/components/layouts/docs-company/utils/table";
+import { getCookie } from "@/utils/axios/utils";
 import { getAllCompanies } from "@/utils/axios/company";
+import { redirect } from "next/navigation";
 
 const CompanyPage = async () => {
-  const companies = await getAllCompanies();
+  const token = await getCookie("access_token");
+  if (!token) {
+    redirect("/login");
+  }
+
+  const companies = await getAllCompanies(token);
 
   const formattedCompanies = companies.map((company: DataType) => ({
     ...company,

@@ -7,9 +7,13 @@ export interface CompanyProps {
   updated_at: string | Date;
 }
 
-export async function getAllCompanies() {
+export async function getAllCompanies(token?: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies");
+    const response = await axiosInstance.get("/v1/companies", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     return response.data?.data;
   } catch (error) {

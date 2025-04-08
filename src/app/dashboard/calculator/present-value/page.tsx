@@ -1,7 +1,13 @@
 import PresentValueCalculator from "@/components/layouts/calc-present-value";
-import React from "react";
+import { getCookie } from "@/utils/axios/utils";
+import { redirect } from "next/navigation";
 
-const PresentValueCalculatorPage = () => {
+const PresentValueCalculatorPage = async () => {
+  const token = await getCookie("access_token");
+  if (!token) {
+    redirect("/login");
+  }
+
   return <PresentValueCalculator />;
 };
 
