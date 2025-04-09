@@ -30,7 +30,8 @@ export default function useLoginForm() {
         });
 
         if (response.data.data.access_token) {
-          localStorage.setItem("token", response.data.data.access_token);
+          localStorage.setItem("access_token", response.data.data.access_token);
+          localStorage.setItem("refresh_token", response.data.data.refresh_token);
           axiosInstance.defaults.headers.Authorization = `Bearer ${response.data.data.access_token}`;
 
           const now = new Date();

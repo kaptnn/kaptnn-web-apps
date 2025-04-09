@@ -39,3 +39,21 @@ export async function getDocumentRequestById(
     return [];
   }
 }
+
+export async function getDocumentRequestByCompanyId(
+  company_id: string,
+  token: string
+) {
+  try {
+    const response = await axiosInstance.get("/v1/companies", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data?.data;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    return [];
+  }
+}

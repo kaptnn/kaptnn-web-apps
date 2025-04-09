@@ -73,6 +73,11 @@ const Company = ({ company }: { company: DataType[] }) => {
           }}
           className="rounded-lg"
           bordered
+          pagination={{
+            align: "center",
+            style: { marginTop: "32px" },
+            position: ["bottomCenter"],
+          }}
         />
       </Flex>
       <Modal

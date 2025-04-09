@@ -22,10 +22,22 @@ export async function getAllDocuments(token?: string) {
   }
 }
 
-export async function getDocumentById(
-  doc_id: string,
-  token: string
-) {
+export async function getDocumentById(doc_id: string, token: string) {
+  try {
+    const response = await axiosInstance.get("/v1/companies", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data?.data;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    return [];
+  }
+}
+
+export async function getDocumentByCompanyId(company_id: string, token: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
       headers: {

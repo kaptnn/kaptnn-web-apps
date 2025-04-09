@@ -105,6 +105,11 @@ const AllDocsManager = () => {
           }}
           className="rounded-lg"
           bordered
+          pagination={{
+            align: "center",
+            style: { marginTop: "32px" },
+            position: ["bottomCenter"],
+          }}
         />
       </Flex>
       <Modal
