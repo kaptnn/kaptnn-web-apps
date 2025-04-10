@@ -6,6 +6,8 @@ import { AntDesignOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Breadcrumb,
+  Button,
+  Dropdown,
   Flex,
   Layout,
   Menu,
@@ -13,9 +15,14 @@ import {
   Typography,
 } from "antd";
 import type { MenuProps } from "antd";
-import { getDefaultOpenKeys, menuItems } from "@/utils/constants/navigation";
+import {
+  getDefaultOpenKeys,
+  menuItems,
+  accountProfileItems,
+} from "@/utils/constants/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import useAuthStore from "@/stores/AuthStore";
 
 const { Paragraph } = Typography;
 
@@ -26,6 +33,9 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const userInfo = useAuthStore((state) => state.userInfo);
+  console.log("User Info:", userInfo);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -133,18 +143,29 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
               />
             </svg>
 
-            <Flex align="center" gap={8}>
-              <Avatar
-                icon={<AntDesignOutlined />}
-                style={{ height: "44px", width: "44px" }}
-              />
-              <Flex vertical>
-                <Paragraph style={{ margin: 0, fontWeight: "bold" }}>
-                  Username
-                </Paragraph>
-                <Paragraph style={{ margin: 0 }}>Company Name</Paragraph>
-              </Flex>
-            </Flex>
+            <Dropdown
+              menu={{ items: accountProfileItems }}
+              trigger={["click"]}
+              placement="bottomRight"
+              arrow
+            >
+              <Button onClick={(e) => e.preventDefault()}>
+                <Flex align="center" gap={8}>
+                  <Avatar
+                    icon={<AntDesignOutlined />}
+                    style={{ height: "24px", width: "24px" }}
+                  />
+                  <Flex align="center" gap={4}>
+                    <Paragraph style={{ margin: 0, fontWeight: "bold" }}>
+                      {userInfo.name}
+                    </Paragraph>
+                    <Paragraph style={{ margin: 0 }}>
+                      ({userInfo.company_name})
+                    </Paragraph>
+                  </Flex>
+                </Flex>
+              </Button>
+            </Dropdown>
           </Flex>
         </Header>
 

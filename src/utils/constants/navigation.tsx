@@ -1,7 +1,9 @@
 import {
   CalculatorOutlined,
   LayoutOutlined,
+  LogoutOutlined,
   PieChartOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { MenuProps } from "antd";
 
@@ -50,3 +52,30 @@ export const getDefaultOpenKeys = (pathname: string): string[] => {
     .map((item) => (typeof item.key === "string" ? item.key : ""))
     .filter((key) => key !== "");
 };
+
+export const accountProfileItems: MenuProps["items"] = [
+  {
+    key: "1",
+    label: "My Account",
+    disabled: true,
+  },
+  {
+    type: "divider",
+  },
+  {
+    key: "2",
+    label: "Profile",
+  },
+  {
+    key: "3",
+    label: "Settings",
+    icon: <SettingOutlined />,
+  },
+  {
+    key: "4",
+    label: "Log Out",
+    icon: <LogoutOutlined />,
+    danger: true,
+    onClick: () => console.log("OTW LOG OUT"),
+  },
+];

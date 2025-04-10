@@ -24,7 +24,7 @@ export async function getAllCompanies(token?: string) {
 
 export async function getCompanyById(company_id: string, token: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
+    const response = await axiosInstance.get(`/v1/companies/company/id/${company_id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -23,6 +23,21 @@ export async function getAllUsers(token?: string, filters = {}) {
   }
 }
 
+export async function getCurrentUser(token?: string) {
+  try {
+    const response = await axiosInstance.get("/v1/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data?.data;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    return [];
+  }
+}
+
 export async function getUserById(user_id: string, token: string) {
   try {
     const response = await axiosInstance.get("/v1/companies", {
