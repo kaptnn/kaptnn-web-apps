@@ -34,7 +34,6 @@ interface DashboardLayoutProps {
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const userInfo = useAuthStore((state) => state.userInfo);
-  console.log("User Info:", userInfo);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -160,7 +159,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
                       {userInfo.name}
                     </Paragraph>
                     <Paragraph style={{ margin: 0 }}>
-                      ({userInfo.company_name})
+                      {userInfo.company_name}
                     </Paragraph>
                   </Flex>
                 </Flex>

@@ -1,13 +1,61 @@
+import { UserLoginRequest, UserRegisterRequest } from "@/utils/constants/user";
 import axiosInstance from "..";
 
-export interface CompanyProps {
-  id: string;
-  company_name: string;
-  created_at: string | Date;
-  updated_at: string | Date;
+// AUTHENTICATION SERVICES
+
+export async function registerUser(userData: UserRegisterRequest) {
+  try {
+    const response = await axiosInstance.post("/v1/auth/register", userData);
+    return response.data?.result;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return null;
+  }
 }
 
-export async function getAllUsers(token?: string, filters = {}) {
+export async function loginUser(credentials: UserLoginRequest) {
+  try {
+    const response = await axiosInstance.post("/v1/auth/login", credentials);
+    return response.data?.result;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    return null;
+  }
+}
+
+export async function logoutUser(token: string) {
+  try {
+    const response = await axiosInstance.post(
+      "/v1/auth/logout",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data?.result;
+  } catch (error) {
+    console.error("Error logging out:", error);
+    return null;
+  }
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  try {
+    const response = await axiosInstance.post("/v1/auth/token/refresh", {
+      refresh_token: refreshToken,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error refreshing access token:", error);
+    return null;
+  }
+}
+
+// USER MANAGEMENT SERVICES
+
+export async function getAllUsers(token: string, filters = {}) {
   try {
     const response = await axiosInstance.get("/v1/users", {
       headers: {
@@ -15,70 +63,71 @@ export async function getAllUsers(token?: string, filters = {}) {
       },
       params: filters,
     });
-
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
-    console.error("Error fetching companies:", error);
+    console.error("Error fetching users:", error);
     return [];
   }
 }
 
-export async function getCurrentUser(token?: string) {
+export async function getCurrentUser(token: string) {
   try {
     const response = await axiosInstance.get("/v1/users/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
+    console.error("Error fetching current user:", error);
+    return null;
   }
 }
 
-export async function getUserById(user_id: string, token: string) {
+export async function getUserById(userId: string, token: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
+    const response = await axiosInstance.get(`/v1/users/user/id/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
+    console.error("Error fetching user by ID:", error);
+    return null;
   }
 }
 
-export async function getUserByEmail(user_email: string, token: string) {
+export async function getUserByEmail(userEmail: string, token: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data?.data;
+    const response = await axiosInstance.get(
+      `/v1/users/user/email/${userEmail}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data?.result;
   } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
+    console.error("Error fetching user by email:", error);
+    return null;
   }
 }
 
-export async function getUserByCompanyId(company_id: string, token: string) {
+export async function getUserByCompanyId(companyId: string, token: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data?.data;
+    const response = await axiosInstance.get(
+      `/v1/users/user/company/${companyId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data?.result;
   } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
+    console.error("Error fetching users by company ID:", error);
+    return null;
   }
 }

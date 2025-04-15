@@ -1,19 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card, Col, Row, Statistic } from "antd";
 import DashboardLayouts from "../../DashboardLayouts";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { useEffect } from "react";
-import useAuthStore from "@/stores/AuthStore";
 
-const Dashboard = ({ currentUser }: { currentUser: any }) => {
-  const setUserInfo = useAuthStore((state) => state.setUserInfo);
-
-  useEffect(() => {
-    setUserInfo(currentUser);
-  }, [currentUser, setUserInfo]);
-
+const Dashboard = () => {
   return (
     <DashboardLayouts>
       <Row gutter={[24, 24]}>

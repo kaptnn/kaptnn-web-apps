@@ -1,14 +1,26 @@
 import { z } from "zod";
 
-export type IUser = {
+export interface IUser {
   id: string;
   name: string;
   email: string;
-};
+}
 
-export type User = {
+export interface User {
   userId: string;
-};
+}
+
+export interface UserRegisterRequest {
+  name: string;
+  email: string;
+  company_id: string;
+  password: string;
+}
+
+export interface UserLoginRequest {
+  email: string;
+  password: string;
+}
 
 export type GetUser = () => User | undefined;
 

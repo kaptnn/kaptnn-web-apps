@@ -6,6 +6,8 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { MenuProps } from "antd";
+import { logoutUser } from "../axios/user";
+import useAuthStore from "@/stores/AuthStore";
 
 type MenuItem = Required<MenuProps>["items"][number] & {
   children?: MenuItem[];
@@ -53,6 +55,15 @@ export const getDefaultOpenKeys = (pathname: string): string[] => {
     .filter((key) => key !== "");
 };
 
+function deleteCookie(name: string, path = "/") {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path};`;
+}
+
+function clearCookies() {
+  deleteCookie("access_token");
+  deleteCookie("refresh_token");
+}
+
 export const accountProfileItems: MenuProps["items"] = [
   {
     key: "1",
@@ -76,6 +87,29 @@ export const accountProfileItems: MenuProps["items"] = [
     label: "Log Out",
     icon: <LogoutOutlined />,
     danger: true,
-    onClick: () => console.log("OTW LOG OUT"),
+    onClick: async () => {
+      try {
+        const token = useAuthStore.getState().accessToken;
+        if (!token) {
+          window.location.assign("/login");
+          return;
+        }
+        await logoutUser(token);
+
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+
+        sessionStorage.clear();
+
+        clearCookies();
+
+        useAuthStore.getState().setAuth("", "");
+        useAuthStore.getState().setUserInfo(null);
+
+        window.location.assign("/login");
+      } catch (error: unknown) {
+        console.error("Logout Error:", error);
+      }
+    },
   },
 ];
