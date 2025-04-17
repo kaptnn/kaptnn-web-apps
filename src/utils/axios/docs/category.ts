@@ -9,13 +9,13 @@ export interface CompanyProps {
 
 export async function getAllDocumentCategories(token?: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
+    const response = await axiosInstance.get("/v1/docs-category", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
     console.error("Error fetching companies:", error);
     return [];
@@ -27,13 +27,13 @@ export async function getDocumentCategoryById(
   token: string
 ) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
+    const response = await axiosInstance.get("/v1/docs-category", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
     console.error("Error fetching companies:", error);
     return [];

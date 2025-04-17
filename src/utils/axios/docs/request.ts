@@ -9,13 +9,13 @@ export interface CompanyProps {
 
 export async function getAllDocumentRequests(token?: string) {
   try {
-    const response = await axiosInstance.get("/v1/companies", {
+    const response = await axiosInstance.get("/v1/docs-request", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data?.data;
+    return response.data?.result;
   } catch (error) {
     console.error("Error fetching companies:", error);
     return [];

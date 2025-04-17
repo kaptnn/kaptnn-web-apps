@@ -1,30 +1,18 @@
 import Company from "@/components/layouts/docs-company";
-import { DataType } from "@/components/layouts/docs-company/utils/table";
+import { getCurrentUser } from "@/utils/axios/user";
 import { getCookie } from "@/utils/axios/utils";
-import { getAllCompanies } from "@/utils/axios/company";
 import { redirect } from "next/navigation";
 
 const CompanyPage = async () => {
   const token = await getCookie("access_token");
-  if (!token) {
-    redirect("/login");
-  }
+  if (!token) redirect("/login");
 
-  const companies = await getAllCompanies(token);
+  const currentUser = await getCurrentUser(token);
+  const isAdmin = currentUser.profile.role === "admin";
 
-  const formattedCompanies = companies.map((company: DataType) => ({
-    ...company,
-    key: company.id,
-    start_audit_period: new Date(company.start_audit_period)
-      .toISOString()
-      .split("T")[0],
+  if (!isAdmin) redirect("/dashboard");
 
-    end_audit_period: new Date(company.end_audit_period)
-      .toISOString()
-      .split("T")[0],
-  }));
-
-  return <Company company={formattedCompanies} />;
+  return <Company initialToken={token} />;
 };
 
 export default CompanyPage;

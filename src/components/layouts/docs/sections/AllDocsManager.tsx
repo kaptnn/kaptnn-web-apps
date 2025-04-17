@@ -16,12 +16,7 @@ import {
 } from "antd";
 
 import { InboxOutlined, PlusOutlined } from "@ant-design/icons";
-import {
-  columns,
-  dataSource,
-  DataType,
-  TableRowSelection,
-} from "../utils/table";
+import { columns, DataType, TableRowSelection } from "../utils/table";
 
 const { Search } = Input;
 
@@ -46,7 +41,8 @@ const props: UploadProps = {
     console.log("Dropped files", e.dataTransfer.files);
   },
 };
-const AllDocsManager = () => {
+
+const AllDocsManager = ({ docs_request }: { docs_request: [] }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -93,15 +89,15 @@ const AllDocsManager = () => {
         <Table<DataType>
           rowSelection={rowSelection}
           columns={columns}
-          dataSource={dataSource}
+          dataSource={docs_request}
           expandable={{
             expandedRowRender: (item) => (
               <Flex>
-                Dokumen dengan kategori {item.category} tipe {item.type} untuk{" "}
-                {item.name}
+                Dokumen dengan kategori {item.category_id} untuk{" "}
+                {item.request_title}
               </Flex>
             ),
-            rowExpandable: (item) => item.name !== "Not Expandable",
+            rowExpandable: (item) => item.request_title !== "Not Expandable",
           }}
           className="rounded-lg"
           bordered

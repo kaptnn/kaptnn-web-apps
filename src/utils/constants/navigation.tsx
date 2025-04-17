@@ -27,7 +27,7 @@ const getItem = (
   };
 };
 
-export const menuItems: MenuItem[] = [
+export const adminMenuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
     getItem("All Docs", "/dashboard/document"),
@@ -42,8 +42,33 @@ export const menuItems: MenuItem[] = [
   ]),
 ];
 
-export const getDefaultOpenKeys = (pathname: string): string[] => {
-  return menuItems
+export const clientMenuItems: MenuItem[] = [
+  getItem("Dashboard", "/dashboard", <LayoutOutlined />),
+  getItem("Docs", "/document", <PieChartOutlined />, [
+    getItem("All Docs", "/dashboard/document"),
+    getItem("All Users", "/dashboard/document/users"),
+  ]),
+  getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [
+    getItem("Depreciation", "/dashboard/calculator/depreciation"),
+    getItem("Present Value", "/dashboard/calculator/present-value"),
+    getItem("Weighted Average", "/dashboard/calculator/weighted-average"),
+  ]),
+];
+
+export const getMenuItemsByRole = (role: string): MenuItem[] => {
+  if (role === "admin") {
+    return adminMenuItems;
+  } else if (role === "client") {
+    return clientMenuItems;
+  }
+  return [];
+};
+
+export const getDefaultOpenKeys = (
+  pathname: string,
+  items: MenuItem[]
+): string[] => {
+  return items
     .filter((item): item is MenuItem => !!item && "children" in item)
     .filter((item) =>
       item.children?.some(
@@ -75,15 +100,11 @@ export const accountProfileItems: MenuProps["items"] = [
   },
   {
     key: "2",
-    label: "Profile",
-  },
-  {
-    key: "3",
-    label: "Settings",
+    label: "Profile Settings",
     icon: <SettingOutlined />,
   },
   {
-    key: "4",
+    key: "3",
     label: "Log Out",
     icon: <LogoutOutlined />,
     danger: true,
@@ -95,17 +116,12 @@ export const accountProfileItems: MenuProps["items"] = [
           return;
         }
         await logoutUser(token);
-
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-
-        sessionStorage.clear();
-
+        sessionStorage.removeItem("auth-storage");
         clearCookies();
-
         useAuthStore.getState().setAuth("", "");
         useAuthStore.getState().setUserInfo(null);
-
         window.location.assign("/login");
       } catch (error: unknown) {
         console.error("Logout Error:", error);

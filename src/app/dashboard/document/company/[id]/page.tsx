@@ -1,15 +1,18 @@
 import { getCompanyById } from "@/utils/axios/company";
 import { getDocumentByCompanyId } from "@/utils/axios/docs/manager";
 import { getDocumentRequestByCompanyId } from "@/utils/axios/docs/request";
-import { getUserByCompanyId } from "@/utils/axios/user";
+import { getCurrentUser, getUserByCompanyId } from "@/utils/axios/user";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 
 const CompanyByIdPage = async () => {
   const token = await getCookie("access_token");
-  if (!token) {
-    redirect("/login");
-  }
+  if (!token) redirect("/login");
+
+  const currentUser = await getCurrentUser(token);
+  const isAdmin = currentUser.profile.role === "admin";
+
+  if (!isAdmin) redirect("/dashboard");
 
   // Fetch Company By Id
   const rawCompanyData = getCompanyById("", token);
@@ -24,8 +27,14 @@ const CompanyByIdPage = async () => {
   console.log("Document By Company Id", rawDocumentDataByCompanyId);
 
   // Fetch Document Request By Company Id
-  const rawDocumentRequestDataByCompanyId = getDocumentRequestByCompanyId("", token);
-  console.log("Document Request By Company Id", rawDocumentRequestDataByCompanyId);
+  const rawDocumentRequestDataByCompanyId = getDocumentRequestByCompanyId(
+    "",
+    token
+  );
+  console.log(
+    "Document Request By Company Id",
+    rawDocumentRequestDataByCompanyId
+  );
 
   return <div>CompanyByIdPage</div>;
 };

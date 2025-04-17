@@ -1,54 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AllUsers from "@/components/layouts/docs-users";
 import { getAllCompanies } from "@/utils/axios/company";
-import { getAllUsers } from "@/utils/axios/user";
+import { getCurrentUser } from "@/utils/axios/user";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 
-const AllUsersPage = async ({ searchParams }: { searchParams: any }) => {
+const AllUsersPage = async () => {
   const token = await getCookie("access_token");
-  if (!token) {
-    redirect("/login");
-  }
+  if (!token) redirect("/login");
 
-  const filters = {
-    sort: searchParams.sort || "id",
-    order: searchParams.order || "asc",
-    page: Number(searchParams.page) || 1,
-    limit: Number(searchParams.limit) || 20,
-    company_name: searchParams.company_name || undefined,
-    role: searchParams.role || undefined,
-  };
+  const currentUser = await getCurrentUser(token);
+  const isAdmin = currentUser.profile.role === "admin";
+  const currentCompanyId = currentUser.company_id;
 
-  const rawAllUsersData = await getAllUsers(token, filters);
-  const rawAllCompaniesData = await getAllCompanies(token);
+  const rawCompanies = await getAllCompanies(token);
+  const companyOptions = rawCompanies.map((c: any) => ({
+    value: c.id,
+    label: c.company_name,
+  }));
 
-  const companyMapping = rawAllCompaniesData.reduce(
-    (
-      map: Record<string, string>,
-      company: { id: string | number; company_name: string }
-    ) => {
-      map[company.id] = company.company_name;
-      return map;
-    },
-    {} as Record<string, string>
+  return (
+    <AllUsers
+      initialToken={token}
+      isAdmin={isAdmin}
+      currentCompanyId={currentCompanyId}
+      companyOptions={companyOptions}
+    />
   );
-
-  const usersWithCompanyName = rawAllUsersData.map(
-    (user: { company_id: string | number }) => ({
-      ...user,
-      company_name: companyMapping[user.company_id] || "Unknown Company",
-    })
-  );
-
-  const formattedCompanies = rawAllCompaniesData.map(
-    (company: { id: any; company_name: any }) => ({
-      value: company.id,
-      label: company.company_name,
-    })
-  );
-
-  return <AllUsers users={usersWithCompanyName} company={formattedCompanies} />;
 };
 
 export default AllUsersPage;

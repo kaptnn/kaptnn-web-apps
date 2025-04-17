@@ -13,11 +13,11 @@ import {
   Menu,
   theme,
   Typography,
+  type MenuProps,
 } from "antd";
-import type { MenuProps } from "antd";
 import {
+  getMenuItemsByRole,
   getDefaultOpenKeys,
-  menuItems,
   accountProfileItems,
 } from "@/utils/constants/navigation";
 import Image from "next/image";
@@ -25,7 +25,6 @@ import Link from "next/link";
 import useAuthStore from "@/stores/AuthStore";
 
 const { Paragraph } = Typography;
-
 const { Header, Sider, Content } = Layout;
 
 interface DashboardLayoutProps {
@@ -34,10 +33,14 @@ interface DashboardLayoutProps {
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const userInfo = useAuthStore((state) => state.userInfo);
+  const role = userInfo?.profile.role || "client";
+
+  const menuItems = getMenuItemsByRole(role);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -51,7 +54,6 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
     .map((segment, index, arr) => {
       const title = segment.charAt(0).toUpperCase() + segment.slice(1);
       const href = `/${arr.slice(0, index + 1).join("/")}`;
-
       return {
         title,
         href: index === arr.length - 1 ? undefined : href,
@@ -61,8 +63,8 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    setOpenKeys(getDefaultOpenKeys(pathname));
-  }, [pathname]);
+    setOpenKeys(getDefaultOpenKeys(pathname, menuItems));
+  }, [pathname, menuItems]);
 
   const onOpenChange: MenuProps["onOpenChange"] = (keys) => {
     setOpenKeys(keys);
@@ -95,7 +97,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
                   alt="Logo KAP TNN"
                   width={1024}
                   height={1024}
-                ></Image>
+                />
               </Link>
             </div>
           </div>
@@ -141,7 +143,6 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
                 clipRule="evenodd"
               />
             </svg>
-
             <Dropdown
               menu={{ items: accountProfileItems }}
               trigger={["click"]}
@@ -156,10 +157,10 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
                   />
                   <Flex align="center" gap={4}>
                     <Paragraph style={{ margin: 0, fontWeight: "bold" }}>
-                      {userInfo.name}
+                      {userInfo?.name}
                     </Paragraph>
                     <Paragraph style={{ margin: 0 }}>
-                      {userInfo.company_name}
+                      {userInfo?.company_name}
                     </Paragraph>
                   </Flex>
                 </Flex>

@@ -2,9 +2,9 @@ import { Button, Flex, Table, TableColumnsType, TableProps, Tag } from "antd";
 
 export interface DataType {
   key: React.Key;
-  id: string
+  id: string;
   company_name: string;
-  year_of_assignment: number
+  year_of_assignment: number;
   start_audit_period: string;
   end_audit_period: string;
 }
@@ -33,13 +33,13 @@ export const columns: TableColumnsType<DataType> = [
     key: "x",
     render: () => (
       <Flex gap={8} align="center" justify="center">
-        <Button color="primary" variant="solid">
+        <Button color="primary" variant="solid" onClick={() => {}}>
           View
         </Button>
-        <Button color="default" type="default">
+        <Button color="default" type="default" onClick={() => {}}>
           Edit
         </Button>
-        <Button color="danger" variant="solid">
+        <Button color="danger" variant="solid" onClick={() => {}}>
           Delete
         </Button>
       </Flex>
