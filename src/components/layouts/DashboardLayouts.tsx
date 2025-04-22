@@ -17,30 +17,18 @@ interface DashboardLayoutProps {
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const userInfo = useAuthStore((state) => state.userInfo);
+  const role = userInfo?.profile.role ?? "client";
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const router = useRouter();
   const pathname = usePathname();
 
-  const role = userInfo?.profile.role || "client";
   const menuItems = getMenuItemsByRole(role);
 
   useEffect(() => {
     setOpenKeys(getDefaultOpenKeys(pathname, menuItems));
   }, [pathname, menuItems]);
-
-  if (userInfo === null) {
-    return (
-      <DashboardLayouts>
-        <main className="h-screen w-full items-center justify-center">
-          <Flex className="h-screen w-full" justify="center" align="center">
-            <Spin />
-          </Flex>
-        </main>
-      </DashboardLayouts>
-    );
-  }
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -65,6 +53,16 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const onOpenChange: MenuProps["onOpenChange"] = (keys) => {
     setOpenKeys(keys);
   };
+
+  if (userInfo === null) {
+    return (
+      <main className="h-screen w-full items-center justify-center">
+        <Flex className="h-screen w-full" justify="center" align="center">
+          <Spin />
+        </Flex>
+      </main>
+    );
+  }
 
   return (
     <Layout>
