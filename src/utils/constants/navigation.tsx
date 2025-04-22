@@ -6,8 +6,8 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { MenuProps } from "antd";
-import { logoutUser } from "../axios/user";
 import useAuthStore from "@/stores/AuthStore";
+import { AuthApi } from "../axios/api-service";
 
 type MenuItem = Required<MenuProps>["items"][number] & {
   children?: MenuItem[];
@@ -102,6 +102,19 @@ export const accountProfileItems: MenuProps["items"] = [
     key: "2",
     label: "Profile Settings",
     icon: <SettingOutlined />,
+    onClick: async () => {
+      try {
+        const token = useAuthStore.getState().accessToken;
+        if (!token) {
+          window.location.assign("/login");
+          return;
+        }
+
+        window.location.assign("/dashboard/user/profile");
+      } catch (error: unknown) {
+        console.error("Go to Profile Setting Error:", error);
+      }
+    },
   },
   {
     key: "3",
@@ -115,7 +128,8 @@ export const accountProfileItems: MenuProps["items"] = [
           window.location.assign("/login");
           return;
         }
-        await logoutUser(token);
+
+        await AuthApi.logoutUser(token);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         sessionStorage.removeItem("auth-storage");

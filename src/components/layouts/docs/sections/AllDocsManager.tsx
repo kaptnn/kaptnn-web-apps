@@ -1,166 +1,106 @@
 "use client";
 
-import { useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import DashboardLayouts from "../../DashboardLayouts";
-import {
-  Input,
-  Button,
-  Flex,
-  Table,
-  Modal,
-  Form,
-  message,
-  UploadProps,
-  Upload,
-  Select,
-} from "antd";
-
-import { InboxOutlined, PlusOutlined } from "@ant-design/icons";
-import { columns, DataType, TableRowSelection } from "../utils/table";
+import { Input, Button, Flex, message } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import DocsRequestTable from "./TableDocsRequest";
+import DocsRequestModals from "./ModalDocsRequest";
+import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
+import { DocsRequestApi } from "@/utils/axios/api-service";
 
 const { Search } = Input;
 
-const { Dragger } = Upload;
+// const props: UploadProps = {
+//   name: "file",
+//   multiple: true,
+//   action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+//   onChange(info) {
+//     const { status } = info.file;
+//     if (status !== "uploading") {
+//       console.log(info.file, info.fileList);
+//     }
+//     if (status === "done") {
+//       message.success(`${info.file.name} file uploaded successfully.`);
+//     } else if (status === "error") {
+//       message.error(`${info.file.name} file upload failed.`);
+//     }
+//   },
+//   onDrop(e) {
+//     console.log("Dropped files", e.dataTransfer.files);
+//   },
+// };
 
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
+interface DocsReqClientProps {
+  initialToken: string;
+}
 
-const AllDocsManager = ({ docs_request }: { docs_request: [] }) => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setOpen,
+    setTotal,
+    setModalType,
+  } = useDocsRequestStore();
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection: TableRowSelection<DataType> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const showLoading = () => {
-    setOpen(true);
+  const fetchDocumentRequest = useCallback(async () => {
     setLoading(true);
+    try {
+      const response = await DocsRequestApi.getAllDocsRequest(
+        {
+          page: current,
+          limit: pageSize,
+          sort: "created_at",
+          order: "asc",
+        },
+        initialToken
+      );
 
-    setTimeout(() => {
+      setData(response.result);
+      setTotal(response.meta.totalItems);
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to fetch companies.");
+    } finally {
       setLoading(false);
-    }, 2000);
-  };
+    }
+  }, [setLoading, initialToken, current, pageSize, setData, setTotal]);
 
-  const hasSelected = selectedRowKeys.length > 0;
+  useEffect(() => {
+    fetchDocumentRequest();
+  }, [fetchDocumentRequest]);
+
   return (
     <DashboardLayouts>
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
-          <Flex>
+          <Flex align="center">
             <Search placeholder="Search" loading={false} enterButton />
           </Flex>
           <Flex align="center">
             <Button
-              type="primary"
               icon={<PlusOutlined />}
-              onClick={showLoading}
+              type="primary"
+              loading={loading}
+              onClick={() => {
+                setOpen(true);
+                setModalType("create");
+              }}
             >
-              Add New Document
+              Add New Document Request
             </Button>
-            {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
           </Flex>
         </Flex>
-        <Table<DataType>
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={docs_request}
-          expandable={{
-            expandedRowRender: (item) => (
-              <Flex>
-                Dokumen dengan kategori {item.category_id} untuk{" "}
-                {item.request_title}
-              </Flex>
-            ),
-            rowExpandable: (item) => item.request_title !== "Not Expandable",
-          }}
-          className="rounded-lg"
-          bordered
-          pagination={{
-            align: "center",
-            style: { marginTop: "32px" },
-            position: ["bottomCenter"],
-          }}
+        <DocsRequestTable token={initialToken} />
+        <DocsRequestModals
+          token={initialToken}
+          refresh={fetchDocumentRequest}
         />
       </Flex>
-      <Modal
-        title={"Add New Document"}
-        loading={loading}
-        centered
-        open={open}
-        onCancel={() => setOpen(false)}
-      >
-        <Form layout="vertical">
-          <Form.Item
-            name="email"
-            label="Nama Dokumen"
-            rules={[
-              {
-                type: "email",
-                message: "E-mail tidak valid!",
-              },
-              {
-                required: true,
-                message: "Masukkan e-mail anda!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="Kategori Dokumen"
-            rules={[
-              { required: true, message: "Masukkan nomor telepon anda!" },
-            ]}
-          >
-            <Select></Select>
-          </Form.Item>
-
-          <Form.Item
-            name="company"
-            label="Upload Dokumen"
-            rules={[
-              { required: true, message: "Masukkan nama perusahaan anda!" },
-            ]}
-          >
-            <Dragger {...props}>
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">
-                Tekan atau seret file ke area untuk menguploadnya
-              </p>
-            </Dragger>
-          </Form.Item>
-        </Form>
-      </Modal>
     </DashboardLayouts>
   );
 };

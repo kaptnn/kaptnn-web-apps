@@ -1,15 +1,48 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Select, Typography } from "antd";
-import Link from "next/link";
-import { Controller } from "react-hook-form";
-import useRegisterForm from "./RegisterService";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { registerSchema } from "@/utils/constants/user";
+import { z } from "zod";
+import { AuthApi } from "@/utils/axios/api-service";
 
 const { Paragraph } = Typography;
 
-const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
-  const { form, isPending, onSubmit } = useRegisterForm();
+const Register = ({
+  companies,
+}: {
+  companies: { value: string; label: string }[];
+}) => {
+  const [form] = Form.useForm();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleFinish = (values: z.infer<typeof registerSchema>) => {
+    startTransition(async () => {
+      try {
+        const response = await AuthApi.registerUser({
+          name: values.name,
+          email: values.email,
+          company_id: values.company,
+          password: values.password,
+        });
+
+        if (response.status === 201) {
+          router.push("/login");
+        }
+      } catch (error: unknown) {
+        if (error) {
+          const errorMessage = error || "Something went wrong!";
+          console.error("Login Error:", errorMessage);
+        } else {
+          console.error("Network Error:", error);
+        }
+      }
+    });
+  };
 
   return (
     <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen pb-16 md:pb-0 bg-white">
@@ -20,13 +53,15 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
       </div>
       <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24 bg-white">
         <Form
-          onFinish={form.handleSubmit(onSubmit)}
+          form={form}
+          onFinish={handleFinish}
           className="w-full"
           layout="vertical"
           scrollToFirstError
         >
           {/*  */}
           <Form.Item
+            name="name"
             label="Nama Lengkap"
             rules={[
               {
@@ -36,34 +71,22 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
               },
             ]}
           >
-            <Controller
-              name="name"
-              control={form.control}
-              rules={{
-                required: "Masukkan nama lengkap anda!",
-              }}
-              render={({ field, fieldState }) => (
-                <Input {...field} status={fieldState.error ? "error" : ""} />
-              )}
-            />
+            <Input />
           </Form.Item>
 
           {/*  */}
-          <Form.Item label="E-mail">
-            <Controller
-              name="email"
-              control={form.control}
-              rules={{
-                required: "Masukkan e-mail anda!",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "E-mail tidak valid!",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Input {...field} status={fieldState.error ? "error" : ""} />
-              )}
-            />
+          <Form.Item
+            name="email"
+            label="E-mail"
+            rules={[
+              {
+                required: true,
+                message: "Masukkan nama lengkap anda!",
+                whitespace: true,
+              },
+            ]}
+          >
+            <Input />
           </Form.Item>
 
           <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
@@ -74,21 +97,7 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
                 { required: true, message: "Masukkan nomor telepon anda!" },
               ]}
             >
-              <Controller
-                name="phoneNumber"
-                control={form.control}
-                rules={{
-                  required: "Masukkan nomor telepon anda!",
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    status={fieldState.error ? "error" : ""}
-                    addonBefore={"+62"}
-                    style={{ width: "100%" }}
-                  />
-                )}
-              />
+              <Input addonBefore={"+62"} style={{ width: "100%" }} />
             </Form.Item>
 
             {/*  */}
@@ -98,18 +107,9 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
                 { required: true, message: "Masukkan nama perusahaan anda!" },
               ]}
             >
-              <Controller
-                name="company"
-                control={form.control}
-                rules={{ required: "Masukkan nama perusahaan anda!" }}
-                render={({ field, fieldState }) => (
-                  <Select
-                    {...field}
-                    status={fieldState.error ? "error" : ""}
-                    placeholder="Pilih Metode Perhitungan"
-                    options={companies}
-                  />
-                )}
+              <Select
+                placeholder="Pilih Metode Perhitungan"
+                options={companies}
               />
             </Form.Item>
           </div>
@@ -117,32 +117,12 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
           <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
             {/*  */}
             <Form.Item label="Kata Sandi" hasFeedback>
-              <Controller
-                name="password"
-                control={form.control}
-                rules={{ required: "Masukkan kata sandi anda!" }}
-                render={({ field, fieldState }) => (
-                  <Input.Password
-                    {...field}
-                    status={fieldState.error ? "error" : ""}
-                  />
-                )}
-              />
+              <Input.Password />
             </Form.Item>
 
             {/*  */}
             <Form.Item label="Konfirmasi Kata Sandi" hasFeedback>
-              <Controller
-                name="confirmPassword"
-                control={form.control}
-                rules={{ required: "Konfirmasi kata sandi anda!" }}
-                render={({ field, fieldState }) => (
-                  <Input.Password
-                    {...field}
-                    status={fieldState.error ? "error" : ""}
-                  />
-                )}
-              />
+              <Input.Password />
             </Form.Item>
           </div>
 
@@ -158,18 +138,9 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
               },
             ]}
           >
-            <Controller
-              name="agreement"
-              control={form.control}
-              render={({ field }) => (
-                <Checkbox
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                >
-                  I have read the <a href="">agreement</a>
-                </Checkbox>
-              )}
-            />
+            <Checkbox onChange={(e) => e.target.checked}>
+              I have read the <a href="">agreement</a>
+            </Checkbox>
           </Form.Item>
 
           <Form.Item>

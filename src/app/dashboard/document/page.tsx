@@ -1,5 +1,4 @@
 import AllDocsManager from "@/components/layouts/docs";
-import { getAllDocumentRequests } from "@/utils/axios/docs/request";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 
@@ -9,9 +8,7 @@ const DocumentManagementPage = async () => {
     redirect("/login");
   }
 
-  const rawDocsRequestData = await getAllDocumentRequests(token);
-
-  return <AllDocsManager docs_request={rawDocsRequestData} />;
+  return <AllDocsManager initialToken={token} />;
 };
 
 export default DocumentManagementPage;

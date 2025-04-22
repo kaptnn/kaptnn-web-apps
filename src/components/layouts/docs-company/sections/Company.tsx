@@ -18,6 +18,7 @@ const Company: React.FC<CompanyClientProps> = ({ initialToken }) => {
   const {
     pageSize,
     current,
+    loading,
     setData,
     setLoading,
     setOpen,
@@ -71,6 +72,7 @@ const Company: React.FC<CompanyClientProps> = ({ initialToken }) => {
             <Button
               icon={<PlusOutlined />}
               type="primary"
+              loading={loading}
               onClick={() => {
                 setOpen(true);
                 setModalType("create");

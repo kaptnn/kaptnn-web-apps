@@ -10,14 +10,24 @@ export interface User {
   userId: string;
 }
 
-export interface UserRegisterRequest {
+export interface UserProps {
+  id: string;
+  name: string;
+  email: string;
+  company_id: string;
+  password: string;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
+export interface RegisterUserPayload {
   name: string;
   email: string;
   company_id: string;
   password: string;
 }
 
-export interface UserLoginRequest {
+export interface LoginUserPayload {
   email: string;
   password: string;
 }

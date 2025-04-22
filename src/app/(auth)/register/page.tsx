@@ -1,5 +1,6 @@
 import Register from "@/components/layouts/auth/register";
-import { CompanyProps, getAllCompanies } from "@/utils/axios/company";
+import { CompanyApi } from "@/utils/axios/api-service";
+import { CompanyProps } from "@/utils/axios/company";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 
@@ -9,9 +10,9 @@ const RegisterPage = async () => {
     redirect("/dashboard");
   }
 
-  const rawCompanies = await getAllCompanies(token);
+  const rawCompanies = await CompanyApi.getAllCompanies({}, token);
 
-  const companies = rawCompanies.map((company: CompanyProps) => ({
+  const companies = rawCompanies.result.map((company: CompanyProps) => ({
     value: company.id,
     label: company.company_name,
   }));

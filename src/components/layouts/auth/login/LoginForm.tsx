@@ -2,14 +2,80 @@
 
 import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
 import Link from "next/link";
-import { Controller } from "react-hook-form";
-import useLoginForm from "./LoginService";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { loginSchema } from "@/utils/constants/user";
+import { AuthApi, CompanyApi, UserApi } from "@/utils/axios/api-service";
+import axiosInstance from "@/utils/axios";
+import useAuthStore from "@/stores/AuthStore";
 
 const { Paragraph } = Typography;
 
 const Login = () => {
-  const { form, isPending, onSubmit } = useLoginForm();
+  const [form] = Form.useForm();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleFinish = async (values: z.infer<typeof loginSchema>) => {
+    startTransition(async () => {
+      try {
+        const response = await AuthApi.loginUser({
+          email: values.email,
+          password: values.password,
+        });
+        if (!response?.access_token) {
+          router.push("/login");
+          return;
+        }
+
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("refresh_token", response.refresh_token);
+        axiosInstance.defaults.headers.Authorization = `Bearer ${response.access_token}`;
+
+        const now = new Date();
+        const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000);
+        const refreshTokenExp = new Date(
+          now.getTime() + 60 * 60 * 1000 * 24 * 7
+        );
+
+        document.cookie = `access_token=${
+          response.access_token
+        }; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
+        document.cookie = `refresh_token=${
+          response.refresh_token
+        }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
+
+        useAuthStore
+          .getState()
+          .setAuth(response.access_token, response.refresh_token);
+
+        const rawCurrentUserData = await UserApi.getCurrentUser(
+          response.access_token
+        );
+        const rawCompanyByIdData = await CompanyApi.getCompanyById(
+          rawCurrentUserData.company_id,
+          response.access_token
+        );
+
+        const currentUserData = {
+          ...rawCurrentUserData,
+          company_name: rawCompanyByIdData.company_name,
+        };
+
+        useAuthStore.getState().setUserInfo(currentUserData);
+
+        router.push("/dashboard");
+      } catch (error: unknown) {
+        let errorMessage = "Something went wrong!";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        console.error("Login Error:", errorMessage);
+      }
+    });
+  };
 
   return (
     <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen md:mb-0 bg-white">
@@ -20,58 +86,32 @@ const Login = () => {
       </div>
       <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
         <Form
-          onFinish={form.handleSubmit(onSubmit)}
+          form={form}
+          onFinish={handleFinish}
           className="w-full"
           layout="vertical"
           scrollToFirstError
         >
-          <Form.Item label="E-mail">
-            <Controller
-              name="email"
-              control={form.control}
-              rules={{
-                required: "Masukkan e-mail anda!",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "E-mail tidak valid!",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Input {...field} status={fieldState.error ? "error" : ""} />
-              )}
-            />
+          <Form.Item name="email" label="E-mail" rules={[{ required: true }]}>
+            <Input />
           </Form.Item>
 
           {/* Password Field */}
-          <Form.Item label="Kata Sandi">
-            <Controller
-              name="password"
-              control={form.control}
-              rules={{ required: "Masukkan kata sandi anda!" }}
-              render={({ field, fieldState }) => (
-                <Input.Password
-                  {...field}
-                  status={fieldState.error ? "error" : ""}
-                />
-              )}
-            />
+          <Form.Item
+            name="password"
+            label="Kata Sandi"
+            rules={[{ required: true }]}
+          >
+            <Input.Password />
           </Form.Item>
 
           {/* Remember Me & Forgot Password */}
-          <Form.Item>
+          <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
-              <Controller
-                name="rememberMe"
-                control={form.control}
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  >
-                    Remember me
-                  </Checkbox>
-                )}
-              />
+              <Checkbox onChange={(e) => e.target.checked}>
+                Remember me
+              </Checkbox>
+
               <Link href="/forgot-password">Lupa Kata Sandi?</Link>
             </Flex>
           </Form.Item>
