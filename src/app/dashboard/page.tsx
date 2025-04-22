@@ -1,4 +1,4 @@
-import Dashboard from "@/components/layouts/dashboard/sections/Dashboard";
+import Dashboard from "@/components/layouts/dashboard";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ const DashboardPage = async () => {
     redirect("/login");
   }
 
-  return <Dashboard />;
+  return <Dashboard initialToken={token} />;
 };
 
 export default DashboardPage;

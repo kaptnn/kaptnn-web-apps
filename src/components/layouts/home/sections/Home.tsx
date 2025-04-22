@@ -14,27 +14,15 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        <Flex
-          vertical
-          gap={24}
-          align="center"
-          justify="center"
-          className="min-h-screen"
-        >
-          <Flex
-            vertical
-            gap={24}
-            style={{ padding: 20 }}
-            className="max-w-3xl text-center"
-          >
+        <Flex vertical gap={24} align="center" justify="center" className="min-h-screen">
+          <Flex vertical gap={24} style={{ padding: 20 }} className="max-w-3xl text-center">
             <Flex vertical>
-              <Title className="mb-8 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl text-slate-900">
+              <Title className="mb-8 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
                 KAP Tambunan & Nasafi Web Apps
               </Title>
               <Paragraph className="mx-auto mb-8 max-w-2xl text-lg text-slate-700">
-                Build modern and beautiful websites with this collection of
-                stunning background patterns. Perfect for landing pages, apps,
-                and dashboards.
+                Build modern and beautiful websites with this collection of stunning background patterns. Perfect for
+                landing pages, apps, and dashboards.
               </Paragraph>
             </Flex>
             <Flex justify="center" gap={16}>

@@ -2,21 +2,9 @@
 import { Modal, Form, Input, InputNumber, DatePicker } from "antd";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 
-const AllUsersModals = ({
-  token,
-  refresh,
-}: {
-  token: string;
-  refresh: () => void;
-}) => {
+const AllUsersModals = ({ token, refresh }: { token: string; refresh: () => void }) => {
   const [form] = Form.useForm();
-  const {
-    loading,
-    selectedCompany,
-    setSelectedCompany,
-    modalType,
-    setModalType,
-  } = useAllUsersStore();
+  const { loading, selectedCompany, setSelectedCompany, modalType, setModalType } = useAllUsersStore();
 
   return (
     <Modal
@@ -25,12 +13,12 @@ const AllUsersModals = ({
         modalType === "create"
           ? "Tambah Perusahaan"
           : modalType === "edit"
-          ? "Edit Perusahaan"
-          : modalType === "view"
-          ? "Detail Perusahaan"
-          : modalType === "delete"
-          ? "Hapus Perusahaan"
-          : ""
+            ? "Edit Perusahaan"
+            : modalType === "view"
+              ? "Detail Perusahaan"
+              : modalType === "delete"
+                ? "Hapus Perusahaan"
+                : ""
       }
       centered
       onCancel={() => {

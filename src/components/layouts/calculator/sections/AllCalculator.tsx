@@ -9,10 +9,7 @@ const AllCalculator = () => {
     <DashboardLayouts>
       <Row gutter={[24, 24]}>
         <Col span={24}>
-          <Card
-            variant="borderless"
-            className="border h-48 object-cover"
-          ></Card>
+          <Card variant="borderless" className="h-48 border object-cover"></Card>
         </Col>
         <Col span={8}>
           <Card variant="borderless" className="border">

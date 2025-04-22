@@ -36,16 +36,7 @@ interface DocsReqClientProps {
 }
 
 const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
-  const {
-    pageSize,
-    current,
-    loading,
-    setData,
-    setLoading,
-    setOpen,
-    setTotal,
-    setModalType,
-  } = useDocsRequestStore();
+  const { pageSize, current, loading, setData, setLoading, setOpen, setTotal, setModalType } = useDocsRequestStore();
 
   const fetchDocumentRequest = useCallback(async () => {
     setLoading(true);
@@ -57,7 +48,7 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
           sort: "created_at",
           order: "asc",
         },
-        initialToken
+        initialToken,
       );
 
       setData(response.result);
@@ -96,10 +87,7 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
           </Flex>
         </Flex>
         <DocsRequestTable token={initialToken} />
-        <DocsRequestModals
-          token={initialToken}
-          refresh={fetchDocumentRequest}
-        />
+        <DocsRequestModals token={initialToken} refresh={fetchDocumentRequest} />
       </Flex>
     </DashboardLayouts>
   );

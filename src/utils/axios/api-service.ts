@@ -14,12 +14,4 @@ const DocsCategoryApi = new DocsCategoryService(axiosInstance);
 const DocsManagerApi = new DocsManagerService(axiosInstance);
 const CalculatorApi = new CalculatorService(axiosInstance);
 
-export {
-  UserApi,
-  AuthApi,
-  CompanyApi,
-  DocsRequestApi,
-  DocsCategoryApi,
-  DocsManagerApi,
-  CalculatorApi,
-};
+export { UserApi, AuthApi, CompanyApi, DocsRequestApi, DocsCategoryApi, DocsManagerApi, CalculatorApi };

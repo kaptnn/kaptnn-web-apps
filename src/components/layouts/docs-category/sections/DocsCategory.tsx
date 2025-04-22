@@ -40,11 +40,7 @@ const DocsCategory = ({ docs_category }: { docs_category: [] }) => {
             <Search placeholder="Search" loading={false} enterButton />
           </Flex>
           <Flex align="center">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={showLoading}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={showLoading}>
               Add New Category
             </Button>
           </Flex>
@@ -98,7 +94,7 @@ const DocsCategory = ({ docs_category }: { docs_category: [] }) => {
             <InputNumber style={{ width: "100%" }} />
           </Form.Item>
 
-          <div className="w-full grid grid-cols-2 gap-6">
+          <div className="grid w-full grid-cols-2 gap-6">
             <Form.Item
               name="start_audit_period"
               label="Awal Periode Audit"

@@ -104,9 +104,7 @@ const WeightedAverageCalculatorForm = () => {
                       {...field}
                       type="number"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value) || 0)
-                      }
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       placeholder={`Loss Rate ${i + 1}`}
                     />
                   )}
@@ -124,9 +122,7 @@ const WeightedAverageCalculatorForm = () => {
                     {...field}
                     type="number"
                     value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(parseFloat(e.target.value) || 0)
-                    }
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     placeholder={`Weight ${i + 1}`}
                   />
                 )}
@@ -146,9 +142,7 @@ const WeightedAverageCalculatorForm = () => {
                 {...field}
                 type="number"
                 value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(parseFloat(e.target.value) || 0)
-                }
+                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                 placeholder="Enter target goal"
               />
             )}
@@ -158,9 +152,7 @@ const WeightedAverageCalculatorForm = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="w-full">
-          {calculationType === "goal_seeking"
-            ? "Hitung Goal Seeking"
-            : "Hitung Weighted Average"}
+          {calculationType === "goal_seeking" ? "Hitung Goal Seeking" : "Hitung Weighted Average"}
         </Button>
       </Form.Item>
     </Form>

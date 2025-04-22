@@ -54,7 +54,7 @@ class CompanyService {
   public getAllCompanies = async (
     params: GetAllCompaniesParams = {},
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<{ result: CompanyProps[]; meta: PaginationMeta }> => {
     try {
       const response = await this.axiosInstance.get(`/v1/companies`, {
@@ -78,26 +78,17 @@ class CompanyService {
     }
   };
 
-  public getCompanyById = async (
-    companyId: string,
-    token?: string,
-    signal?: AbortSignal
-  ): Promise<CompanyProps> => {
+  public getCompanyById = async (companyId: string, token?: string, signal?: AbortSignal): Promise<CompanyProps> => {
     if (!companyId) throw new Error("Company ID is required");
     try {
-      const response = await this.axiosInstance.get(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
-        {
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
       return response.data.result;
     } catch (error: any) {
       console.error(`Error fetching company by ID ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to fetch company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
@@ -105,23 +96,18 @@ class CompanyService {
   public getCompanyByCompanyName = async (
     companyName: string,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CompanyProps> => {
     if (!companyName) throw new Error("Company name is required");
     try {
-      const response = await this.axiosInstance.get(
-        `/v1/companies/company/name/${encodeURIComponent(companyName)}`,
-        {
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get(`/v1/companies/company/name/${encodeURIComponent(companyName)}`, {
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
       return response.data.result;
     } catch (error: any) {
       console.error(`Error fetching company by name ${companyName}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch company with name ${companyName}`;
+      const msg = error?.response?.data?.message || `Failed to fetch company with name ${companyName}`;
       throw new Error(msg);
     }
   };
@@ -129,7 +115,7 @@ class CompanyService {
   public createCompany = async (
     payload: CreateCompanyPayload,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CompanyProps> => {
     if (!payload.company_name) throw new Error("Company name is required");
     try {
@@ -149,7 +135,7 @@ class CompanyService {
     companyId: string,
     payload: UpdateCompanyPayload,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CompanyProps> => {
     if (!companyId) throw new Error("Company ID is required");
     try {
@@ -159,23 +145,17 @@ class CompanyService {
         {
           headers: this.getAuthHeaders(token),
           signal,
-        }
+        },
       );
       return response.data.result;
     } catch (error: any) {
       console.error(`Error updating company ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to update company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to update company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
 
-  public deleteCompany = async (
-    companyId: string,
-    token?: string,
-    signal?: AbortSignal
-  ) => {
+  public deleteCompany = async (companyId: string, token?: string, signal?: AbortSignal) => {
     if (!companyId) throw new Error("Company ID is required");
     try {
       const response = await this.axiosInstance.delete<{
@@ -188,9 +168,7 @@ class CompanyService {
       return response.data.result;
     } catch (error: any) {
       console.error(`Error deleting company ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to delete company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to delete company with ID ${companyId}`;
       throw new Error(msg);
     }
   };

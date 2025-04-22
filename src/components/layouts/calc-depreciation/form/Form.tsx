@@ -10,16 +10,10 @@ const DepreciationCalculatorForm = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCalculationResult: (result: any) => void;
 }) => {
-  const { form, isPending, onSubmit } =
-    useDepreciationCalculatorForm(setCalculationResult);
+  const { form, isPending, onSubmit } = useDepreciationCalculatorForm(setCalculationResult);
 
   return (
-    <Form
-      onFinish={form.handleSubmit(onSubmit)}
-      className="w-full"
-      layout="vertical"
-      scrollToFirstError
-    >
+    <Form onFinish={form.handleSubmit(onSubmit)} className="w-full" layout="vertical" scrollToFirstError>
       <Form.Item
         label="Harga Perolehan (Dalam Rupiah):"
         validateStatus={form.formState.errors.harga_perolehan ? "error" : ""}
@@ -29,9 +23,7 @@ const DepreciationCalculatorForm = ({
           name="harga_perolehan"
           control={form.control}
           rules={{ required: "Harga perolehan harus diisi!" }}
-          render={({ field }) => (
-            <InputNumber {...field} style={{ width: "100%" }} />
-          )}
+          render={({ field }) => <InputNumber {...field} style={{ width: "100%" }} />}
         />
       </Form.Item>
 
@@ -44,26 +36,20 @@ const DepreciationCalculatorForm = ({
           name="estimasi_umur"
           control={form.control}
           rules={{ required: "Estimasi umur harus diisi!" }}
-          render={({ field }) => (
-            <InputNumber {...field} style={{ width: "100%" }} />
-          )}
+          render={({ field }) => <InputNumber {...field} style={{ width: "100%" }} />}
         />
       </Form.Item>
 
       <Form.Item
         label="Estimasi Nilai Sisa (Dalam Rupiah):"
-        validateStatus={
-          form.formState.errors.estimasi_nilai_sisa ? "error" : ""
-        }
+        validateStatus={form.formState.errors.estimasi_nilai_sisa ? "error" : ""}
         help={form.formState.errors.estimasi_nilai_sisa?.message}
       >
         <Controller
           name="estimasi_nilai_sisa"
           control={form.control}
           rules={{ required: "Estimasi nilai sisa harus diisi!" }}
-          render={({ field }) => (
-            <InputNumber {...field} style={{ width: "100%" }} />
-          )}
+          render={({ field }) => <InputNumber {...field} style={{ width: "100%" }} />}
         />
       </Form.Item>
 

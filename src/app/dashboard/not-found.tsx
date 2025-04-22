@@ -4,8 +4,8 @@ import { Button, Empty, Flex } from "antd";
 
 const NotFound = () => {
   return (
-    <main className="w-full h-screen flex justify-center items-center">
-      <Flex className="w-full h-screen" justify="center" align="center">
+    <main className="flex h-screen w-full items-center justify-center">
+      <Flex className="h-screen w-full" justify="center" align="center">
         <Empty description="Not Found Dashboard">
           <Button
             type="primary"

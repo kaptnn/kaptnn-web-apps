@@ -33,10 +33,7 @@ const PresentValueCalculator = () => {
             }}
           >
             <Title level={2}>Hasil Perhitungan</Title>
-            <Empty
-              description={"Belum Ada Hasil Perhitungan"}
-              style={{ marginTop: 32 }}
-            />
+            <Empty description={"Belum Ada Hasil Perhitungan"} style={{ marginTop: 32 }} />
           </Card>
         </Col>
       </Row>

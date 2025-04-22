@@ -36,9 +36,7 @@ const Login = () => {
 
         const now = new Date();
         const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000);
-        const refreshTokenExp = new Date(
-          now.getTime() + 60 * 60 * 1000 * 24 * 7
-        );
+        const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7);
 
         document.cookie = `access_token=${
           response.access_token
@@ -47,16 +45,12 @@ const Login = () => {
           response.refresh_token
         }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
 
-        useAuthStore
-          .getState()
-          .setAuth(response.access_token, response.refresh_token);
+        useAuthStore.getState().setAuth(response.access_token, response.refresh_token);
 
-        const rawCurrentUserData = await UserApi.getCurrentUser(
-          response.access_token
-        );
+        const rawCurrentUserData = await UserApi.getCurrentUser(response.access_token);
         const rawCompanyByIdData = await CompanyApi.getCompanyById(
           rawCurrentUserData.company_id,
-          response.access_token
+          response.access_token,
         );
 
         const currentUserData = {
@@ -78,37 +72,25 @@ const Login = () => {
   };
 
   return (
-    <div className="gap-16 md:gap-6 grid grid-cols-1 md:grid-cols-2 min-h-screen md:mb-0 bg-white">
-      <div className="h-full md:min-h-screen w-full bg-blue-600 p-8">
+    <div className="grid min-h-screen grid-cols-1 gap-16 bg-white md:mb-0 md:grid-cols-2 md:gap-6">
+      <div className="h-full w-full bg-blue-600 p-8 md:min-h-screen">
         <Button icon={<ArrowLeftOutlined />} href="/">
           Back to Home
         </Button>
       </div>
-      <div className="flex flex-col md:justify-center md:items-center w-full px-5 md:px-24">
-        <Form
-          form={form}
-          onFinish={handleFinish}
-          className="w-full"
-          layout="vertical"
-          scrollToFirstError
-        >
+      <div className="flex w-full flex-col px-5 md:items-center md:justify-center md:px-24">
+        <Form form={form} onFinish={handleFinish} className="w-full" layout="vertical" scrollToFirstError>
           <Form.Item name="email" label="E-mail" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            label="Kata Sandi"
-            rules={[{ required: true }]}
-          >
+          <Form.Item name="password" label="Kata Sandi" rules={[{ required: true }]}>
             <Input.Password />
           </Form.Item>
 
           <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
-              <Checkbox onChange={(e) => e.target.checked}>
-                Remember me
-              </Checkbox>
+              <Checkbox onChange={(e) => e.target.checked}>Remember me</Checkbox>
 
               <Link href="/forgot-password">Lupa Kata Sandi?</Link>
             </Flex>

@@ -1,18 +1,5 @@
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  MinusCircleOutlined,
-} from "@ant-design/icons";
-import {
-  Avatar,
-  Button,
-  Flex,
-  Table,
-  TableColumnsType,
-  TableProps,
-  Tag,
-} from "antd";
+import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { Avatar, Button, Flex, Table, TableColumnsType, TableProps, Tag } from "antd";
 
 export interface DataType {
   key: React.Key;
@@ -28,8 +15,7 @@ export interface DataType {
   type: string;
 }
 
-export type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
 export const columns: TableColumnsType<DataType> = [
   Table.SELECTION_COLUMN,
@@ -44,14 +30,10 @@ export const columns: TableColumnsType<DataType> = [
     dataIndex: "target_user_id",
     key: "target_user_id",
     render: (item: string) => {
-      const display =
-        typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
+      const display = typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
       return (
         <Flex align="center" justify="center">
-          <Avatar
-            style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }}
-            size="default"
-          >
+          <Avatar style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }} size="default">
             {display}
           </Avatar>
         </Flex>
@@ -63,14 +45,10 @@ export const columns: TableColumnsType<DataType> = [
     dataIndex: "type",
     key: "type",
     render: (item: string) => {
-      const display =
-        typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
+      const display = typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
       return (
         <Flex align="center" justify="center">
-          <Avatar
-            style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
-            size="default"
-          >
+          <Avatar style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }} size="default">
             {display}
           </Avatar>
         </Flex>
@@ -92,10 +70,7 @@ export const columns: TableColumnsType<DataType> = [
     dataIndex: "status",
     key: "status",
     render: (item: string) => {
-      const statusColors: Record<
-        string,
-        { color: string; icon: React.ReactNode }
-      > = {
+      const statusColors: Record<string, { color: string; icon: React.ReactNode }> = {
         uploaded: { color: "success", icon: <CheckCircleOutlined /> },
         pending: { color: "warning", icon: <ClockCircleOutlined /> },
         overdue: { color: "error", icon: <CloseCircleOutlined /> },

@@ -9,8 +9,7 @@ export interface DataType {
   end_audit_period: string;
 }
 
-export type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
 export const columns: TableColumnsType<DataType> = [
   Table.SELECTION_COLUMN,

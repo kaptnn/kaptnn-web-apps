@@ -17,11 +17,7 @@ import {
 import DashboardLayouts from "../../DashboardLayouts";
 import { PlusOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  TableRowSelection,
-  columns as baseColumns,
-  DataType,
-} from "../utils/table";
+import { TableRowSelection, columns as baseColumns, DataType } from "../utils/table";
 import axiosInstance from "@/utils/axios";
 
 interface UsersClientProps {
@@ -40,12 +36,7 @@ interface ApiResponse {
   };
 }
 
-const AllUsers: React.FC<UsersClientProps> = ({
-  initialToken,
-  isAdmin,
-  currentCompanyId,
-  companyOptions,
-}) => {
+const AllUsers: React.FC<UsersClientProps> = ({ initialToken, isAdmin, currentCompanyId, companyOptions }) => {
   const [data, setData] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
   const [pageSize, setPageSize] = useState(5);
@@ -79,13 +70,10 @@ const AllUsers: React.FC<UsersClientProps> = ({
         limit: pageSize,
         search: searchText || undefined,
         role: selectedRoles.length ? selectedRoles.join(",") : undefined,
-        membership: selectedMemberships.length
-          ? selectedMemberships.join(",")
-          : undefined,
+        membership: selectedMemberships.length ? selectedMemberships.join(",") : undefined,
       };
       if (isAdmin) {
-        if (selectedCompanies.length)
-          params.company_name = selectedCompanies.join(",");
+        if (selectedCompanies.length) params.company_name = selectedCompanies.join(",");
       } else {
         params.company_id = currentCompanyId;
       }
@@ -95,13 +83,10 @@ const AllUsers: React.FC<UsersClientProps> = ({
         params,
       });
 
-      const lookup = companyOptions.reduce<Record<string, string>>(
-        (m, { value, label }) => {
-          m[value] = label;
-          return m;
-        },
-        {}
-      );
+      const lookup = companyOptions.reduce<Record<string, string>>((m, { value, label }) => {
+        m[value] = label;
+        return m;
+      }, {});
 
       const formatted: DataType[] = resp.result.map((u) => ({
         ...u,
@@ -169,7 +154,7 @@ const AllUsers: React.FC<UsersClientProps> = ({
         message.error("Failed to create company");
       }
     },
-    [form, initialToken, fetchUsers]
+    [form, initialToken, fetchUsers],
   );
 
   return (

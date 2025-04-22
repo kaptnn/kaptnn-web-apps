@@ -9,7 +9,7 @@ import { depreciationCalculatorSchema } from "@/utils/constants/calculator";
 
 export default function useDepreciationCalculatorForm(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setCalculationResult: (result: any) => void
+  setCalculationResult: (result: any) => void,
 ) {
   const [isPending, startTransition] = useTransition();
 
@@ -23,17 +23,12 @@ export default function useDepreciationCalculatorForm(
     },
   });
 
-  async function onSubmit(
-    values: z.infer<typeof depreciationCalculatorSchema>
-  ) {
+  async function onSubmit(values: z.infer<typeof depreciationCalculatorSchema>) {
     startTransition(async () => {
       try {
-        const response = await axiosInstance.get(
-          "/v1/calculator/depreciation",
-          {
-            params: values,
-          }
-        );
+        const response = await axiosInstance.get("/v1/calculator/depreciation", {
+          params: values,
+        });
 
         console.log("API Response:", response.data);
         setCalculationResult(response.data); // Send result to parent component

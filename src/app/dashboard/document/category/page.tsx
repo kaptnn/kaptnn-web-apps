@@ -12,10 +12,7 @@ const CategoryPage = async () => {
 
   if (!isAdmin) redirect("/dashboard");
 
-  const rawDocsCategoryData = await DocsCategoryApi.getAllDocsCategory(
-    {},
-    token
-  );
+  const rawDocsCategoryData = await DocsCategoryApi.getAllDocsCategory({}, token);
 
   return <DocsCategory docs_category={rawDocsCategoryData.result} />;
 };

@@ -3,23 +3,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AntDesignOutlined } from "@ant-design/icons";
-import {
-  Avatar,
-  Breadcrumb,
-  Button,
-  Dropdown,
-  Flex,
-  Layout,
-  Menu,
-  theme,
-  Typography,
-  type MenuProps,
-} from "antd";
-import {
-  getMenuItemsByRole,
-  getDefaultOpenKeys,
-  accountProfileItems,
-} from "@/utils/constants/navigation";
+import { Avatar, Breadcrumb, Button, Dropdown, Flex, Layout, Menu, theme, Typography, type MenuProps } from "antd";
+import { getMenuItemsByRole, getDefaultOpenKeys, accountProfileItems } from "@/utils/constants/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import useAuthStore from "@/stores/AuthStore";
@@ -89,15 +74,10 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         }}
       >
         <Flex vertical>
-          <div className="w-full h-24 p-4 ml-1">
-            <div className="w-full h-full p-4 flex justify-center items-center bg-white rounded">
+          <div className="ml-1 h-24 w-full p-4">
+            <div className="flex h-full w-full items-center justify-center rounded bg-white p-4">
               <Link href={"/"}>
-                <Image
-                  src={"/kaptnn-logo.webp"}
-                  alt="Logo KAP TNN"
-                  width={1024}
-                  height={1024}
-                />
+                <Image src={"/kaptnn-logo.webp"} alt="Logo KAP TNN" width={1024} height={1024} />
               </Link>
             </div>
           </div>
@@ -131,37 +111,20 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           <Breadcrumb items={breadcrumbItems} style={{ marginInline: 12 }} />
           <Flex align="center" gap={24} style={{ marginInline: 12 }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-6"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
               <path
                 fillRule="evenodd"
                 d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Zm4.502 8.9a2.25 2.25 0 1 0 4.496 0 25.057 25.057 0 0 1-4.496 0Z"
                 clipRule="evenodd"
               />
             </svg>
-            <Dropdown
-              menu={{ items: accountProfileItems }}
-              trigger={["click"]}
-              placement="bottomRight"
-              arrow
-            >
+            <Dropdown menu={{ items: accountProfileItems }} trigger={["click"]} placement="bottomRight" arrow>
               <Button onClick={(e) => e.preventDefault()}>
                 <Flex align="center" gap={8}>
-                  <Avatar
-                    icon={<AntDesignOutlined />}
-                    style={{ height: "24px", width: "24px" }}
-                  />
+                  <Avatar icon={<AntDesignOutlined />} style={{ height: "24px", width: "24px" }} />
                   <Flex align="center" gap={4}>
-                    <Paragraph style={{ margin: 0, fontWeight: "bold" }}>
-                      {userInfo?.name}
-                    </Paragraph>
-                    <Paragraph style={{ margin: 0 }}>
-                      {userInfo?.company_name}
-                    </Paragraph>
+                    <Paragraph style={{ margin: 0, fontWeight: "bold" }}>{userInfo?.name}</Paragraph>
+                    <Paragraph style={{ margin: 0 }}>{userInfo?.company_name}</Paragraph>
                   </Flex>
                 </Flex>
               </Button>

@@ -12,11 +12,7 @@ interface Props {
 export default function Providers({ children }: Props) {
   return (
     <AntdRegistry>
-      <ThemeProvider
-        enableSystem={false}
-        forcedTheme="light"
-        disableTransitionOnChange
-      >
+      <ThemeProvider enableSystem={false} forcedTheme="light" disableTransitionOnChange>
         <AntDesignProvider>{children}</AntDesignProvider>
       </ThemeProvider>
     </AntdRegistry>
@@ -24,9 +20,5 @@ export default function Providers({ children }: Props) {
 }
 
 function AntDesignProvider({ children }: { children: ReactNode }) {
-  return (
-    <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
-      {children}
-    </ConfigProvider>
-  );
+  return <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>{children}</ConfigProvider>;
 }

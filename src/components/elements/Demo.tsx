@@ -11,8 +11,7 @@ import {
 import { Button, Flex, Layout, Menu, Table, theme } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
 interface DataType {
   key: React.Key;
@@ -27,14 +26,12 @@ const columns: TableColumnsType<DataType> = [
   { title: "Address", dataIndex: "address" },
 ];
 
-const dataSource = Array.from<DataType>({ length: 46 }).map<DataType>(
-  (_, i) => ({
-    key: i,
-    name: `Edward King ${i}`,
-    age: 32,
-    address: `London, Park Lane no. ${i}`,
-  })
-);
+const dataSource = Array.from<DataType>({ length: 46 }).map<DataType>((_, i) => ({
+  key: i,
+  name: `Edward King ${i}`,
+  age: 32,
+  address: `London, Park Lane no. ${i}`,
+}));
 
 const { Header, Sider, Content } = Layout;
 
@@ -119,21 +116,12 @@ const Demo: React.FC = () => {
         >
           <Flex gap="middle" vertical>
             <Flex align="center" gap="middle">
-              <Button
-                type="primary"
-                onClick={start}
-                disabled={!hasSelected}
-                loading={loading}
-              >
+              <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
                 Reload
               </Button>
               {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
             </Flex>
-            <Table<DataType>
-              rowSelection={rowSelection}
-              columns={columns}
-              dataSource={dataSource}
-            />
+            <Table<DataType> rowSelection={rowSelection} columns={columns} dataSource={dataSource} />
           </Flex>
         </Content>
       </Layout>

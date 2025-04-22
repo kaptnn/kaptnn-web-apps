@@ -13,12 +13,7 @@ type MenuItem = Required<MenuProps>["items"][number] & {
   children?: MenuItem[];
 };
 
-const getItem = (
-  label: React.ReactNode,
-  key: string,
-  icon?: React.ReactNode,
-  children?: MenuItem[]
-): MenuItem => {
+const getItem = (label: React.ReactNode, key: string, icon?: React.ReactNode, children?: MenuItem[]): MenuItem => {
   return {
     key,
     icon,
@@ -64,18 +59,10 @@ export const getMenuItemsByRole = (role: string): MenuItem[] => {
   return [];
 };
 
-export const getDefaultOpenKeys = (
-  pathname: string,
-  items: MenuItem[]
-): string[] => {
+export const getDefaultOpenKeys = (pathname: string, items: MenuItem[]): string[] => {
   return items
     .filter((item): item is MenuItem => !!item && "children" in item)
-    .filter((item) =>
-      item.children?.some(
-        (child) =>
-          typeof child.key === "string" && pathname.startsWith(child.key)
-      )
-    )
+    .filter((item) => item.children?.some((child) => typeof child.key === "string" && pathname.startsWith(child.key)))
     .map((item) => (typeof item.key === "string" ? item.key : ""))
     .filter((key) => key !== "");
 };

@@ -20,9 +20,7 @@ export interface DepreciationResponseDouble {
   biaya_per_tahun: number[];
 }
 
-export type DepreciationResponse =
-  | DepreciationResponseStraight
-  | DepreciationResponseDouble;
+export type DepreciationResponse = DepreciationResponseStraight | DepreciationResponseDouble;
 
 export interface PresentValueResponse {
   present_value: number;
@@ -51,7 +49,7 @@ class CalculatorService {
     num1: number,
     num2: number,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ArithmeticResponse> => {
     try {
       const response = await this.axiosInstance.get("/v1/calculator/addition", {
@@ -66,9 +64,7 @@ class CalculatorService {
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of addition calculation:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of addition calculation `;
+      const msg = error?.response?.data?.message || `Failed to fetch result of addition calculation `;
       throw new Error(msg);
     }
   };
@@ -77,27 +73,22 @@ class CalculatorService {
     num1: number,
     num2: number,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ArithmeticResponse> => {
     try {
-      const response = await this.axiosInstance.get(
-        "/v1/calculator/subtraction",
-        {
-          params: {
-            num1,
-            num2,
-          },
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get("/v1/calculator/subtraction", {
+        params: {
+          num1,
+          num2,
+        },
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
 
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of subtraction calculation:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of subtraction calculation `;
+      const msg = error?.response?.data?.message || `Failed to fetch result of subtraction calculation `;
       throw new Error(msg);
     }
   };
@@ -106,30 +97,22 @@ class CalculatorService {
     num1: number,
     num2: number,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ArithmeticResponse> => {
     try {
-      const response = await this.axiosInstance.get(
-        "/v1/calculator/multiplication",
-        {
-          params: {
-            num1,
-            num2,
-          },
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get("/v1/calculator/multiplication", {
+        params: {
+          num1,
+          num2,
+        },
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
 
       return response.data;
     } catch (error: any) {
-      console.error(
-        `Error fetching result of multiplication calculation:`,
-        error
-      );
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of multiplication calculation `;
+      console.error(`Error fetching result of multiplication calculation:`, error);
+      const msg = error?.response?.data?.message || `Failed to fetch result of multiplication calculation `;
       throw new Error(msg);
     }
   };
@@ -138,7 +121,7 @@ class CalculatorService {
     num1: number,
     num2: number,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ArithmeticResponse> => {
     try {
       const response = await this.axiosInstance.get("/v1/calculator/division", {
@@ -153,9 +136,7 @@ class CalculatorService {
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of division calculation:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of division calculation `;
+      const msg = error?.response?.data?.message || `Failed to fetch result of division calculation `;
       throw new Error(msg);
     }
   };
@@ -166,40 +147,28 @@ class CalculatorService {
     estimasi_nilai_sisa: number = 0,
     metode: "straight_line" | "double_declining" = "straight_line",
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<DepreciationResponse> => {
     if (!["straight_line", "double_declining"].includes(metode)) {
-      return Promise.reject(
-        new Error(
-          "Invalid method: choose 'straight_line' or 'double_declining'."
-        )
-      );
+      return Promise.reject(new Error("Invalid method: choose 'straight_line' or 'double_declining'."));
     }
 
     try {
-      const response = await this.axiosInstance.get(
-        "/v1/calculator/depreciation",
-        {
-          params: {
-            harga_perolehan,
-            estimasi_umur,
-            estimasi_nilai_sisa,
-            metode,
-          },
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get("/v1/calculator/depreciation", {
+        params: {
+          harga_perolehan,
+          estimasi_umur,
+          estimasi_nilai_sisa,
+          metode,
+        },
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
 
       return response.data;
     } catch (error: any) {
-      console.error(
-        `Error fetching result of depreciation calculation:`,
-        error
-      );
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of depreciation calculation `;
+      console.error(`Error fetching result of depreciation calculation:`, error);
+      const msg = error?.response?.data?.message || `Failed to fetch result of depreciation calculation `;
       throw new Error(msg);
     }
   };
@@ -209,31 +178,23 @@ class CalculatorService {
     rate: number,
     period: number = 0,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<PresentValueResponse> => {
     try {
-      const response = await this.axiosInstance.get(
-        "/v1/calculator/present-value",
-        {
-          params: {
-            future_value,
-            rate,
-            period,
-          },
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get("/v1/calculator/present-value", {
+        params: {
+          future_value,
+          rate,
+          period,
+        },
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
 
       return response.data;
     } catch (error: any) {
-      console.error(
-        `Error fetching result of present value calculation:`,
-        error
-      );
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of present value calculation `;
+      console.error(`Error fetching result of present value calculation:`, error);
+      const msg = error?.response?.data?.message || `Failed to fetch result of present value calculation `;
       throw new Error(msg);
     }
   };
@@ -243,39 +204,27 @@ class CalculatorService {
     loss_rate_array: number[],
     weight_array: number[],
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<WeightedAverageResponse> => {
     if (loss_rate_array.length !== n_total || weight_array.length !== n_total) {
-      return Promise.reject(
-        new Error(
-          "Length of loss_rate_array and weight_array must match n_total."
-        )
-      );
+      return Promise.reject(new Error("Length of loss_rate_array and weight_array must match n_total."));
     }
 
     try {
-      const response = await this.axiosInstance.get(
-        "/v1/calculator/weighted-average",
-        {
-          params: {
-            n_total,
-            loss_rate_array,
-            weight_array,
-          },
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get("/v1/calculator/weighted-average", {
+        params: {
+          n_total,
+          loss_rate_array,
+          weight_array,
+        },
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
 
       return response.data;
     } catch (error: any) {
-      console.error(
-        `Error fetching result of weighted average calculation:`,
-        error
-      );
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch result of weigted average calculation `;
+      console.error(`Error fetching result of weighted average calculation:`, error);
+      const msg = error?.response?.data?.message || `Failed to fetch result of weigted average calculation `;
       throw new Error(msg);
     }
   };

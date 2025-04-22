@@ -15,36 +15,20 @@ interface CompanyClientProps {
 }
 
 const Company: React.FC<CompanyClientProps> = ({ initialToken }) => {
-  const {
-    pageSize,
-    current,
-    loading,
-    setData,
-    setLoading,
-    setOpen,
-    setTotal,
-    setModalType,
-  } = useCompanyStore();
+  const { pageSize, current, loading, setData, setLoading, setOpen, setTotal, setModalType } = useCompanyStore();
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: resp } = await axiosInstance.get(
-        `/v1/companies?page=${current}&limit=${pageSize}`,
-        {
-          headers: { Authorization: `Bearer ${initialToken}` },
-        }
-      );
+      const { data: resp } = await axiosInstance.get(`/v1/companies?page=${current}&limit=${pageSize}`, {
+        headers: { Authorization: `Bearer ${initialToken}` },
+      });
 
       const formatted: DataType[] = resp.result.map((c: DataType) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period)
-          .toISOString()
-          .split("T")[0],
-        end_audit_period: new Date(c.end_audit_period)
-          .toISOString()
-          .split("T")[0],
+        start_audit_period: new Date(c.start_audit_period).toISOString().split("T")[0],
+        end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
       }));
 
       setData(formatted);

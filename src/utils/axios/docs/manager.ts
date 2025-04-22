@@ -47,7 +47,7 @@ class DocsManagerService {
   public getAllDocsManager = async (
     params: GetAllCompaniesParams = {},
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<{ result: CompanyProps[]; meta: PaginationMeta }> => {
     try {
       const response = await this.axiosInstance.get(`/v1/companies`, {
@@ -74,32 +74,23 @@ class DocsManagerService {
   public getDocsManagerById = async (
     companyId: string,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CompanyProps> => {
     if (!companyId) throw new Error("Company ID is required");
     try {
-      const response = await this.axiosInstance.get(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
-        {
-          headers: this.getAuthHeaders(token),
-          signal,
-        }
-      );
+      const response = await this.axiosInstance.get(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
       return response.data.result;
     } catch (error: any) {
       console.error(`Error fetching company by ID ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to fetch company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
 
-  public createDocsManager = async (
-    payload: any,
-    token?: string,
-    signal?: AbortSignal
-  ): Promise<CompanyProps> => {
+  public createDocsManager = async (payload: any, token?: string, signal?: AbortSignal): Promise<CompanyProps> => {
     if (!payload.company_name) throw new Error("Company name is required");
     try {
       const response = await this.axiosInstance.post(`/v1/companies`, payload, {
@@ -118,7 +109,7 @@ class DocsManagerService {
     companyId: string,
     payload: any,
     token?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CompanyProps> => {
     if (!companyId) throw new Error("Company ID is required");
     try {
@@ -128,23 +119,17 @@ class DocsManagerService {
         {
           headers: this.getAuthHeaders(token),
           signal,
-        }
+        },
       );
       return response.data.result;
     } catch (error: any) {
       console.error(`Error updating company ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to update company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to update company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
 
-  public deleteDocsManager = async (
-    companyId: string,
-    token?: string,
-    signal?: AbortSignal
-  ) => {
+  public deleteDocsManager = async (companyId: string, token?: string, signal?: AbortSignal) => {
     if (!companyId) throw new Error("Company ID is required");
     try {
       const response = await this.axiosInstance.delete<{
@@ -157,9 +142,7 @@ class DocsManagerService {
       return response.data.result;
     } catch (error: any) {
       console.error(`Error deleting company ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to delete company with ID ${companyId}`;
+      const msg = error?.response?.data?.message || `Failed to delete company with ID ${companyId}`;
       throw new Error(msg);
     }
   };

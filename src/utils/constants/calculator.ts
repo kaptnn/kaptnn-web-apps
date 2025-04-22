@@ -20,4 +20,3 @@ export const weightedAverageCalculatorSchema = z.object({
   estimasi_nilai_sisa: z.number().int(),
   metode: z.string(),
 });
-

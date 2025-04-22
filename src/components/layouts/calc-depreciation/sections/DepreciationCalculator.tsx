@@ -24,9 +24,7 @@ const DepreciationCalculator = () => {
           }}
         >
           <Title level={2}>Depreciation Calculator</Title>
-          <DepreciationCalculatorForm
-            setCalculationResult={setCalculationResult}
-          />
+          <DepreciationCalculatorForm setCalculationResult={setCalculationResult} />
         </Col>
         <Col span={12}>
           <Card
@@ -51,10 +49,7 @@ const DepreciationCalculator = () => {
                 <Text> {calculationResult.biaya_per_tahun} Tahun</Text>
               </Flex>
             ) : (
-              <Empty
-                description="Belum Ada Hasil Perhitungan"
-                style={{ marginTop: 32 }}
-              />
+              <Empty description="Belum Ada Hasil Perhitungan" style={{ marginTop: 32 }} />
             )}
           </Card>
         </Col>

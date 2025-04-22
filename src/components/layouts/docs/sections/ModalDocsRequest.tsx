@@ -2,21 +2,9 @@
 import { Modal, Form, Input, InputNumber, DatePicker } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 
-const DocsRequestModals = ({
-  token,
-  refresh,
-}: {
-  token: string;
-  refresh: () => void;
-}) => {
+const DocsRequestModals = ({ token, refresh }: { token: string; refresh: () => void }) => {
   const [form] = Form.useForm();
-  const {
-    loading,
-    selectedCompany,
-    setSelectedCompany,
-    modalType,
-    setModalType,
-  } = useDocsRequestStore();
+  const { loading, selectedCompany, setSelectedCompany, modalType, setModalType } = useDocsRequestStore();
 
   return (
     <Modal
@@ -25,12 +13,12 @@ const DocsRequestModals = ({
         modalType === "create"
           ? "Tambah Perusahaan"
           : modalType === "edit"
-          ? "Edit Perusahaan"
-          : modalType === "view"
-          ? "Detail Perusahaan"
-          : modalType === "delete"
-          ? "Hapus Perusahaan"
-          : ""
+            ? "Edit Perusahaan"
+            : modalType === "view"
+              ? "Detail Perusahaan"
+              : modalType === "delete"
+                ? "Hapus Perusahaan"
+                : ""
       }
       centered
       onCancel={() => {

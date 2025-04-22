@@ -2,21 +2,9 @@
 import { Modal, Form, Input, InputNumber, DatePicker } from "antd";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 
-const DocsCategoryModals = ({
-  token,
-  refresh,
-}: {
-  token: string;
-  refresh: () => void;
-}) => {
+const DocsCategoryModals = ({ token, refresh }: { token: string; refresh: () => void }) => {
   const [form] = Form.useForm();
-  const {
-    loading,
-    selectedCompany,
-    setSelectedCompany,
-    modalType,
-    setModalType,
-  } = useDocsCategoryStore();
+  const { loading, selectedCompany, setSelectedCompany, modalType, setModalType } = useDocsCategoryStore();
 
   return (
     <Modal
@@ -25,12 +13,12 @@ const DocsCategoryModals = ({
         modalType === "create"
           ? "Tambah Perusahaan"
           : modalType === "edit"
-          ? "Edit Perusahaan"
-          : modalType === "view"
-          ? "Detail Perusahaan"
-          : modalType === "delete"
-          ? "Hapus Perusahaan"
-          : ""
+            ? "Edit Perusahaan"
+            : modalType === "view"
+              ? "Detail Perusahaan"
+              : modalType === "delete"
+                ? "Hapus Perusahaan"
+                : ""
       }
       centered
       onCancel={() => {

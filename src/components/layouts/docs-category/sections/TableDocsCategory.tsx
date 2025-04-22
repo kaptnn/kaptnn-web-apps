@@ -39,17 +39,13 @@ const DocsCategoryTable = ({ token }: { token: string }) => {
                 View
               </Button>
               <Button onClick={() => openModal("edit", record)}>Edit</Button>
-              <Button
-                type="primary"
-                danger
-                onClick={() => openModal("delete", record)}
-              >
+              <Button type="primary" danger onClick={() => openModal("delete", record)}>
                 Delete
               </Button>
             </Flex>
           ),
         }
-      : col
+      : col,
   );
 
   return (
