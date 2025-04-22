@@ -5,7 +5,7 @@ import {
   PieChartOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { MenuProps } from "antd";
+import { Flex, MenuProps, Typography } from "antd";
 import useAuthStore from "@/stores/AuthStore";
 import { AuthApi } from "../axios/api-service";
 
@@ -79,7 +79,19 @@ function clearCookies() {
 export const accountProfileItems: MenuProps["items"] = [
   {
     key: "1",
-    label: "My Account",
+    label: (
+      <Flex vertical className="text-gray-300">
+        <Typography.Paragraph className="text-sm font-medium text-gray-700" style={{ margin: 0 }}>
+          Masuk Sebagai
+        </Typography.Paragraph>
+        <Typography.Paragraph className="text-xs text-gray-300" style={{ margin: 0 }}>
+          {useAuthStore.getState().userInfo?.email}
+        </Typography.Paragraph>
+        <Typography.Paragraph className="text-xs text-gray-300" style={{ margin: 0 }}>
+          {useAuthStore.getState().userInfo?.company_name}
+        </Typography.Paragraph>
+      </Flex>
+    ),
     disabled: true,
   },
   {

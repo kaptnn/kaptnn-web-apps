@@ -50,7 +50,7 @@ class DocsCategoryService {
     signal?: AbortSignal,
   ): Promise<{ result: []; meta: PaginationMeta }> => {
     try {
-      const response = await this.axiosInstance.get(`/v1/companies`, {
+      const response = await this.axiosInstance.get(`/v1/docs-category`, {
         params,
         headers: this.getAuthHeaders(token),
         signal,
@@ -78,7 +78,7 @@ class DocsCategoryService {
   ): Promise<CompanyProps> => {
     if (!companyId) throw new Error("Company ID is required");
     try {
-      const response = await this.axiosInstance.get(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
+      const response = await this.axiosInstance.get(`/v1/docs-category/id/${encodeURIComponent(companyId)}`, {
         headers: this.getAuthHeaders(token),
         signal,
       });

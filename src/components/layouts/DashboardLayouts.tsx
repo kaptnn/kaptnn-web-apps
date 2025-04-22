@@ -2,14 +2,13 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { AntDesignOutlined } from "@ant-design/icons";
-import { Avatar, Breadcrumb, Button, Dropdown, Flex, Layout, Menu, theme, Typography, type MenuProps } from "antd";
+import { Avatar, Breadcrumb, Dropdown, Flex, Layout, Menu, Modal, Spin, theme, Typography, type MenuProps } from "antd";
 import { getMenuItemsByRole, getDefaultOpenKeys, accountProfileItems } from "@/utils/constants/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import useAuthStore from "@/stores/AuthStore";
+import { BellOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 
-const { Paragraph } = Typography;
 const { Header, Sider, Content } = Layout;
 
 interface DashboardLayoutProps {
@@ -18,16 +17,34 @@ interface DashboardLayoutProps {
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const userInfo = useAuthStore((state) => state.userInfo);
-  const role = userInfo?.profile.role || "client";
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const role = userInfo?.profile.role || "client";
   const menuItems = getMenuItemsByRole(role);
+
+  useEffect(() => {
+    setOpenKeys(getDefaultOpenKeys(pathname, menuItems));
+  }, [pathname, menuItems]);
+
+  if (userInfo === null) {
+    return (
+      <DashboardLayouts>
+        <main className="h-screen w-full items-center justify-center">
+          <Flex className="h-screen w-full" justify="center" align="center">
+            <Spin />
+          </Flex>
+        </main>
+      </DashboardLayouts>
+    );
+  }
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
-  const router = useRouter();
-  const pathname = usePathname();
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     router.push(e.key);
@@ -44,12 +61,6 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         href: index === arr.length - 1 ? undefined : href,
       };
     });
-
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
-
-  useEffect(() => {
-    setOpenKeys(getDefaultOpenKeys(pathname, menuItems));
-  }, [pathname, menuItems]);
 
   const onOpenChange: MenuProps["onOpenChange"] = (keys) => {
     setOpenKeys(keys);
@@ -111,23 +122,33 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           <Breadcrumb items={breadcrumbItems} style={{ marginInline: 12 }} />
           <Flex align="center" gap={24} style={{ marginInline: 12 }}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-              <path
-                fillRule="evenodd"
-                d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Zm4.502 8.9a2.25 2.25 0 1 0 4.496 0 25.057 25.057 0 0 1-4.496 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <Flex
+              align="center"
+              justify="center"
+              onClick={() => setIsModalOpen(true)}
+              className="cursor-pointer rounded-full transition-all duration-150 hover:bg-gray-200/50"
+              style={{ margin: 0, padding: 8 }}
+            >
+              <QuestionCircleOutlined style={{ fontSize: 22, margin: 0, padding: 0 }} />
+            </Flex>
+            <Flex
+              align="center"
+              justify="center"
+              onClick={() => alert("Notification")}
+              className="cursor-pointer rounded-full transition-all duration-150 hover:bg-gray-200/50"
+              style={{ margin: 0, padding: 8 }}
+            >
+              <BellOutlined style={{ fontSize: 22, margin: 0, padding: 0 }} />
+            </Flex>
             <Dropdown menu={{ items: accountProfileItems }} trigger={["click"]} placement="bottomRight" arrow>
-              <Button onClick={(e) => e.preventDefault()}>
-                <Flex align="center" gap={8}>
-                  <Avatar icon={<AntDesignOutlined />} style={{ height: "24px", width: "24px" }} />
-                  <Flex align="center" gap={4}>
-                    <Paragraph style={{ margin: 0, fontWeight: "bold" }}>{userInfo?.name}</Paragraph>
-                    <Paragraph style={{ margin: 0 }}>{userInfo?.company_name}</Paragraph>
-                  </Flex>
-                </Flex>
-              </Button>
+              <Avatar
+                onClick={(e) => e?.preventDefault()}
+                size="large"
+                className="capitalize hover:cursor-pointer"
+                style={{ marginLeft: 8 }}
+              >
+                {userInfo?.name[0]}
+              </Avatar>
             </Dropdown>
           </Flex>
         </Header>
@@ -143,6 +164,11 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           {children}
         </Content>
+        <Modal centered open={isModalOpen} width={1024} onCancel={() => setIsModalOpen(false)} maskClosable={false}>
+          <Typography.Title level={2} style={{ marginTop: 0 }}>
+            Bantuan & Dokumentasi
+          </Typography.Title>
+        </Modal>
       </Layout>
     </Layout>
   );

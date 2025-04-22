@@ -3,8 +3,7 @@
 "use client";
 
 import React, { useEffect, useCallback, useMemo } from "react";
-import { Row, Col, Card, Statistic, Spin, message, Flex } from "antd";
-import { ArrowDownOutlined } from "@ant-design/icons";
+import { Row, Col, Card, Spin, message, Flex, Typography } from "antd";
 import DashboardLayouts from "../../DashboardLayouts";
 import { useCompanyStore } from "@/stores/useCompanyStore";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
@@ -133,7 +132,7 @@ const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
       <DashboardLayouts>
         <main className="h-screen w-full items-center justify-center">
           <Flex className="h-screen w-full" justify="center" align="center">
-            <Spin tip="Loading dashboard..." />
+            <Spin />
           </Flex>
         </main>
       </DashboardLayouts>
@@ -142,57 +141,188 @@ const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
 
   return (
     <DashboardLayouts>
+      <Typography.Title level={2} style={{ marginTop: 0 }}>
+        Statistik & Analitik
+      </Typography.Title>
+
       <Row gutter={[24, 24]}>
-        <Col span={24}>
-          <Card variant="outlined" className="h-48">
-            {/* Optional: Add summary chart or welcome banner here */}
+        <Col span={12}>
+          <Card variant="outlined">
+            <Flex align="center" justify="space-between" className="w-full">
+              <Typography.Title level={5} style={{ marginTop: 0 }}>
+                Total Pengguna Aktif
+              </Typography.Title>
+              <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
+                Lihat Semua
+              </Typography.Link>
+            </Flex>
+
+            <Typography.Title level={3} style={{ marginTop: 0 }}>
+              {usersTotal} Pengguna
+            </Typography.Title>
+
+            <Flex vertical>
+              <Typography.Paragraph className="font-medium" style={{ marginTop: 12, marginBottom: 4 }}>
+                Detail Data Pengguna
+              </Typography.Paragraph>
+
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Admin</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Manager</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Client</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+            </Flex>
           </Card>
         </Col>
 
-        <Col xs={12} sm={8}>
+        <Col span={12}>
           <Card variant="outlined">
-            <Statistic title="Total Pengguna Aktif" value={usersTotal} suffix="Pengguna" />
+            <Flex align="center" justify="space-between" className="w-full">
+              <Typography.Title level={5} style={{ marginTop: 0 }}>
+                Total Perusahaan Aktif
+              </Typography.Title>
+              <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
+                Lihat Semua
+              </Typography.Link>
+            </Flex>
+
+            <Typography.Title level={3} style={{ marginTop: 0 }}>
+              {compTotal} Perusahaan
+            </Typography.Title>
+
+            <Flex vertical>
+              <Typography.Paragraph className="font-medium" style={{ marginTop: 12, marginBottom: 4 }}>
+                Detail Data Perusahaan
+              </Typography.Paragraph>
+
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Admin</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Manager</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Client</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+            </Flex>
           </Card>
         </Col>
 
-        <Col xs={12} sm={8}>
+        <Col span={12}>
           <Card variant="outlined">
-            <Statistic title="Total Perusahaan Aktif" value={compTotal} suffix=" Perusahaan" />
+            <Flex align="center" justify="space-between" className="w-full">
+              <Typography.Title level={5} style={{ marginTop: 0 }}>
+                Total Permintaan Dokumen Aktif
+              </Typography.Title>
+              <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
+                Lihat Semua
+              </Typography.Link>
+            </Flex>
+
+            <Typography.Title level={3} style={{ marginTop: 0 }}>
+              {docReqTotal} Permintaan
+            </Typography.Title>
+
+            <Flex vertical>
+              <Typography.Paragraph className="font-medium" style={{ marginTop: 12, marginBottom: 4 }}>
+                Detail Data Permintaan Dokumen
+              </Typography.Paragraph>
+
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Pending</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Uploaded</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Accepted</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Rejected</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Overdue</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+            </Flex>
           </Card>
         </Col>
 
-        <Col xs={12} sm={8}>
+        <Col span={12}>
           <Card variant="outlined">
-            <Statistic title="Total Permintaan Dokumen" value={docReqTotal} suffix=" Dokumen" />
-          </Card>
-        </Col>
+            <Flex align="center" justify="space-between" className="w-full">
+              <Typography.Title level={5} style={{ marginTop: 0 }}>
+                Total Kategori Dokumen
+              </Typography.Title>
+              <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
+                Lihat Semua
+              </Typography.Link>
+            </Flex>
 
-        <Col xs={12} sm={8}>
-          <Card variant="outlined">
-            <Statistic title="Total Permintaan Dokumen Terpenuhi" value={stats.unfulfilled} suffix=" Dokumen" />
-          </Card>
-        </Col>
+            <Typography.Title level={3} style={{ marginTop: 0 }}>
+              {docCatTotal} Kategori
+            </Typography.Title>
 
-        <Col xs={12} sm={8}>
-          <Card variant="outlined">
-            <Statistic title="Total Permintaan Dokumen Pending" value={stats.unfulfilled} suffix=" Dokumen" />
-          </Card>
-        </Col>
+            <Flex vertical>
+              <Typography.Paragraph className="font-medium" style={{ marginTop: 12, marginBottom: 4 }}>
+                Detail Data Kategori Dokumen
+              </Typography.Paragraph>
 
-        <Col xs={12} sm={8}>
-          <Card variant="outlined">
-            <Statistic title="Total Permintaan Dokumen Ditolak" value={stats.unfulfilled} suffix=" Dokumen" />
-          </Card>
-        </Col>
-
-        <Col xs={12} sm={8}>
-          <Card variant="outlined">
-            <Statistic
-              title="Kapasitas Penyimpanan"
-              value={stats.unfulfilled}
-              prefix={<ArrowDownOutlined />}
-              suffix=" Dokumen"
-            />
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Admin</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Manager</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Client</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+            </Flex>
           </Card>
         </Col>
       </Row>
