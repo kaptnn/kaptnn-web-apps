@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import DashboardLayouts from "../../DashboardLayouts";
 import { Card, Col, Empty, Row, Typography } from "antd";
 import WeightedAverageCalculatorForm from "../form/Form";

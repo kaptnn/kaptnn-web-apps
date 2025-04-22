@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import DashboardLayouts from "../../DashboardLayouts";
 import { Card, Col, Row, Statistic } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";

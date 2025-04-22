@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import DashboardLayouts from "../../DashboardLayouts";
 import { Card, Col, Empty, Flex, Row, Typography } from "antd";
 import DepreciationCalculatorForm from "../form/Form";

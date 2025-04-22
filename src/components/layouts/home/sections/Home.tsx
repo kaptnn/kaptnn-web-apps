@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Button, Flex, Typography } from "antd";
 
 const { Title, Paragraph } = Typography;
