@@ -45,7 +45,7 @@ export const registerSchema = z
     name: z.string().min(3),
     email: z.string().min(5).email(),
     phoneNumber: z.string().nonempty(),
-    company: z.string().nonempty(),
+    company_id: z.string().nonempty(),
     password: z.string().min(5),
     confirmPassword: z.string(),
     agreement: z.literal<boolean>(true),

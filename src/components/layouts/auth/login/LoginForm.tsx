@@ -96,7 +96,6 @@ const Login = () => {
             <Input />
           </Form.Item>
 
-          {/* Password Field */}
           <Form.Item
             name="password"
             label="Kata Sandi"
@@ -105,7 +104,6 @@ const Login = () => {
             <Input.Password />
           </Form.Item>
 
-          {/* Remember Me & Forgot Password */}
           <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
               <Checkbox onChange={(e) => e.target.checked}>

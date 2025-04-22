@@ -26,7 +26,7 @@ const Register = ({
         const response = await AuthApi.registerUser({
           name: values.name,
           email: values.email,
-          company_id: values.company,
+          company_id: values.company_id,
           password: values.password,
         });
 
@@ -59,7 +59,6 @@ const Register = ({
           layout="vertical"
           scrollToFirstError
         >
-          {/*  */}
           <Form.Item
             name="name"
             label="Nama Lengkap"
@@ -74,7 +73,6 @@ const Register = ({
             <Input />
           </Form.Item>
 
-          {/*  */}
           <Form.Item
             name="email"
             label="E-mail"
@@ -90,8 +88,8 @@ const Register = ({
           </Form.Item>
 
           <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
-            {/*  */}
             <Form.Item
+              name="phoneNumber"
               label="Nomor Telepon"
               rules={[
                 { required: true, message: "Masukkan nomor telepon anda!" },
@@ -100,8 +98,8 @@ const Register = ({
               <Input addonBefore={"+62"} style={{ width: "100%" }} />
             </Form.Item>
 
-            {/*  */}
             <Form.Item
+              name="company_id"
               label="Nama Perusahaan"
               rules={[
                 { required: true, message: "Masukkan nama perusahaan anda!" },
@@ -115,19 +113,21 @@ const Register = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 w-full md:gap-6">
-            {/*  */}
-            <Form.Item label="Kata Sandi" hasFeedback>
+            <Form.Item name="password" label="Kata Sandi" hasFeedback>
               <Input.Password />
             </Form.Item>
 
-            {/*  */}
-            <Form.Item label="Konfirmasi Kata Sandi" hasFeedback>
+            <Form.Item
+              name="confirmPassword"
+              label="Konfirmasi Kata Sandi"
+              hasFeedback
+            >
               <Input.Password />
             </Form.Item>
           </div>
 
-          {/*  */}
           <Form.Item
+            name="agreement"
             valuePropName="checked"
             rules={[
               {
