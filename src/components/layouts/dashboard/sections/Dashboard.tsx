@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { Row, Col, Card, Spin, message, Flex, Typography } from "antd";
 import DashboardLayouts from "../../DashboardLayouts";
 import { useCompanyStore } from "@/stores/useCompanyStore";
@@ -289,6 +289,48 @@ const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
             <Flex align="center" justify="space-between" className="w-full">
               <Typography.Title level={5} style={{ marginTop: 0 }}>
                 Total Kategori Dokumen
+              </Typography.Title>
+              <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
+                Lihat Semua
+              </Typography.Link>
+            </Flex>
+
+            <Typography.Title level={3} style={{ marginTop: 0 }}>
+              {docCatTotal} Kategori
+            </Typography.Title>
+
+            <Flex vertical>
+              <Typography.Paragraph className="font-medium" style={{ marginTop: 12, marginBottom: 4 }}>
+                Detail Data Kategori Dokumen
+              </Typography.Paragraph>
+
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Admin</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Manager</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+              <Flex align="center" justify="space-between" className="w-full">
+                <Typography.Paragraph style={{ margin: 0 }}>Client</Typography.Paragraph>
+                <Typography.Link href="" className="hover:underline" style={{ margin: 0 }}>
+                  {usersTotal}
+                </Typography.Link>
+              </Flex>
+            </Flex>
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card variant="outlined">
+            <Flex align="center" justify="space-between" className="w-full">
+              <Typography.Title level={5} style={{ marginTop: 0 }}>
+                Total Penyimpanan Dokumen
               </Typography.Title>
               <Typography.Link href="" className="hover:underline" style={{ marginTop: 0 }}>
                 Lihat Semua

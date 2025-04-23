@@ -1,57 +1,42 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DashboardLayouts from "../../DashboardLayouts";
-import { Input, Button, Flex, message } from "antd";
+import { Input, Button, Flex, message, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DocsRequestTable from "./TableDocsRequest";
 import DocsRequestModals from "./ModalDocsRequest";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { DocsRequestApi } from "@/utils/axios/api-service";
+import { DataType } from "../utils/table";
 
 const { Search } = Input;
-
-// const props: UploadProps = {
-//   name: "file",
-//   multiple: true,
-//   action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-//   onChange(info) {
-//     const { status } = info.file;
-//     if (status !== "uploading") {
-//       console.log(info.file, info.fileList);
-//     }
-//     if (status === "done") {
-//       message.success(`${info.file.name} file uploaded successfully.`);
-//     } else if (status === "error") {
-//       message.error(`${info.file.name} file upload failed.`);
-//     }
-//   },
-//   onDrop(e) {
-//     console.log("Dropped files", e.dataTransfer.files);
-//   },
-// };
 
 interface DocsReqClientProps {
   initialToken: string;
 }
 
 const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setOpen, setTotal, setModalType } = useDocsRequestStore();
+  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useDocsRequestStore();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchDocumentRequest = useCallback(async () => {
     setLoading(true);
     try {
       const response = await DocsRequestApi.getAllDocsRequest(
-        {
-          page: current,
-          limit: pageSize,
-          sort: "created_at",
-          order: "asc",
-        },
+        { page: current, limit: pageSize, sort: "created_at", order: "asc" },
         initialToken,
       );
 
-      setData(response.result);
+      const formatted: DataType[] = response.result.map((item: DataType) => ({
+        ...item,
+        key: item.id,
+        due_date: item.due_date?.split("T")[0] || "-",
+        upload_date: item.upload_date?.split("T")[0] || "-",
+      }));
+
+      setData(formatted);
       setTotal(response.meta.totalItems);
     } catch (err) {
       console.error(err);
@@ -65,29 +50,29 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
     fetchDocumentRequest();
   }, [fetchDocumentRequest]);
 
+  const onSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrent(1);
+  };
+
   return (
     <DashboardLayouts>
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Search placeholder="Search" loading={false} enterButton />
+            <Search placeholder="Search" onSearch={onSearch} loading={false} enterButton allowClear />
           </Flex>
           <Flex align="center">
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              loading={loading}
-              onClick={() => {
-                setOpen(true);
-                setModalType("create");
-              }}
-            >
-              Add New Document Request
+            <Button icon={<PlusOutlined />} type="primary" loading={loading} onClick={() => openModal("create")}>
+              Tambah Permintaan Dokumen
             </Button>
           </Flex>
         </Flex>
-        <DocsRequestTable token={initialToken} />
-        <DocsRequestModals token={initialToken} refresh={fetchDocumentRequest} />
+        <Flex>
+          <Divider />
+        </Flex>
+        <DocsRequestTable token={initialToken} fetchData={fetchDocumentRequest} />
+        <DocsRequestModals token={initialToken} />
       </Flex>
     </DashboardLayouts>
   );

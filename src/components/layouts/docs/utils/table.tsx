@@ -1,5 +1,14 @@
-import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { Avatar, Button, Flex, Table, TableColumnsType, TableProps, Tag } from "antd";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  CaretDownOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  MinusCircleOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Avatar, Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
 
 export interface DataType {
   key: React.Key;
@@ -15,41 +24,48 @@ export interface DataType {
   type: string;
 }
 
+const statusMap: Record<string, { color: string; icon: React.ReactNode }> = {
+  uploaded: { color: "green", icon: <CheckCircleOutlined /> },
+  pending: { color: "gold", icon: <ClockCircleOutlined /> },
+  overdue: { color: "red", icon: <CloseCircleOutlined /> },
+  none: { color: "default", icon: <MinusCircleOutlined /> },
+};
+
 export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
-export const columns: TableColumnsType<DataType> = [
+export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
   Table.SELECTION_COLUMN,
-  Table.EXPAND_COLUMN,
   {
     title: "Nama Dokumen",
     dataIndex: "request_title",
     key: "request_title",
+    sorter: true,
   },
   {
-    title: "Target User",
+    title: "Target Pengguna",
     dataIndex: "target_user_id",
     key: "target_user_id",
+    sorter: false,
     render: (item: string) => {
-      const display = typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
       return (
         <Flex align="center" justify="center">
-          <Avatar style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }} size="default">
-            {display}
+          <Avatar className="capitalize" style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }} size="default">
+            {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
           </Avatar>
         </Flex>
       );
     },
   },
   {
-    title: "User Uploader",
+    title: "Upload Pengguna",
     dataIndex: "type",
     key: "type",
+    sorter: false,
     render: (item: string) => {
-      const display = typeof item === "string" && item.length > 0 ? item.slice(0, 1) : "U";
       return (
         <Flex align="center" justify="center">
-          <Avatar style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }} size="default">
-            {display}
+          <Avatar className="capitalize" style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }} size="default">
+            {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
           </Avatar>
         </Flex>
       );
@@ -59,25 +75,36 @@ export const columns: TableColumnsType<DataType> = [
     title: "Due Date",
     dataIndex: "due_date",
     key: "due_date",
+    sorter: true,
+    render: (item: string) => {
+      return (
+        <Flex align="center" justify="center">
+          {item}
+        </Flex>
+      );
+    },
   },
   {
     title: "Upload Date",
     dataIndex: "upload_date",
     key: "upload_date",
+    sorter: true,
+    render: (item: string) => {
+      return (
+        <Flex align="center" justify="center">
+          {item}
+        </Flex>
+      );
+    },
   },
   {
     title: "Status",
     dataIndex: "status",
     key: "status",
+    sorter: false,
+    filters: Object.keys(statusMap).map((key) => ({ text: key, value: key })),
     render: (item: string) => {
-      const statusColors: Record<string, { color: string; icon: React.ReactNode }> = {
-        uploaded: { color: "success", icon: <CheckCircleOutlined /> },
-        pending: { color: "warning", icon: <ClockCircleOutlined /> },
-        overdue: { color: "error", icon: <CloseCircleOutlined /> },
-        none: { color: "default", icon: <MinusCircleOutlined /> },
-      };
-
-      const { color, icon } = statusColors[item] || statusColors["none"];
+      const { color, icon } = statusMap[item] || statusMap.none;
       return (
         <Flex align="center" justify="center">
           <Tag icon={icon} color={color}>
@@ -90,14 +117,39 @@ export const columns: TableColumnsType<DataType> = [
   {
     title: "Action",
     key: "action",
-    render: () => (
-      <Flex gap={8} align="center" justify="center">
-        <Button type="primary">View</Button>
-        <Button type="default">Edit</Button>
-        <Button danger type="primary">
-          Delete
-        </Button>
-      </Flex>
-    ),
+    sorter: false,
+    render: (_text: any, record: DataType) => {
+      const menu: MenuProps = {
+        items: [
+          {
+            key: "view",
+            label: "View Data",
+          },
+          {
+            key: "edit",
+            label: "Edit Data",
+          },
+          {
+            key: "divider",
+            type: "divider",
+          },
+          {
+            key: "delete",
+            label: "Delete Data",
+            danger: true,
+          },
+        ],
+        onClick: ({ key }) => onAction(key as any, record),
+      };
+
+      return (
+        <Dropdown menu={menu} placement="bottomRight" arrow trigger={["click"]}>
+          <Button>
+            <SettingOutlined />
+            <CaretDownOutlined />
+          </Button>
+        </Dropdown>
+      );
+    },
   },
 ];

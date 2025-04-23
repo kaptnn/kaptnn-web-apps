@@ -91,10 +91,10 @@ class DocsRequestService {
     }
   };
 
-  public createDocsRequest = async (payload: any, token?: string, signal?: AbortSignal): Promise<CompanyProps> => {
-    if (!payload.company_name) throw new Error("Company name is required");
+  public createDocsRequest = async (payload: any, token?: string, signal?: AbortSignal) => {
+    if (!payload) throw new Error("Company name is required");
     try {
-      const response = await this.axiosInstance.post(`/v1/companies`, payload, {
+      const response = await this.axiosInstance.post(`/v1/docs-request`, payload, {
         headers: this.getAuthHeaders(token),
         signal,
       });

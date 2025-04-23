@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Table, Button, Flex } from "antd";
+import { Table } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
-import { columns as baseColumns, DataType } from "../utils/table";
+import { columns as baseColumns } from "../utils/table";
+import React, { useMemo } from "react";
 
-const DocsRequestTable = ({ token }: { token: string }) => {
+interface TableComponentProps {
+  token: string;
+  fetchData: () => void;
+}
+
+const DocsRequestTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
   const {
     data,
     loading,
-    modalType,
     total,
     current,
     pageSize,
@@ -16,43 +20,16 @@ const DocsRequestTable = ({ token }: { token: string }) => {
     setSelectedRowKeys,
     setCurrent,
     setPageSize,
-    setOpen,
-    setModalType,
-    setSelectedCompany,
+    openModal,
   } = useDocsRequestStore();
 
   const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys);
 
-  const openModal = (type: typeof modalType, company?: DataType) => {
-    setSelectedCompany(company || null);
-    setModalType(type);
-    setOpen(true);
-  };
-
-  const columns = baseColumns.map((col) =>
-    col.key === "x"
-      ? {
-          ...col,
-          render: (_: any, record: DataType) => (
-            <Flex gap={8} justify="center">
-              <Button type="primary" onClick={() => openModal("view", record)}>
-                View
-              </Button>
-              <Button onClick={() => openModal("edit", record)}>Edit</Button>
-              <Button type="primary" danger onClick={() => openModal("delete", record)}>
-                Delete
-              </Button>
-            </Flex>
-          ),
-        }
-      : col,
-  );
+  const columns = useMemo(() => baseColumns(openModal), [openModal]);
 
   return (
     <Table
       rowKey="id"
-      bordered
-      className="rounded-lg"
       loading={loading}
       dataSource={data}
       columns={columns}
@@ -65,6 +42,7 @@ const DocsRequestTable = ({ token }: { token: string }) => {
         onChange: (page, size) => {
           setCurrent(page);
           setPageSize(size || pageSize);
+          fetchData();
         },
         position: ["bottomCenter"],
       }}
@@ -72,4 +50,4 @@ const DocsRequestTable = ({ token }: { token: string }) => {
   );
 };
 
-export default DocsRequestTable;
+export default React.memo(DocsRequestTable);

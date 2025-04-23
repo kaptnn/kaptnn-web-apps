@@ -58,7 +58,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
     return (
       <main className="h-screen w-full items-center justify-center">
         <Flex className="h-screen w-full" justify="center" align="center">
-          <Spin size="large" tip="Mohon Tunggu Sebentar . . ." />
+          <Spin />
         </Flex>
       </main>
     );

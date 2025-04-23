@@ -50,7 +50,6 @@ const DocsCategory = ({ docs_category }: { docs_category: [] }) => {
           columns={columns}
           dataSource={docs_category}
           className="rounded-lg"
-          bordered
           pagination={{
             align: "center",
             style: { marginTop: "32px" },

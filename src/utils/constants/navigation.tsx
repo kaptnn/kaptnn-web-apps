@@ -25,10 +25,11 @@ const getItem = (label: React.ReactNode, key: string, icon?: React.ReactNode, ch
 export const adminMenuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
-    getItem("All Docs", "/dashboard/document"),
+    getItem("Docs Request", "/dashboard/document"),
+    getItem("Docs Storage", "/dashboard/document/storage"),
+    getItem("Docs Category", "/dashboard/document/category"),
     getItem("All Users", "/dashboard/document/users"),
-    getItem("Company", "/dashboard/document/company"),
-    getItem("Category", "/dashboard/document/category"),
+    getItem("All Companies", "/dashboard/document/company"),
   ]),
   getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [
     getItem("Depreciation", "/dashboard/calculator/depreciation"),
@@ -40,7 +41,8 @@ export const adminMenuItems: MenuItem[] = [
 export const clientMenuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
-    getItem("All Docs", "/dashboard/document"),
+    getItem("Docs Request", "/dashboard/document"),
+    getItem("Docs Storage", "/dashboard/document/storage"),
     getItem("All Users", "/dashboard/document/users"),
   ]),
   getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [
@@ -99,7 +101,7 @@ export const accountProfileItems: MenuProps["items"] = [
   },
   {
     key: "2",
-    label: "Profile Settings",
+    label: "Pengaturan Profil",
     icon: <SettingOutlined />,
     onClick: async () => {
       try {
