@@ -3,6 +3,18 @@ import AllUsers from "@/components/layouts/docs-users";
 import { CompanyApi, UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "",
+  description: "",
+  applicationName: "",
+  creator: "",
+  alternates: {
+    canonical: "",
+  },
+  keywords: [],
+};
 
 const AllUsersPage = async () => {
   const token = await getCookie("access_token");

@@ -1,4 +1,3 @@
-import ProfileSetting from "@/components/layouts/profile-setting";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -14,11 +13,11 @@ export const metadata: Metadata = {
   keywords: [],
 };
 
-const UserProfileSettingPage = async () => {
+const ForgotPasswordPage = async () => {
   const token = await getCookie("access_token");
-  if (!token) redirect("/login");
+  if (!token || token) redirect("/");
 
-  return <ProfileSetting />;
+  return <main></main>;
 };
 
-export default UserProfileSettingPage;
+export default ForgotPasswordPage;

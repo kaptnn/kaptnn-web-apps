@@ -2,6 +2,18 @@ import DocsCategory from "@/components/layouts/docs-category";
 import { DocsCategoryApi, UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "",
+  description: "",
+  applicationName: "",
+  creator: "",
+  alternates: {
+    canonical: "",
+  },
+  keywords: [],
+};
 
 const CategoryPage = async () => {
   const token = await getCookie("access_token");

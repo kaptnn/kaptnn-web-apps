@@ -3,12 +3,22 @@ import { CompanyApi } from "@/utils/axios/api-service";
 import { CompanyProps } from "@/utils/axios/company";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "",
+  description: "",
+  applicationName: "",
+  creator: "",
+  alternates: {
+    canonical: "",
+  },
+  keywords: [],
+};
 
 const RegisterPage = async () => {
   const token = await getCookie("access_token");
-  if (token) {
-    redirect("/dashboard");
-  }
+  if (token) redirect("/dashboard");
 
   const rawCompanies = await CompanyApi.getAllCompanies({}, token);
 
