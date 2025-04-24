@@ -1,4 +1,6 @@
-import { Button, Flex, Table, TableColumnsType, TableProps, Tag } from "antd";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CaretDownOutlined, SettingOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
 
 export interface DataType {
   key: React.Key;
@@ -18,14 +20,16 @@ export interface UserProfileDataType {
 
 export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
-export const columns: TableColumnsType<DataType> = [
+export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
   Table.SELECTION_COLUMN,
   Table.EXPAND_COLUMN,
-  { title: "Nama User", dataIndex: "name" },
+  { title: "Nama User", dataIndex: "name", key: "name", sorter: true },
   {
     title: "Email",
     dataIndex: "email",
-    render: (item) => (
+    key: "email",
+    sorter: true,
+    render: (item: any) => (
       <Flex align="center" justify="start">
         <Tag>{item}</Tag>
       </Flex>
@@ -34,7 +38,9 @@ export const columns: TableColumnsType<DataType> = [
   {
     title: "Role",
     dataIndex: ["profile", "role"],
-    render: (item) => (
+    key: "role",
+    sorter: true,
+    render: (item: any) => (
       <Flex align="center" justify="center">
         <Tag color="blue">{item}</Tag>
       </Flex>
@@ -43,7 +49,9 @@ export const columns: TableColumnsType<DataType> = [
   {
     title: "Membership",
     dataIndex: ["profile", "membership"],
-    render: (item) => (
+    key: "membership",
+    sorter: true,
+    render: (item: any) => (
       <Flex align="center" justify="center">
         <Tag color="gold">{item}</Tag>
       </Flex>
@@ -52,23 +60,44 @@ export const columns: TableColumnsType<DataType> = [
   {
     title: "Nama Perusahaan",
     dataIndex: "company_name",
+    key: "company_name",
+    sorter: true,
   },
   {
     title: "Action",
     dataIndex: "",
     key: "x",
-    render: () => (
-      <Flex gap={8} align="center" justify="center">
-        <Button color="primary" variant="solid">
-          View
-        </Button>
-        <Button color="default" type="default">
-          Edit
-        </Button>
-        <Button color="danger" variant="solid">
-          Delete
-        </Button>
-      </Flex>
-    ),
+    render: (_text: any, record: DataType) => {
+      const menu: MenuProps = {
+        items: [
+          {
+            key: "view",
+            label: "View Data",
+          },
+          {
+            key: "edit",
+            label: "Edit Data",
+          },
+          {
+            key: "divider",
+            type: "divider",
+          },
+          {
+            key: "delete",
+            label: "Delete Data",
+            danger: true,
+          },
+        ],
+        onClick: ({ key }) => onAction(key as any, record),
+      };
+      return (
+        <Dropdown menu={menu} placement="bottomRight" arrow trigger={["click"]}>
+          <Button>
+            <SettingOutlined />
+            <CaretDownOutlined />
+          </Button>
+        </Dropdown>
+      );
+    },
   },
 ];

@@ -1,3 +1,4 @@
+import DocsStorage from "@/components/layouts/docs-storage";
 import { UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
 import { seo_data } from "@/utils/constants/seo_data";
@@ -21,9 +22,9 @@ const DocumentStoragePage = async () => {
   const currentUser = await UserApi.getCurrentUser(token);
   const isAdmin = currentUser.profile.role === "admin";
 
-  console.log(isAdmin);
+  if (!isAdmin) redirect("/dashboard");
 
-  return <div>DocumentStoragePage</div>;
+  return <DocsStorage initialToken={token} />;
 };
 
 export default DocumentStoragePage;

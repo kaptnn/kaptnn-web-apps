@@ -2,7 +2,7 @@
 import { Table } from "antd";
 import { useCompanyStore } from "@/stores/useCompanyStore";
 import { columns as baseColumns } from "../utils/table";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 
 interface TableComponentProps {
   token: string;
@@ -50,4 +50,4 @@ const CompanyTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
   );
 };
 
-export default CompanyTable;
+export default memo(CompanyTable);
