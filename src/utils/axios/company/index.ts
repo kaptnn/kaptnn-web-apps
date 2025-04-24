@@ -55,7 +55,7 @@ class CompanyService {
     params: GetAllCompaniesParams = {},
     token?: string,
     signal?: AbortSignal,
-  ): Promise<{ result: CompanyProps[]; meta: PaginationMeta }> => {
+  ): Promise<{ result: []; meta: PaginationMeta }> => {
     try {
       const response = await this.axiosInstance.get(`/v1/companies`, {
         params,

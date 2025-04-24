@@ -1,4 +1,6 @@
-import { Button, Flex, Table, TableColumnsType, TableProps, Tag } from "antd";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CaretDownOutlined, SettingOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
 
 export interface DataType {
   key: React.Key;
@@ -11,37 +13,59 @@ export interface DataType {
 
 export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
-export const columns: TableColumnsType<DataType> = [
+export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
   Table.SELECTION_COLUMN,
   Table.EXPAND_COLUMN,
-  { title: "Company Name", dataIndex: "company_name" },
+  { title: "Company Name", dataIndex: "company_name", key: "company_name", sorter: true },
   {
     title: "Tahun Penugasan",
     dataIndex: "year_of_assignment",
+    key: "year_of_assignment",
+    sorter: true,
     render: (item: number) => (
       <Flex align="center" justify="center">
         <Tag>{item}</Tag>
       </Flex>
     ),
   },
-  { title: "Mulai Periode Audit", dataIndex: "start_audit_period" },
-  { title: "Akhir Periode Audit", dataIndex: "end_audit_period" },
+  { title: "Mulai Periode Audit", dataIndex: "start_audit_period", key: "start_audit_period", sorter: true },
+  { title: "Akhir Periode Audit", dataIndex: "end_audit_period", key: "end_audit_period", sorter: true },
   {
     title: "Action",
     dataIndex: "",
     key: "x",
-    render: () => (
-      <Flex gap={8} align="center" justify="center">
-        <Button color="primary" variant="solid" onClick={() => {}}>
-          View
-        </Button>
-        <Button color="default" type="default" onClick={() => {}}>
-          Edit
-        </Button>
-        <Button color="danger" variant="solid" onClick={() => {}}>
-          Delete
-        </Button>
-      </Flex>
-    ),
+    render: (_text: any, record: DataType) => {
+      const menu: MenuProps = {
+        items: [
+          {
+            key: "view",
+            label: "View Data",
+          },
+          {
+            key: "edit",
+            label: "Edit Data",
+          },
+          {
+            key: "divider",
+            type: "divider",
+          },
+          {
+            key: "delete",
+            label: "Delete Data",
+            danger: true,
+          },
+        ],
+        onClick: ({ key }) => onAction(key as any, record),
+      };
+
+      return (
+        <Dropdown menu={menu} placement="bottomRight" arrow trigger={["click"]}>
+          <Button>
+            <SettingOutlined />
+            <CaretDownOutlined />
+          </Button>
+        </Dropdown>
+      );
+    },
   },
 ];

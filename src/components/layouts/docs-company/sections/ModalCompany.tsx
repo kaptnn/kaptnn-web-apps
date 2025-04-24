@@ -1,134 +1,170 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, InputNumber, DatePicker, message } from "antd";
+import { Modal, Form, Input, DatePicker, message } from "antd";
 import { useCompanyStore } from "@/stores/useCompanyStore";
-import { useEffect } from "react";
-import { createCompanySchema } from "@/utils/constants/company";
-import axiosInstance from "@/utils/axios";
+import { memo, useCallback, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useAllUsersStore } from "@/stores/useAllUsersStore";
+import { CompanyApi, UserApi } from "@/utils/axios/api-service";
+import dayjs from "dayjs";
 
-const CompanyModals = ({ token, refresh }: { token: string; refresh: () => void }) => {
+interface ModalComponentProps {
+  token: string;
+}
+
+const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
+  const { selectedItem, modalType, closeModal } = useCompanyStore();
   const [form] = Form.useForm();
-  const { loading, selectedCompany, setSelectedCompany, modalType, setModalType } = useCompanyStore();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const {
+    loading: compLoading,
+    data: compData,
+    total: compTotal,
+    setData: setCompData,
+    setTotal: setCompTotal,
+    setLoading: setCompLoading,
+  } = useCompanyStore();
+
+  const {
+    loading: usersLoading,
+    data: usersData,
+    total: usersTotal,
+    setData: setUsersData,
+    setTotal: setUsersTotal,
+    setLoading: setUsersLoading,
+  } = useAllUsersStore();
+
+  const fetchData = useCallback(async () => {
+    setCompLoading(true);
+    setUsersLoading(true);
+    try {
+      const [compRes, usersRes] = await Promise.all([
+        CompanyApi.getAllCompanies({}, token),
+        UserApi.getAllUsers({}, token),
+      ]);
+
+      const formattedCompanies = compRes.result.map((c: any) => ({
+        ...c,
+        key: c.id,
+        start_audit_period: new Date(c.start_audit_period).toISOString().split("T")[0],
+        end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
+      }));
+
+      setCompData(formattedCompanies);
+      setCompTotal(compRes.meta.totalItems);
+
+      setUsersData(usersRes.result);
+      setUsersTotal(usersRes.meta.totalItems);
+    } catch (error) {
+      console.error("Dashboard fetch error:", error);
+      message.error("Failed to fetch dashboard data.");
+    } finally {
+      setCompLoading(false);
+      setUsersLoading(false);
+    }
+  }, [token, setCompLoading, setUsersLoading, setCompData, setCompTotal, setUsersData, setUsersTotal]);
 
   useEffect(() => {
-    if (selectedCompany) {
+    fetchData();
+    if ((modalType === "edit" || modalType === "view") && selectedItem) {
       form.setFieldsValue({
-        ...selectedCompany,
-        start_audit_period: selectedCompany.start_audit_period ? selectedCompany.start_audit_period : null,
-        end_audit_period: selectedCompany.end_audit_period ? selectedCompany.end_audit_period : null,
+        ...selectedItem,
+        start_audit_period: selectedItem.start_audit_period ? dayjs(selectedItem.start_audit_period) : null,
+        end_audit_period: selectedItem.end_audit_period ? dayjs(selectedItem.end_audit_period) : null,
       });
     } else {
       form.resetFields();
     }
-  }, [selectedCompany, form]);
+  }, [modalType, selectedItem, form, fetchData]);
 
-  const handleFinish = async (values: any) => {
-    const payload = {
-      ...values,
-      start_audit_period: values.start_audit_period?.toISOString(),
-      end_audit_period: values.end_audit_period?.toISOString(),
-    };
+  const handleFinish = useCallback(async () => {
+    startTransition(async () => {
+      try {
+        if (modalType === "view") {
+          closeModal();
+          return;
+        }
 
-    const result = createCompanySchema.safeParse(payload);
-    if (!result.success) {
-      const errors = result.error.flatten().fieldErrors;
-      form.setFields(
-        Object.entries(errors).map(([name, msgs]) => ({
-          name,
-          errors: msgs || [],
-        })),
-      );
-      return;
-    }
+        const values = form.getFieldsValue();
+        const payload = { ...values, due_date: dayjs(values.due_date) };
 
-    try {
-      await axiosInstance.post("/v1/companies/", result.data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      message.success("Company created");
-      form.resetFields();
-      refresh();
-      setSelectedCompany(null);
-    } catch (err) {
-      message.error("Failed to create company");
-      console.error(err);
-    }
-  };
+        if (modalType === "create") {
+          await CompanyApi.createCompany(payload, token);
+        } else if (modalType === "edit" && selectedItem) {
+          await CompanyApi.updateCompany(selectedItem.id, payload, token);
+        } else if (modalType === "delete" && selectedItem) {
+          await CompanyApi.deleteCompany(selectedItem.id, token);
+        }
+
+        router.refresh();
+        closeModal();
+      } catch (error: unknown) {
+        if (error) {
+          const errorMessage = error || "Something went wrong!";
+          console.error("Login Error:", errorMessage);
+        } else {
+          console.error("Network Error:", error);
+        }
+      }
+    });
+  }, [closeModal, form, modalType, router, selectedItem, token]);
 
   return (
     <Modal
       open={!!modalType}
       title={
-        modalType === "create"
-          ? "Tambah Perusahaan"
-          : modalType === "edit"
-            ? "Edit Perusahaan"
-            : modalType === "view"
-              ? "Detail Perusahaan"
-              : modalType === "delete"
-                ? "Hapus Perusahaan"
-                : ""
+        {
+          create: "Buat Permintaan Dokumen",
+          view: "Detail Permintaan Dokumen",
+          edit: "Edit Permintaan Dokumen",
+          delete: "Hapus Permintaan Dokumen",
+        }[modalType!]
       }
       centered
-      onCancel={() => {
-        setModalType(null);
-        setSelectedCompany(null);
-      }}
-      onOk={() => {
-        if (modalType === "delete") {
-          alert("handle delete");
-        } else {
-          form.submit();
-        }
-      }}
-      okButtonProps={{
-        danger: modalType === "delete",
-        loading,
-      }}
+      onCancel={closeModal}
+      onOk={handleFinish}
+      okButtonProps={{ danger: modalType === "delete", loading: isPending }}
     >
-      {modalType === "view" && selectedCompany && (
-        <div>
-          <p>
-            <strong>Nama:</strong> {selectedCompany.company_name}
-          </p>
-          <p>
-            <strong>Tahun Penugasan:</strong> {selectedCompany.year_of_assignment}
-          </p>
-          <p>
-            <strong>Awal Audit:</strong> {selectedCompany.start_audit_period}
-          </p>
-          <p>
-            <strong>Akhir Audit:</strong> {selectedCompany.end_audit_period}
-          </p>
-        </div>
-      )}
-
-      {(modalType === "create" || modalType === "edit") && (
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
-          <Form.Item name="company_name" label="Nama Perusahaan" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="year_of_assignment" label="Tahun Penugasan" rules={[{ required: true }]}>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-
-          <div className="grid grid-cols-2 gap-6">
-            <Form.Item name="start_audit_period" label="Awal Periode Audit" rules={[{ required: true }]}>
+      <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
+        {(modalType === "create" || modalType === "edit") && (
+          <>
+            <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="request_desc" label="Deskripsi">
+              <Input.TextArea rows={4} />
+            </Form.Item>
+            <Form.Item name="due_date" label="Due Date">
               <DatePicker style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item name="end_audit_period" label="Akhir Periode Audit" rules={[{ required: true }]}>
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </div>
-        </Form>
-      )}
-
-      {modalType === "delete" && selectedCompany && (
-        <p>
-          Are you sure you want to delete <strong>{selectedCompany.company_name}</strong>?
-        </p>
-      )}
+          </>
+        )}
+        {modalType === "view" && selectedItem && (
+          <>
+            <p>
+              <strong>Judul:</strong> {selectedItem.company_name}
+            </p>
+            <p>
+              <strong>Deskripsi:</strong> {selectedItem.year_of_assignment}
+            </p>
+            <p>
+              <strong>Target Pengguna:</strong> {selectedItem.start_audit_period}
+            </p>
+            <p>
+              <strong>Due Date:</strong> {selectedItem.end_audit_period}
+            </p>
+          </>
+        )}
+        {modalType === "delete" && selectedItem && (
+          <p>
+            Apakah Anda yakin ingin menghapus permintaan <strong>{selectedItem.company_name}</strong>?
+          </p>
+        )}
+      </Form>
     </Modal>
   );
 };
 
-export default CompanyModals;
+export default memo(CompanyModals);
