@@ -2,7 +2,7 @@
 import { Table } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { columns as baseColumns } from "../utils/table";
-import React, { useMemo } from "react";
+import { memo, useMemo } from "react";
 
 interface TableComponentProps {
   token: string;
@@ -50,4 +50,4 @@ const DocsRequestTable: React.FC<TableComponentProps> = ({ token, fetchData }) =
   );
 };
 
-export default React.memo(DocsRequestTable);
+export default memo(DocsRequestTable);

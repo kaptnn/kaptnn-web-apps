@@ -1,37 +1,42 @@
 import { create } from "zustand";
 import { DataType } from "@/components/layouts/docs-category/utils/table";
 
+type ModalType = "create" | "view" | "edit" | "delete" | null;
+
 interface DocsCategoryState {
   data: DataType[];
   loading: boolean;
   open: boolean;
+  modalType: ModalType;
   total: number;
-  modalType: string | null;
   current: number;
   pageSize: number;
-  selectedCompany: DataType | null;
+  selectedItem: DataType | null;
   selectedRowKeys: React.Key[];
 
   setData: (data: DataType[]) => void;
   setLoading: (loading: boolean) => void;
   setOpen: (open: boolean) => void;
+  setModalType: (modalType: ModalType) => void;
   setTotal: (total: number) => void;
-  setModalType: (modalType: string | null) => void;
   setCurrent: (current: number) => void;
   setPageSize: (size: number) => void;
-  setSelectedCompany: (company: DataType | null) => void;
+  setSelectedItem: (company: DataType | null) => void;
   setSelectedRowKeys: (keys: React.Key[]) => void;
+
+  openModal: (type: Exclude<ModalType, null>, item?: DataType) => void;
+  closeModal: () => void;
 }
 
 export const useDocsCategoryStore = create<DocsCategoryState>((set) => ({
   data: [],
   loading: false,
   open: false,
-  total: 0,
   modalType: null,
+  total: 0,
   current: 1,
   pageSize: 5,
-  selectedCompany: null,
+  selectedItem: null,
   selectedRowKeys: [],
 
   setData: (data) => set({ data }),
@@ -41,6 +46,20 @@ export const useDocsCategoryStore = create<DocsCategoryState>((set) => ({
   setModalType: (modalType) => set({ modalType }),
   setCurrent: (current) => set({ current }),
   setPageSize: (pageSize) => set({ pageSize }),
-  setSelectedCompany: (selectedCompany) => set({ selectedCompany }),
+  setSelectedItem: (selectedItem) => set({ selectedItem }),
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
+
+  openModal: (type, item) =>
+    set({
+      modalType: type,
+      open: true,
+      selectedItem: item || null,
+    }),
+
+  closeModal: () =>
+    set({
+      open: false,
+      modalType: null,
+      selectedItem: null,
+    }),
 }));

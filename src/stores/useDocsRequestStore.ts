@@ -7,7 +7,7 @@ interface DocsRequestState {
   data: DataType[];
   loading: boolean;
   open: boolean;
-  modalType: string | null;
+  modalType: ModalType;
   total: number;
   current: number;
   pageSize: number;

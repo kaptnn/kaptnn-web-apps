@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message, Select, Spin } from "antd";
+import { Modal, Form, Input, DatePicker, message, Select } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
-import React, { memo, useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { CompanyApi, DocsCategoryApi, DocsRequestApi, UserApi } from "@/utils/axios/api-service";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
@@ -95,18 +95,10 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   ]);
 
   useEffect(() => {
-    // if (!modalType) {
-    //   form.resetFields();
-    //   return;
-    // }
-
     fetchData();
     if ((modalType === "edit" || modalType === "view") && selectedItem) {
-      // const initCompany =
-      //   selectedItem.company_id ?? usersData.find((u) => u.id === selectedItem.target_user_id)?.company_id;
       form.setFieldsValue({
         ...selectedItem,
-        // company_id: initCompany,
         due_date: selectedItem.due_date ? dayjs(selectedItem.due_date) : null,
       });
     } else {
@@ -135,11 +127,11 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         const payload = { ...values, due_date: dayjs(values.due_date) };
 
         if (modalType === "create") {
-          const response = await DocsRequestApi.createDocsRequest(payload, token);
+          await DocsRequestApi.createDocsRequest(payload, token);
         } else if (modalType === "edit" && selectedItem) {
-          const response = await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token);
+          await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token);
         } else if (modalType === "delete" && selectedItem) {
-          const response = await DocsRequestApi.deleteDocsRequest(selectedItem.id, token);
+          await DocsRequestApi.deleteDocsRequest(selectedItem.id, token);
         }
 
         router.refresh();

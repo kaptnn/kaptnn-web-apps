@@ -1,5 +1,5 @@
 import DocsCategory from "@/components/layouts/docs-category";
-import { DocsCategoryApi, UserApi } from "@/utils/axios/api-service";
+import { UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -24,9 +24,7 @@ const CategoryPage = async () => {
 
   if (!isAdmin) redirect("/dashboard");
 
-  const rawDocsCategoryData = await DocsCategoryApi.getAllDocsCategory({}, token);
-
-  return <DocsCategory docs_category={rawDocsCategoryData.result} />;
+  return <DocsCategory initialToken={token} />;
 };
 
 export default CategoryPage;
