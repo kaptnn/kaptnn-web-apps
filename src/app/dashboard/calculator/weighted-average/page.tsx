@@ -2,16 +2,16 @@ import WeightedAverageCalculator from "@/components/layouts/calc-weighted-averag
 import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
+import { seo_data } from "@/utils/constants/seo_data";
 
 export const metadata: Metadata = {
-  title: "",
-  description: "",
-  applicationName: "",
-  creator: "",
+  title: `${seo_data.title.dashboard.calculator["weighted-average"]} | KAP Tambunan & Nasafi`,
+  applicationName: "KAP TNN Datatrail Website",
+  creator: "KAP TNN Tech Teams",
   alternates: {
-    canonical: "",
+    canonical: "https://kaptnn.com/",
   },
-  keywords: [],
+  keywords: ["Data", "Datatrail", "Accountant", "Document", "Document Management"],
 };
 
 const WeightedAverageCalculatorPage = async () => {

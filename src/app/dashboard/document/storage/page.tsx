@@ -1,17 +1,17 @@
 import { UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
+import { seo_data } from "@/utils/constants/seo_data";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "",
-  description: "",
-  applicationName: "",
-  creator: "",
+  title: `${seo_data.title.dashboard.document.storage} | KAP Tambunan & Nasafi`,
+  applicationName: "KAP TNN Datatrail Website",
+  creator: "KAP TNN Tech Teams",
   alternates: {
-    canonical: "",
+    canonical: "https://kaptnn.com/",
   },
-  keywords: [],
+  keywords: ["Data", "Datatrail", "Accountant", "Document", "Document Management"],
 };
 
 const DocumentStoragePage = async () => {
