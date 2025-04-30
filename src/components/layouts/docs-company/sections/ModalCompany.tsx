@@ -64,15 +64,27 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
       setCompLoading(false);
       setUsersLoading(false);
     }
-  }, [token, setCompLoading, setUsersLoading, setCompData, setCompTotal, setUsersData, setUsersTotal]);
+  }, [
+    token,
+    setCompLoading,
+    setUsersLoading,
+    setCompData,
+    setCompTotal,
+    setUsersData,
+    setUsersTotal,
+  ]);
 
   useEffect(() => {
     fetchData();
     if ((modalType === "edit" || modalType === "view") && selectedItem) {
       form.setFieldsValue({
         ...selectedItem,
-        start_audit_period: selectedItem.start_audit_period ? dayjs(selectedItem.start_audit_period) : null,
-        end_audit_period: selectedItem.end_audit_period ? dayjs(selectedItem.end_audit_period) : null,
+        start_audit_period: selectedItem.start_audit_period
+          ? dayjs(selectedItem.start_audit_period)
+          : null,
+        end_audit_period: selectedItem.end_audit_period
+          ? dayjs(selectedItem.end_audit_period)
+          : null,
       });
     } else {
       form.resetFields();
@@ -159,7 +171,8 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
         {modalType === "delete" && selectedItem && (
           <p>
-            Apakah Anda yakin ingin menghapus permintaan <strong>{selectedItem.company_name}</strong>?
+            Apakah Anda yakin ingin menghapus permintaan{" "}
+            <strong>{selectedItem.company_name}</strong>?
           </p>
         )}
       </Form>

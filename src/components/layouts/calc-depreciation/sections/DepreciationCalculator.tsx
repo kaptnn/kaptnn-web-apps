@@ -49,7 +49,10 @@ const DepreciationCalculator = () => {
                 <Text> {calculationResult.biaya_per_tahun} Tahun</Text>
               </Flex>
             ) : (
-              <Empty description="Belum Ada Hasil Perhitungan" style={{ marginTop: 32 }} />
+              <Empty
+                description="Belum Ada Hasil Perhitungan"
+                style={{ marginTop: 32 }}
+              />
             )}
           </Card>
         </Col>

@@ -79,7 +79,13 @@ const Login = () => {
         </Button>
       </div>
       <div className="flex w-full flex-col px-5 md:items-center md:justify-center md:px-24">
-        <Form form={form} onFinish={handleFinish} className="w-full" layout="vertical" scrollToFirstError>
+        <Form
+          form={form}
+          onFinish={handleFinish}
+          className="w-full"
+          layout="vertical"
+          scrollToFirstError
+        >
           <Form.Item name="email" label="E-mail" rules={[{ required: true }]}>
             <Input />
           </Form.Item>

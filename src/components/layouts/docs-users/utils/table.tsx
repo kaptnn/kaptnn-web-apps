@@ -3,6 +3,7 @@ import { CaretDownOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
 
 export interface DataType {
+  result: any;
   key: React.Key;
   id: string;
   name: string;
@@ -18,9 +19,12 @@ export interface UserProfileDataType {
   role: string;
 }
 
-export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
+export type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
 
-export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
+export const columns = (
+  onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
+) => [
   Table.SELECTION_COLUMN,
   Table.EXPAND_COLUMN,
   { title: "Nama User", dataIndex: "name", key: "name", sorter: true },

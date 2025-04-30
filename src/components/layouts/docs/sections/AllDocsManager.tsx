@@ -18,7 +18,16 @@ interface DocsReqClientProps {
 }
 
 const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useDocsRequestStore();
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    openModal,
+  } = useDocsRequestStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchDocumentRequest = useCallback(async () => {
@@ -60,10 +69,21 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Search placeholder="Search" onSearch={onSearch} loading={false} enterButton allowClear />
+            <Search
+              placeholder="Search"
+              onSearch={onSearch}
+              loading={false}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button icon={<PlusOutlined />} type="primary" loading={loading} onClick={() => openModal("create")}>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              loading={loading}
+              onClick={() => openModal("create")}
+            >
               Tambah Permintaan Dokumen
             </Button>
           </Flex>

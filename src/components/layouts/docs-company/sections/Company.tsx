@@ -16,7 +16,16 @@ interface CompanyClientProps {
 }
 
 const Company: React.FC<CompanyClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useCompanyStore();
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    openModal,
+  } = useCompanyStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchCompanies = useCallback(async () => {
@@ -58,10 +67,21 @@ const Company: React.FC<CompanyClientProps> = ({ initialToken }) => {
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Input.Search placeholder="Search companies…" onSearch={onSearch} loading={false} enterButton allowClear />
+            <Input.Search
+              placeholder="Search companies…"
+              onSearch={onSearch}
+              loading={false}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button icon={<PlusOutlined />} type="primary" loading={loading} onClick={() => openModal("create")}>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              loading={loading}
+              onClick={() => openModal("create")}
+            >
               Tambah Perusahaan
             </Button>
           </Flex>

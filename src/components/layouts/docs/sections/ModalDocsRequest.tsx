@@ -3,7 +3,12 @@
 import { Modal, Form, Input, DatePicker, message, Select } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { memo, useCallback, useEffect, useMemo, useTransition } from "react";
-import { CompanyApi, DocsCategoryApi, DocsRequestApi, UserApi } from "@/utils/axios/api-service";
+import {
+  CompanyApi,
+  DocsCategoryApi,
+  DocsRequestApi,
+  UserApi,
+} from "@/utils/axios/api-service";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
@@ -111,9 +116,18 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
     ? usersData.filter((u: any) => u.company_id === selectedCompanyId)
     : usersData;
 
-  const companyOptions = useMemo(() => compData.map((c) => ({ value: c.id, label: c.company_name })), [compData]);
-  const userOptions = useMemo(() => filteredUsers.map((u) => ({ value: u.id, label: u.name })), [filteredUsers]);
-  const categoryOptions = useMemo(() => docCatData.map((cat) => ({ value: cat.id, label: cat.name })), [docCatData]);
+  const companyOptions = useMemo(
+    () => compData.map((c) => ({ value: c.id, label: c.company_name })),
+    [compData],
+  );
+  const userOptions = useMemo(
+    () => filteredUsers.map((u) => ({ value: u.id, label: u.name })),
+    [filteredUsers],
+  );
+  const categoryOptions = useMemo(
+    () => docCatData.map((cat) => ({ value: cat.id, label: cat.name })),
+    [docCatData],
+  );
 
   const handleFinish = useCallback(async () => {
     startTransition(async () => {
@@ -210,7 +224,8 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
         {modalType === "delete" && selectedItem && (
           <p>
-            Apakah Anda yakin ingin menghapus permintaan <strong>{selectedItem.request_title}</strong>?
+            Apakah Anda yakin ingin menghapus permintaan{" "}
+            <strong>{selectedItem.request_title}</strong>?
           </p>
         )}
       </Form>

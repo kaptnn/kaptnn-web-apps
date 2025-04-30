@@ -5,7 +5,7 @@ import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { memo, useCallback, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCompanyStore } from "@/stores/useCompanyStore";
-import { CompanyApi, UserApi } from "@/utils/axios/api-service";
+import { AuthApi, CompanyApi, UserApi } from "@/utils/axios/api-service";
 import dayjs from "dayjs";
 
 interface ModalComponentProps {
@@ -64,7 +64,15 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
       setCompLoading(false);
       setUsersLoading(false);
     }
-  }, [token, setCompLoading, setUsersLoading, setCompData, setCompTotal, setUsersData, setUsersTotal]);
+  }, [
+    token,
+    setCompLoading,
+    setUsersLoading,
+    setCompData,
+    setCompTotal,
+    setUsersData,
+    setUsersTotal,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -87,13 +95,23 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         const payload = { ...values, due_date: dayjs(values.due_date) };
 
         if (modalType === "create") {
-          await UserApi.registerUser(payload, token);
+          await AuthApi.registerUser(payload, token);
         } else if (modalType === "edit" && selectedItem) {
           // NEED TO BE FIXED
-          await UserApi.getUserByCompanyId(selectedItem.id, token);
+          await UserApi.getAllUsers(
+            {
+              company_id: selectedItem.id,
+            },
+            token,
+          );
           // NEED TO BE FIXED
         } else if (modalType === "delete" && selectedItem) {
-          await UserApi.getUserByCompanyId(selectedItem.id, token);
+          await UserApi.getAllUsers(
+            {
+              company_id: selectedItem.id,
+            },
+            token,
+          );
         }
 
         router.refresh();
@@ -142,7 +160,8 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         {modalType === "view" && selectedItem && <></>}
         {modalType === "delete" && selectedItem && (
           <p>
-            Apakah Anda yakin ingin menghapus permintaan <strong>{selectedItem.name}</strong>?
+            Apakah Anda yakin ingin menghapus permintaan{" "}
+            <strong>{selectedItem.name}</strong>?
           </p>
         )}
       </Form>

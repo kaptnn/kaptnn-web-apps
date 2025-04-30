@@ -32,6 +32,12 @@ export interface LoginUserPayload {
   password: string;
 }
 
+export interface UpdateUserProfilePayload {
+  role?: string;
+  membership_status?: string;
+  is_verified?: boolean;
+}
+
 export type GetUser = () => User | undefined;
 
 export const loginSchema = z.object({

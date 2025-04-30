@@ -10,10 +10,16 @@ const DepreciationCalculatorForm = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCalculationResult: (result: any) => void;
 }) => {
-  const { form, isPending, onSubmit } = useDepreciationCalculatorForm(setCalculationResult);
+  const { form, isPending, onSubmit } =
+    useDepreciationCalculatorForm(setCalculationResult);
 
   return (
-    <Form onFinish={form.handleSubmit(onSubmit)} className="w-full" layout="vertical" scrollToFirstError>
+    <Form
+      onFinish={form.handleSubmit(onSubmit)}
+      className="w-full"
+      layout="vertical"
+      scrollToFirstError
+    >
       <Form.Item
         label="Harga Perolehan (Dalam Rupiah):"
         validateStatus={form.formState.errors.harga_perolehan ? "error" : ""}

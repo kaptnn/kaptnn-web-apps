@@ -8,7 +8,16 @@ import {
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Flex,
+  MenuProps,
+  Table,
+  TableProps,
+  Tag,
+} from "antd";
 
 export interface DataType {
   key: React.Key;
@@ -31,9 +40,12 @@ const statusMap: Record<string, { color: string; icon: React.ReactNode }> = {
   none: { color: "default", icon: <MinusCircleOutlined /> },
 };
 
-export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
+export type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
 
-export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
+export const columns = (
+  onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
+) => [
   Table.SELECTION_COLUMN,
   {
     title: "Nama Dokumen",
@@ -49,7 +61,11 @@ export const columns = (onAction: (type: "view" | "edit" | "delete", record: Dat
     render: (item: string) => {
       return (
         <Flex align="center" justify="center">
-          <Avatar className="capitalize" style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }} size="default">
+          <Avatar
+            className="capitalize"
+            style={{ backgroundColor: "#f56a00", verticalAlign: "middle" }}
+            size="default"
+          >
             {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
           </Avatar>
         </Flex>
@@ -64,7 +80,11 @@ export const columns = (onAction: (type: "view" | "edit" | "delete", record: Dat
     render: (item: string) => {
       return (
         <Flex align="center" justify="center">
-          <Avatar className="capitalize" style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }} size="default">
+          <Avatar
+            className="capitalize"
+            style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
+            size="default"
+          >
             {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
           </Avatar>
         </Flex>

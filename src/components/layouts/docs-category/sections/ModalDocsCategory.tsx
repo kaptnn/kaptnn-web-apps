@@ -28,7 +28,9 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
   const fetchData = useCallback(async () => {
     setDocCatLoading(true);
     try {
-      const [docCatRes] = await Promise.all([DocsCategoryApi.getAllDocsCategory({}, token)]);
+      const [docCatRes] = await Promise.all([
+        DocsCategoryApi.getAllDocsCategory({}, token),
+      ]);
 
       setDocCatData(docCatRes.result);
       setDocCatTotal(docCatRes.meta.totalItems);
@@ -121,7 +123,8 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
         {modalType === "delete" && selectedItem && (
           <p>
-            Apakah Anda yakin ingin menghapus kategori dokumen <strong>{selectedItem.name}</strong>?
+            Apakah Anda yakin ingin menghapus kategori dokumen{" "}
+            <strong>{selectedItem.name}</strong>?
           </p>
         )}
       </Form>

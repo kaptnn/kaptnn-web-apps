@@ -152,7 +152,9 @@ const WeightedAverageCalculatorForm = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="w-full">
-          {calculationType === "goal_seeking" ? "Hitung Goal Seeking" : "Hitung Weighted Average"}
+          {calculationType === "goal_seeking"
+            ? "Hitung Goal Seeking"
+            : "Hitung Weighted Average"}
         </Button>
       </Form.Item>
     </Form>

@@ -2,19 +2,19 @@
 import { DataType } from "@/components/layouts/docs/utils/table";
 import { AxiosInstance } from "axios";
 
-export interface getDocumentRequestProps {
-  id: string;
-  company_name: string;
-  created_at: string | Date;
-  updated_at: string | Date;
-}
+const VERSION = "/v1";
+const API_PATH = `${VERSION}/document-requests`;
 
-export interface CompanyProps {
+export interface DocumentRequestProps {
   id: string;
-  company_name: string;
-  year_of_assignment: number;
-  start_audit_period: Date;
-  end_audit_period: Date;
+  request_title: string;
+  request_desc: string;
+  admin_id?: string;
+  target_user_id: string;
+  category_id: string;
+  due_date: Date;
+  upload_date?: Date;
+  status?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -25,11 +25,16 @@ export interface PaginationMeta {
   totalItems: number;
 }
 
-export interface GetAllCompaniesParams {
+export interface GetAllDocumentCategoryParams {
   page?: number;
   limit?: number;
   sort?: string;
   order?: "asc" | "desc";
+  status?: string;
+  admin_id?: string;
+  target_user_id?: string;
+  category_id?: string;
+  name?: string;
 }
 
 class DocsRequestService {
@@ -46,23 +51,23 @@ class DocsRequestService {
   }
 
   public getAllDocsRequest = async (
-    params: GetAllCompaniesParams = {},
+    params: GetAllDocumentCategoryParams = {},
     token?: string,
     signal?: AbortSignal,
   ): Promise<{ result: DataType[]; meta: PaginationMeta }> => {
     try {
-      const response = await this.axiosInstance.get(`/v1/docs-request`, {
+      const response = await this.axiosInstance.get(`${API_PATH}`, {
         params,
         headers: this.getAuthHeaders(token),
         signal,
       });
-      const { result, pagination } = response.data;
+      const { result, meta } = response.data;
       return {
         result,
         meta: {
-          currentPage: pagination.current_page,
-          totalPages: pagination.total_pages,
-          totalItems: pagination.total_items,
+          currentPage: meta.current_page,
+          totalPages: meta.total_pages,
+          totalItems: meta.total_items,
         },
       };
     } catch (error: any) {
@@ -72,29 +77,14 @@ class DocsRequestService {
     }
   };
 
-  public getDocsRequestById = async (
-    companyId: string,
+  public createDocsRequest = async (
+    payload: any,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
+  ) => {
+    if (!payload) throw new Error("Document request is required");
     try {
-      const response = await this.axiosInstance.get(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-      return response.data.result;
-    } catch (error: any) {
-      console.error(`Error fetching company by ID ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch company with ID ${companyId}`;
-      throw new Error(msg);
-    }
-  };
-
-  public createDocsRequest = async (payload: any, token?: string, signal?: AbortSignal) => {
-    if (!payload) throw new Error("Company name is required");
-    try {
-      const response = await this.axiosInstance.post(`/v1/docs-request`, payload, {
+      const response = await this.axiosInstance.post(`${API_PATH}`, payload, {
         headers: this.getAuthHeaders(token),
         signal,
       });
@@ -106,16 +96,40 @@ class DocsRequestService {
     }
   };
 
+  public getDocsRequestById = async (
+    docsReqId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ): Promise<DocumentRequestProps> => {
+    if (!docsReqId) throw new Error("Document request ID is required");
+    try {
+      const response = await this.axiosInstance.get(
+        `${API_PATH}/${encodeURIComponent(docsReqId)}`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
+      return response.data.result;
+    } catch (error: any) {
+      console.error(`Error fetching company by ID ${docsReqId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch company with ID ${docsReqId}`;
+      throw new Error(msg);
+    }
+  };
+
   public updateDocsRequest = async (
-    companyId: string,
+    docsReqId: string,
     payload: any,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
+  ): Promise<DocumentRequestProps> => {
+    if (!docsReqId) throw new Error("Document request ID is required");
     try {
       const response = await this.axiosInstance.put(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
+        `${API_PATH}/${encodeURIComponent(docsReqId)}`,
         payload,
         {
           headers: this.getAuthHeaders(token),
@@ -124,26 +138,34 @@ class DocsRequestService {
       );
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error updating company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to update company with ID ${companyId}`;
+      console.error(`Error updating company ${docsReqId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to update company with ID ${docsReqId}`;
       throw new Error(msg);
     }
   };
 
-  public deleteDocsRequest = async (companyId: string, token?: string, signal?: AbortSignal) => {
-    if (!companyId) throw new Error("Company ID is required");
+  public deleteDocsRequest = async (
+    docsReqId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ) => {
+    if (!docsReqId) throw new Error("Document request ID is required");
     try {
-      const response = await this.axiosInstance.delete<{
-        message: string;
-        result: { id: string };
-      }>(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
+      const response = await this.axiosInstance.delete(
+        `${API_PATH}/${encodeURIComponent(docsReqId)}`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error deleting company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to delete company with ID ${companyId}`;
+      console.error(`Error deleting company ${docsReqId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to delete company with ID ${docsReqId}`;
       throw new Error(msg);
     }
   };

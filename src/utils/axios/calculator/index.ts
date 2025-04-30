@@ -20,7 +20,9 @@ export interface DepreciationResponseDouble {
   biaya_per_tahun: number[];
 }
 
-export type DepreciationResponse = DepreciationResponseStraight | DepreciationResponseDouble;
+export type DepreciationResponse =
+  | DepreciationResponseStraight
+  | DepreciationResponseDouble;
 
 export interface PresentValueResponse {
   present_value: number;
@@ -45,102 +47,6 @@ class CalculatorService {
     };
   }
 
-  public addition = async (
-    num1: number,
-    num2: number,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<ArithmeticResponse> => {
-    try {
-      const response = await this.axiosInstance.get("/v1/calculator/addition", {
-        params: {
-          num1,
-          num2,
-        },
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-
-      return response.data;
-    } catch (error: any) {
-      console.error(`Error fetching result of addition calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of addition calculation `;
-      throw new Error(msg);
-    }
-  };
-
-  public subtraction = async (
-    num1: number,
-    num2: number,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<ArithmeticResponse> => {
-    try {
-      const response = await this.axiosInstance.get("/v1/calculator/subtraction", {
-        params: {
-          num1,
-          num2,
-        },
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-
-      return response.data;
-    } catch (error: any) {
-      console.error(`Error fetching result of subtraction calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of subtraction calculation `;
-      throw new Error(msg);
-    }
-  };
-
-  public multiplication = async (
-    num1: number,
-    num2: number,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<ArithmeticResponse> => {
-    try {
-      const response = await this.axiosInstance.get("/v1/calculator/multiplication", {
-        params: {
-          num1,
-          num2,
-        },
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-
-      return response.data;
-    } catch (error: any) {
-      console.error(`Error fetching result of multiplication calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of multiplication calculation `;
-      throw new Error(msg);
-    }
-  };
-
-  public division = async (
-    num1: number,
-    num2: number,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<ArithmeticResponse> => {
-    try {
-      const response = await this.axiosInstance.get("/v1/calculator/division", {
-        params: {
-          num1,
-          num2,
-        },
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-
-      return response.data;
-    } catch (error: any) {
-      console.error(`Error fetching result of division calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of division calculation `;
-      throw new Error(msg);
-    }
-  };
-
   public depreciation = async (
     harga_perolehan: number,
     estimasi_umur: number,
@@ -150,7 +56,9 @@ class CalculatorService {
     signal?: AbortSignal,
   ): Promise<DepreciationResponse> => {
     if (!["straight_line", "double_declining"].includes(metode)) {
-      return Promise.reject(new Error("Invalid method: choose 'straight_line' or 'double_declining'."));
+      return Promise.reject(
+        new Error("Invalid method: choose 'straight_line' or 'double_declining'."),
+      );
     }
 
     try {
@@ -168,7 +76,9 @@ class CalculatorService {
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of depreciation calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of depreciation calculation `;
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch result of depreciation calculation `;
       throw new Error(msg);
     }
   };
@@ -194,7 +104,9 @@ class CalculatorService {
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of present value calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of present value calculation `;
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch result of present value calculation `;
       throw new Error(msg);
     }
   };
@@ -207,7 +119,9 @@ class CalculatorService {
     signal?: AbortSignal,
   ): Promise<WeightedAverageResponse> => {
     if (loss_rate_array.length !== n_total || weight_array.length !== n_total) {
-      return Promise.reject(new Error("Length of loss_rate_array and weight_array must match n_total."));
+      return Promise.reject(
+        new Error("Length of loss_rate_array and weight_array must match n_total."),
+      );
     }
 
     try {
@@ -224,7 +138,9 @@ class CalculatorService {
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching result of weighted average calculation:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch result of weigted average calculation `;
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch result of weigted average calculation `;
       throw new Error(msg);
     }
   };

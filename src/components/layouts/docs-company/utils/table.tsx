@@ -11,12 +11,20 @@ export interface DataType {
   end_audit_period: string;
 }
 
-export type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
+export type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
 
-export const columns = (onAction: (type: "view" | "edit" | "delete", record: DataType) => void) => [
+export const columns = (
+  onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
+) => [
   Table.SELECTION_COLUMN,
   Table.EXPAND_COLUMN,
-  { title: "Company Name", dataIndex: "company_name", key: "company_name", sorter: true },
+  {
+    title: "Company Name",
+    dataIndex: "company_name",
+    key: "company_name",
+    sorter: true,
+  },
   {
     title: "Tahun Penugasan",
     dataIndex: "year_of_assignment",
@@ -28,8 +36,18 @@ export const columns = (onAction: (type: "view" | "edit" | "delete", record: Dat
       </Flex>
     ),
   },
-  { title: "Mulai Periode Audit", dataIndex: "start_audit_period", key: "start_audit_period", sorter: true },
-  { title: "Akhir Periode Audit", dataIndex: "end_audit_period", key: "end_audit_period", sorter: true },
+  {
+    title: "Mulai Periode Audit",
+    dataIndex: "start_audit_period",
+    key: "start_audit_period",
+    sorter: true,
+  },
+  {
+    title: "Akhir Periode Audit",
+    dataIndex: "end_audit_period",
+    key: "end_audit_period",
+    sorter: true,
+  },
   {
     title: "Action",
     dataIndex: "",

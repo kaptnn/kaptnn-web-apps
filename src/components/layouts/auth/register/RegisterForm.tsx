@@ -48,7 +48,13 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
         </Button>
       </div>
       <div className="flex w-full flex-col bg-white px-5 md:items-center md:justify-center md:px-24">
-        <Form form={form} onFinish={handleFinish} className="w-full" layout="vertical" scrollToFirstError>
+        <Form
+          form={form}
+          onFinish={handleFinish}
+          className="w-full"
+          layout="vertical"
+          scrollToFirstError
+        >
           <Form.Item
             name="name"
             label="Nama Lengkap"
@@ -111,7 +117,9 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             rules={[
               {
                 validator: (_, value) =>
-                  value ? Promise.resolve() : Promise.reject(new Error("Should accept agreement")),
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject(new Error("Should accept agreement")),
               },
             ]}
           >
@@ -121,7 +129,12 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full" loading={isPending}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={isPending}
+            >
               {isPending ? "Tunggu Sebentar" : "Daftar Sekarang"}
             </Button>
           </Form.Item>

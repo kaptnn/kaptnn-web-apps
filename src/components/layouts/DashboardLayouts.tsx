@@ -2,8 +2,24 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar, Breadcrumb, Dropdown, Flex, Layout, Menu, Modal, Spin, theme, Typography, type MenuProps } from "antd";
-import { getMenuItemsByRole, getDefaultOpenKeys, accountProfileItems } from "@/utils/constants/navigation";
+import {
+  Avatar,
+  Breadcrumb,
+  Dropdown,
+  Flex,
+  Layout,
+  Menu,
+  Modal,
+  Spin,
+  theme,
+  Typography,
+  type MenuProps,
+} from "antd";
+import {
+  getMenuItemsByRole,
+  getDefaultOpenKeys,
+  accountProfileItems,
+} from "@/utils/constants/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import useAuthStore from "@/stores/AuthStore";
@@ -86,7 +102,12 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="ml-1 h-24 w-full p-4">
             <div className="flex h-full w-full items-center justify-center rounded bg-white p-4">
               <Link href={"/"}>
-                <Image src={"/kaptnn-logo.webp"} alt="Logo KAP TNN" width={1024} height={1024} />
+                <Image
+                  src={"/kaptnn-logo.webp"}
+                  alt="Logo KAP TNN"
+                  width={1024}
+                  height={1024}
+                />
               </Link>
             </div>
           </div>
@@ -138,7 +159,12 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             >
               <BellOutlined style={{ fontSize: 22, margin: 0, padding: 0 }} />
             </Flex>
-            <Dropdown menu={{ items: accountProfileItems }} trigger={["click"]} placement="bottomRight" arrow>
+            <Dropdown
+              menu={{ items: accountProfileItems }}
+              trigger={["click"]}
+              placement="bottomRight"
+              arrow
+            >
               <Avatar
                 onClick={(e) => e?.preventDefault()}
                 size="large"
@@ -162,7 +188,13 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           {children}
         </Content>
-        <Modal centered open={isModalOpen} width={1024} onCancel={() => setIsModalOpen(false)} maskClosable={false}>
+        <Modal
+          centered
+          open={isModalOpen}
+          width={1024}
+          onCancel={() => setIsModalOpen(false)}
+          maskClosable={false}
+        >
           <Typography.Title level={2} style={{ marginTop: 0 }}>
             Bantuan & Dokumentasi
           </Typography.Title>

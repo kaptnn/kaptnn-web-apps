@@ -13,7 +13,12 @@ type MenuItem = Required<MenuProps>["items"][number] & {
   children?: MenuItem[];
 };
 
-const getItem = (label: React.ReactNode, key: string, icon?: React.ReactNode, children?: MenuItem[]): MenuItem => {
+const getItem = (
+  label: React.ReactNode,
+  key: string,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+): MenuItem => {
   return {
     key,
     icon,
@@ -64,7 +69,11 @@ export const getMenuItemsByRole = (role: string): MenuItem[] => {
 export const getDefaultOpenKeys = (pathname: string, items: MenuItem[]): string[] => {
   return items
     .filter((item): item is MenuItem => !!item && "children" in item)
-    .filter((item) => item.children?.some((child) => typeof child.key === "string" && pathname.startsWith(child.key)))
+    .filter((item) =>
+      item.children?.some(
+        (child) => typeof child.key === "string" && pathname.startsWith(child.key),
+      ),
+    )
     .map((item) => (typeof item.key === "string" ? item.key : ""))
     .filter((key) => key !== "");
 };
@@ -83,13 +92,22 @@ export const accountProfileItems: MenuProps["items"] = [
     key: "1",
     label: (
       <Flex vertical className="text-gray-300">
-        <Typography.Paragraph className="text-sm font-medium text-gray-700" style={{ margin: 0 }}>
+        <Typography.Paragraph
+          className="text-sm font-medium text-gray-700 opacity-50"
+          style={{ margin: 0, opacity: 0.5 }}
+        >
           Masuk Sebagai
         </Typography.Paragraph>
-        <Typography.Paragraph className="text-xs text-gray-300" style={{ margin: 0 }}>
+        <Typography.Paragraph
+          className="text-xs text-gray-300 opacity-50"
+          style={{ margin: 0, opacity: 0.5 }}
+        >
           {useAuthStore.getState().userInfo?.email}
         </Typography.Paragraph>
-        <Typography.Paragraph className="text-xs text-gray-300" style={{ margin: 0 }}>
+        <Typography.Paragraph
+          className="text-xs text-gray-300 opacity-50"
+          style={{ margin: 0, opacity: 0.5 }}
+        >
           {useAuthStore.getState().userInfo?.company_name}
         </Typography.Paragraph>
       </Flex>

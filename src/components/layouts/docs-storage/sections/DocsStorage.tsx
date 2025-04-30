@@ -12,7 +12,16 @@ interface DocsStorageClientProps {
 }
 
 const DocsStorage: React.FC<DocsStorageClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useAllUsersStore();
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    openModal,
+  } = useAllUsersStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -20,10 +29,21 @@ const DocsStorage: React.FC<DocsStorageClientProps> = ({ initialToken }) => {
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Input.Search placeholder="Search companies…" onSearch={() => {}} loading={false} enterButton allowClear />
+            <Input.Search
+              placeholder="Search companies…"
+              onSearch={() => {}}
+              loading={false}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button icon={<PlusOutlined />} type="primary" loading={loading} onClick={() => openModal("create")}>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              loading={loading}
+              onClick={() => openModal("create")}
+            >
               Tambah Perusahaan
             </Button>
           </Flex>

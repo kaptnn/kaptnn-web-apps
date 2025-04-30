@@ -14,7 +14,16 @@ interface AllUsersClientProps {
 }
 
 const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useAllUsersStore();
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    openModal,
+  } = useAllUsersStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = useCallback(async () => {
@@ -54,10 +63,21 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken }) => {
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Input.Search placeholder="Search users..." onSearch={onSearch} loading={false} enterButton allowClear />
+            <Input.Search
+              placeholder="Search users..."
+              onSearch={onSearch}
+              loading={false}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button type="primary" icon={<PlusOutlined />} loading={loading} onClick={() => openModal("create")}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              loading={loading}
+              onClick={() => openModal("create")}
+            >
               Add New User
             </Button>
           </Flex>

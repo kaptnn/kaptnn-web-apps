@@ -18,7 +18,16 @@ interface DocsCategoryClientProps {
 }
 
 const DocsCategory: React.FC<DocsCategoryClientProps> = ({ initialToken }) => {
-  const { pageSize, current, loading, setData, setLoading, setCurrent, setTotal, openModal } = useDocsCategoryStore();
+  const {
+    pageSize,
+    current,
+    loading,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    openModal,
+  } = useDocsCategoryStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchDocumentCategory = useCallback(async () => {
@@ -58,10 +67,21 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({ initialToken }) => {
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Search placeholder="Search" onSearch={onSearch} loading={false} enterButton allowClear />
+            <Search
+              placeholder="Search"
+              onSearch={onSearch}
+              loading={false}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button type="primary" icon={<PlusOutlined />} loading={loading} onClick={() => openModal("create")}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              loading={loading}
+              onClick={() => openModal("create")}
+            >
               Tambah Kategori
             </Button>
           </Flex>

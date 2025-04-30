@@ -8,12 +8,9 @@ export interface getDocumentRequestProps {
   updated_at: string | Date;
 }
 
-export interface CompanyProps {
+export interface DocumentCategoryProps {
   id: string;
-  company_name: string;
-  year_of_assignment: number;
-  start_audit_period: Date;
-  end_audit_period: Date;
+  name: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -24,11 +21,12 @@ export interface PaginationMeta {
   totalItems: number;
 }
 
-export interface GetAllCompaniesParams {
+export interface GetAllDocumentCategoryParams {
   page?: number;
   limit?: number;
   sort?: string;
   order?: "asc" | "desc";
+  name?: string;
 }
 
 class DocsCategoryService {
@@ -45,23 +43,23 @@ class DocsCategoryService {
   }
 
   public getAllDocsCategory = async (
-    params: GetAllCompaniesParams = {},
+    params: GetAllDocumentCategoryParams = {},
     token?: string,
     signal?: AbortSignal,
   ): Promise<{ result: []; meta: PaginationMeta }> => {
     try {
-      const response = await this.axiosInstance.get(`/v1/docs-category`, {
+      const response = await this.axiosInstance.get(`/v1/document-categories`, {
         params,
         headers: this.getAuthHeaders(token),
         signal,
       });
-      const { result, pagination } = response.data;
+      const { result, meta } = response.data;
       return {
         result,
         meta: {
-          currentPage: pagination.current_page,
-          totalPages: pagination.total_pages,
-          totalItems: pagination.total_items,
+          currentPage: meta.current_page,
+          totalPages: meta.total_pages,
+          totalItems: meta.total_items,
         },
       };
     } catch (error: any) {
@@ -71,50 +69,15 @@ class DocsCategoryService {
     }
   };
 
-  public getDocsCategoryById = async (
-    companyId: string,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
-    try {
-      const response = await this.axiosInstance.get(`/v1/docs-category/id/${encodeURIComponent(companyId)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-      return response.data.result;
-    } catch (error: any) {
-      console.error(`Error fetching company by ID ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch company with ID ${companyId}`;
-      throw new Error(msg);
-    }
-  };
-
-  public createDocsCategory = async (payload: any, token?: string, signal?: AbortSignal): Promise<CompanyProps> => {
-    if (!payload.company_name) throw new Error("Company name is required");
-    try {
-      const response = await this.axiosInstance.post(`/v1/companies`, payload, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-      return response.data.result;
-    } catch (error: any) {
-      console.error("Error creating company:", error);
-      const msg = error?.response?.data?.message || "Failed to create company";
-      throw new Error(msg);
-    }
-  };
-
-  public updateDocsCategory = async (
-    companyId: string,
+  public createDocsCategory = async (
     payload: any,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
+  ): Promise<DocumentCategoryProps> => {
+    if (!payload.name) throw new Error("Document category name is required");
     try {
-      const response = await this.axiosInstance.put(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
+      const response = await this.axiosInstance.post(
+        `/v1/document-categories`,
         payload,
         {
           headers: this.getAuthHeaders(token),
@@ -123,26 +86,82 @@ class DocsCategoryService {
       );
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error updating company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to update company with ID ${companyId}`;
+      console.error("Error creating company:", error);
+      const msg = error?.response?.data?.message || "Failed to create company";
       throw new Error(msg);
     }
   };
 
-  public deleteDocsCategory = async (companyId: string, token?: string, signal?: AbortSignal) => {
-    if (!companyId) throw new Error("Company ID is required");
+  public getDocsCategoryById = async (
+    docsCategoryId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ): Promise<DocumentCategoryProps> => {
+    if (!docsCategoryId) throw new Error("Document category ID is required");
     try {
-      const response = await this.axiosInstance.delete<{
-        message: string;
-        result: { id: string };
-      }>(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
+      const response = await this.axiosInstance.get(
+        `/v1/document-categories/${encodeURIComponent(docsCategoryId)}`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error deleting company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to delete company with ID ${companyId}`;
+      console.error(`Error fetching company by ID ${docsCategoryId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch company with ID ${docsCategoryId}`;
+      throw new Error(msg);
+    }
+  };
+
+  public updateDocsCategory = async (
+    docsCategoryId: string,
+    payload: any,
+    token?: string,
+    signal?: AbortSignal,
+  ): Promise<DocumentCategoryProps> => {
+    if (!docsCategoryId) throw new Error("Document category ID is required");
+    try {
+      const response = await this.axiosInstance.put(
+        `/v1/document-categories/${encodeURIComponent(docsCategoryId)}`,
+        payload,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
+      return response.data.result;
+    } catch (error: any) {
+      console.error(`Error updating company ${docsCategoryId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to update company with ID ${docsCategoryId}`;
+      throw new Error(msg);
+    }
+  };
+
+  public deleteDocsCategory = async (
+    docsCategoryId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ) => {
+    if (!docsCategoryId) throw new Error("Company ID is required");
+    try {
+      const response = await this.axiosInstance.delete(
+        `/v1/document-categories/${encodeURIComponent(docsCategoryId)}`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
+      return response.data.result;
+    } catch (error: any) {
+      console.error(`Error deleting company ${docsCategoryId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to delete company with ID ${docsCategoryId}`;
       throw new Error(msg);
     }
   };

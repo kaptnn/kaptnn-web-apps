@@ -20,5 +20,9 @@ export default function Providers({ children }: Props) {
 }
 
 function AntDesignProvider({ children }: { children: ReactNode }) {
-  return <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>{children}</ConfigProvider>;
+  return (
+    <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
+      {children}
+    </ConfigProvider>
+  );
 }

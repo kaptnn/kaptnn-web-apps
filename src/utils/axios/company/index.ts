@@ -22,6 +22,8 @@ export interface GetAllCompaniesParams {
   limit?: number;
   sort?: string;
   order?: "asc" | "desc";
+  year_of_assignmenet?: number;
+  name?: string;
 }
 
 export interface CreateCompanyPayload {
@@ -62,52 +64,18 @@ class CompanyService {
         headers: this.getAuthHeaders(token),
         signal,
       });
-      const { result, pagination } = response.data;
+      const { result, meta } = response.data;
       return {
         result,
         meta: {
-          currentPage: pagination.current_page,
-          totalPages: pagination.total_pages,
-          totalItems: pagination.total_items,
+          currentPage: meta.current_page,
+          totalPages: meta.total_pages,
+          totalItems: meta.total_items,
         },
       };
     } catch (error: any) {
       console.error("Error fetching companies:", error);
       const msg = error?.response?.data?.message || "Failed to fetch companies";
-      throw new Error(msg);
-    }
-  };
-
-  public getCompanyById = async (companyId: string, token?: string, signal?: AbortSignal): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
-    try {
-      const response = await this.axiosInstance.get(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-      return response.data.result;
-    } catch (error: any) {
-      console.error(`Error fetching company by ID ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch company with ID ${companyId}`;
-      throw new Error(msg);
-    }
-  };
-
-  public getCompanyByCompanyName = async (
-    companyName: string,
-    token?: string,
-    signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyName) throw new Error("Company name is required");
-    try {
-      const response = await this.axiosInstance.get(`/v1/companies/company/name/${encodeURIComponent(companyName)}`, {
-        headers: this.getAuthHeaders(token),
-        signal,
-      });
-      return response.data.result;
-    } catch (error: any) {
-      console.error(`Error fetching company by name ${companyName}:`, error);
-      const msg = error?.response?.data?.message || `Failed to fetch company with name ${companyName}`;
       throw new Error(msg);
     }
   };
@@ -131,6 +99,51 @@ class CompanyService {
     }
   };
 
+  public getCompanyByCurrentUser = async (
+    companyId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ): Promise<CompanyProps> => {
+    if (!companyId) throw new Error("Company ID is required");
+    try {
+      const response = await this.axiosInstance.get(`/v1/companies/me`, {
+        headers: this.getAuthHeaders(token),
+        signal,
+      });
+      return response.data.result;
+    } catch (error: any) {
+      console.error(`Error fetching company by ID ${companyId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch company with ID ${companyId}`;
+      throw new Error(msg);
+    }
+  };
+
+  public getCompanyById = async (
+    companyId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ): Promise<CompanyProps> => {
+    if (!companyId) throw new Error("Company ID is required");
+    try {
+      const response = await this.axiosInstance.get(
+        `/v1/companies/${encodeURIComponent(companyId)}`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal,
+        },
+      );
+      return response.data.result;
+    } catch (error: any) {
+      console.error(`Error fetching company by ID ${companyId}:`, error);
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to fetch company with ID ${companyId}`;
+      throw new Error(msg);
+    }
+  };
+
   public updateCompany = async (
     companyId: string,
     payload: UpdateCompanyPayload,
@@ -140,7 +153,7 @@ class CompanyService {
     if (!companyId) throw new Error("Company ID is required");
     try {
       const response = await this.axiosInstance.put(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
+        `/v1/companies/${encodeURIComponent(companyId)}`,
         payload,
         {
           headers: this.getAuthHeaders(token),
@@ -150,25 +163,33 @@ class CompanyService {
       return response.data.result;
     } catch (error: any) {
       console.error(`Error updating company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to update company with ID ${companyId}`;
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to update company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
 
-  public deleteCompany = async (companyId: string, token?: string, signal?: AbortSignal) => {
+  public deleteCompany = async (
+    companyId: string,
+    token?: string,
+    signal?: AbortSignal,
+  ) => {
     if (!companyId) throw new Error("Company ID is required");
     try {
       const response = await this.axiosInstance.delete<{
         message: string;
         result: { id: string };
-      }>(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
+      }>(`/v1/companies/${encodeURIComponent(companyId)}`, {
         headers: this.getAuthHeaders(token),
         signal,
       });
       return response.data.result;
     } catch (error: any) {
       console.error(`Error deleting company ${companyId}:`, error);
-      const msg = error?.response?.data?.message || `Failed to delete company with ID ${companyId}`;
+      const msg =
+        error?.response?.data?.message ||
+        `Failed to delete company with ID ${companyId}`;
       throw new Error(msg);
     }
   };
