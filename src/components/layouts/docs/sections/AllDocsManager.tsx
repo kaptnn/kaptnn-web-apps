@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DashboardLayouts from "../../DashboardLayouts";
-import { Input, Button, Flex, message, Divider } from "antd";
+import { Input, Button, Flex, message, Divider, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DocsRequestTable from "./TableDocsRequest";
 import DocsRequestModals from "./ModalDocsRequest";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { DocsRequestApi } from "@/utils/axios/api-service";
 import { DataType } from "../utils/table";
+import FilterDocsRequest, { FilterOptions } from "./FilterDocsRequest";
+import debounce from "lodash/debounce";
+import { useAllUsersStore } from "@/stores/useAllUsersStore";
+import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 
 const { Search } = Input;
 
@@ -22,21 +26,53 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
     pageSize,
     current,
     loading,
+    filters,
     setData,
     setLoading,
     setCurrent,
     setTotal,
+    setFilters,
     openModal,
   } = useDocsRequestStore();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || "");
+
+  const { data: users } = useAllUsersStore();
+  const { data: categories } = useDocsCategoryStore();
+
+  const options: FilterOptions = useMemo(
+    () => ({
+      statuses: [
+        { value: "pending", label: "Pending" },
+        { value: "uploaded", label: "Uploaded" },
+        { value: "accepted", label: "Accepted" },
+        { value: "rejected", label: "Rejected" },
+        { value: "overdue", label: "Overdue" },
+      ],
+      admins: users
+        .filter((u) => u.profile.role === "admin")
+        .map((u) => ({ value: u.id, label: u.name })),
+      targetUsers: users.map((u) => ({ value: u.id, label: u.name })),
+      categories: categories.map((cat) => ({ value: cat.id, label: cat.name })),
+    }),
+    [users, categories],
+  );
 
   const fetchDocumentRequest = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await DocsRequestApi.getAllDocsRequest(
-        { page: current, limit: pageSize, sort: "created_at", order: "asc" },
-        initialToken,
-      );
+      const params = {
+        page: current,
+        limit: pageSize,
+        sort: filters.sort,
+        order: filters.order,
+        search: searchTerm || undefined,
+        status: filters.status || undefined,
+        admin_id: filters.admin_id || undefined,
+        target_user_id: filters.target_user_id || undefined,
+        category_id: filters.category_id || undefined,
+      };
+
+      const response = await DocsRequestApi.getAllDocsRequest(params, initialToken);
 
       const formatted: DataType[] = response.result.map((item: DataType) => ({
         ...item,
@@ -53,14 +89,39 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, initialToken, current, pageSize, setData, setTotal]);
+  }, [
+    setLoading,
+    current,
+    pageSize,
+    filters.sort,
+    filters.order,
+    filters.status,
+    filters.admin_id,
+    filters.target_user_id,
+    filters.category_id,
+    searchTerm,
+    initialToken,
+    setData,
+    setTotal,
+  ]);
+
+  const debouncedFetch = useMemo(
+    () => debounce(() => fetchDocumentRequest(), 500),
+    [fetchDocumentRequest],
+  );
 
   useEffect(() => {
-    fetchDocumentRequest();
-  }, [fetchDocumentRequest]);
+    debouncedFetch();
+    return debouncedFetch.cancel;
+  }, [debouncedFetch]);
 
   const onSearch = (value: string) => {
     setSearchTerm(value);
+    setCurrent(1);
+  };
+
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    setFilters(newFilters);
     setCurrent(1);
   };
 
@@ -88,9 +149,11 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
             </Button>
           </Flex>
         </Flex>
-        <Flex>
-          <Divider />
-        </Flex>
+        <FilterDocsRequest
+          filterValues={{ ...filters }}
+          onFilterChange={handleFilterChange}
+          options={options}
+        />
         <DocsRequestTable token={initialToken} fetchData={fetchDocumentRequest} />
         <DocsRequestModals token={initialToken} />
       </Flex>

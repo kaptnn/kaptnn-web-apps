@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { DataType } from "@/components/layouts/docs/utils/table";
+import { GetAllDocumentRequestParams } from "@/utils/axios/docs/request";
 
 type ModalType = "create" | "view" | "edit" | "delete" | null;
 
@@ -13,6 +14,7 @@ interface DocsRequestState {
   pageSize: number;
   selectedItem: DataType | null;
   selectedRowKeys: React.Key[];
+  filters: GetAllDocumentRequestParams;
 
   setData: (data: DataType[]) => void;
   setLoading: (loading: boolean) => void;
@@ -23,6 +25,8 @@ interface DocsRequestState {
   setPageSize: (size: number) => void;
   setSelectedItem: (item: DataType | null) => void;
   setSelectedRowKeys: (keys: React.Key[]) => void;
+  setFilters: (filters: GetAllDocumentRequestParams) => void;
+  resetFilters: () => void;
 
   openModal: (type: Exclude<ModalType, null>, item?: DataType) => void;
   closeModal: () => void;
@@ -38,6 +42,7 @@ export const useDocsRequestStore = create<DocsRequestState>((set) => ({
   pageSize: 5,
   selectedItem: null,
   selectedRowKeys: [],
+  filters: {},
 
   setData: (data) => set({ data }),
   setLoading: (loading) => set({ loading }),
@@ -48,6 +53,8 @@ export const useDocsRequestStore = create<DocsRequestState>((set) => ({
   setPageSize: (pageSize) => set({ pageSize }),
   setSelectedItem: (selectedItem) => set({ selectedItem }),
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
+  setFilters: (filters) => set(() => ({ filters })),
+  resetFilters: () => set(() => ({ filters: {} })),
 
   openModal: (type, item) =>
     set({

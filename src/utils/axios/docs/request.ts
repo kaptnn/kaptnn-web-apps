@@ -25,7 +25,7 @@ export interface PaginationMeta {
   totalItems: number;
 }
 
-export interface GetAllDocumentCategoryParams {
+export interface GetAllDocumentRequestParams {
   page?: number;
   limit?: number;
   sort?: string;
@@ -51,7 +51,7 @@ class DocsRequestService {
   }
 
   public getAllDocsRequest = async (
-    params: GetAllDocumentCategoryParams = {},
+    params: GetAllDocumentRequestParams = {},
     token?: string,
     signal?: AbortSignal,
   ): Promise<{ result: DataType[]; meta: PaginationMeta }> => {
