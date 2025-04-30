@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { DataType } from "@/components/layouts/docs-company/utils/table";
+import { GetAllCompaniesParams } from "@/utils/axios/company";
 
 type ModalType = "create" | "view" | "edit" | "delete" | null;
 
@@ -13,6 +14,7 @@ interface CompanyState {
   pageSize: number;
   selectedItem: DataType | null;
   selectedRowKeys: React.Key[];
+  filters: GetAllCompaniesParams;
 
   setData: (data: DataType[]) => void;
   setLoading: (loading: boolean) => void;
@@ -23,6 +25,8 @@ interface CompanyState {
   setPageSize: (size: number) => void;
   setSelectedItem: (company: DataType | null) => void;
   setSelectedRowKeys: (keys: React.Key[]) => void;
+  setFilters: (filters: GetAllCompaniesParams) => void;
+  resetFilters: () => void;
 
   openModal: (type: Exclude<ModalType, null>, item?: DataType) => void;
   closeModal: () => void;
@@ -38,6 +42,7 @@ export const useCompanyStore = create<CompanyState>((set) => ({
   pageSize: 5,
   selectedItem: null,
   selectedRowKeys: [],
+  filters: {},
 
   setData: (data) => set({ data }),
   setLoading: (loading) => set({ loading }),
@@ -48,6 +53,8 @@ export const useCompanyStore = create<CompanyState>((set) => ({
   setPageSize: (pageSize) => set({ pageSize }),
   setSelectedItem: (selectedItem) => set({ selectedItem }),
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
+  setFilters: (filters) => set(() => ({ filters })),
+  resetFilters: () => set(() => ({ filters: {} })),
 
   openModal: (type, item) =>
     set({
