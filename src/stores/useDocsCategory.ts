@@ -55,7 +55,7 @@ export const useDocsCategoryStore = create<DocsCategoryState>((set) => ({
   setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
   setFilters: (filters) => set(() => ({ filters })),
   resetFilters: () => set(() => ({ filters: {} })),
-  
+
   openModal: (type, item) =>
     set({
       modalType: type,
