@@ -2,7 +2,15 @@ import { create } from "zustand";
 import { DataType } from "@/components/layouts/docs/utils/table";
 import { GetAllDocumentRequestParams } from "@/utils/axios/docs/request";
 
-type ModalType = "create" | "view" | "edit" | "delete" | null;
+type ModalType =
+  | "create"
+  | "view"
+  | "edit"
+  | "delete"
+  | "upload_request"
+  | "edit_request"
+  | "delete_request"
+  | null;
 
 interface DocsRequestState {
   data: DataType[];

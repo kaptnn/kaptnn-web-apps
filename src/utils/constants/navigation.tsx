@@ -47,7 +47,6 @@ export const clientMenuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
     getItem("Docs Request", "/dashboard/document"),
-    getItem("Docs Storage", "/dashboard/document/storage"),
     getItem("All Users", "/dashboard/document/users"),
   ]),
   getItem("Calculator", "/dashboard/calculator", <CalculatorOutlined />, [

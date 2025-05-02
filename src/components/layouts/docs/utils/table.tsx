@@ -45,6 +45,7 @@ export type TableRowSelection<T extends object = object> =
 
 export const columns = (
   onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
+  isAdmin: boolean,
 ) => [
   Table.SELECTION_COLUMN,
   {
@@ -140,25 +141,49 @@ export const columns = (
     sorter: false,
     render: (_text: any, record: DataType) => {
       const menu: MenuProps = {
-        items: [
-          {
-            key: "view",
-            label: "View Data",
-          },
-          {
-            key: "edit",
-            label: "Edit Data",
-          },
-          {
-            key: "divider",
-            type: "divider",
-          },
-          {
-            key: "delete",
-            label: "Delete Data",
-            danger: true,
-          },
-        ],
+        items: isAdmin
+          ? [
+              {
+                key: "view",
+                label: "View Data",
+              },
+              {
+                key: "edit",
+                label: "Edit Data",
+              },
+              {
+                key: "divider",
+                type: "divider",
+              },
+              {
+                key: "delete",
+                label: "Delete Data",
+                danger: true,
+              },
+            ]
+          : [
+              {
+                key: "view",
+                label: "View Request",
+              },
+              {
+                key: "upload_request",
+                label: "Upload Request",
+              },
+              {
+                key: "edit_request",
+                label: "Edit Request",
+              },
+              {
+                key: "divider",
+                type: "divider",
+              },
+              {
+                key: "delete_request",
+                label: "Delete Request",
+                danger: true,
+              },
+            ],
         onClick: ({ key }) => onAction(key as any, record),
       };
 

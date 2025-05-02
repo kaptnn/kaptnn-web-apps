@@ -3,6 +3,7 @@ import { Table } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { columns as baseColumns } from "../utils/table";
 import { memo, useMemo } from "react";
+import useAuthStore from "@/stores/AuthStore";
 
 interface TableComponentProps {
   token: string;
@@ -23,9 +24,12 @@ const DocsRequestTable: React.FC<TableComponentProps> = ({ token, fetchData }) =
     openModal,
   } = useDocsRequestStore();
 
+  const { userInfo } = useAuthStore();
+  const isAdmin = userInfo.profile.role === "admin";
+
   const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys);
 
-  const columns = useMemo(() => baseColumns(openModal), [openModal]);
+  const columns = useMemo(() => baseColumns(openModal, isAdmin), [isAdmin, openModal]);
 
   return (
     <Table

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import useAuthStore from "@/stores/AuthStore";
 import { GetAllDocumentRequestParams } from "@/utils/axios/docs/request";
 import { Flex, Select } from "antd";
 import { memo } from "react";
@@ -31,6 +32,9 @@ const FilterDocsRequest: React.FC<FilterComponentProps> = ({
   onFilterChange,
   options,
 }) => {
+  const { userInfo } = useAuthStore();
+  const isAdmin = userInfo.profile.role === "admin";
+
   const handleChange =
     <K extends keyof GetAllDocumentRequestParams>(field: K) =>
     (value: any) => {
@@ -72,15 +76,16 @@ const FilterDocsRequest: React.FC<FilterComponentProps> = ({
         onChange={handleChange("admin_id")}
         allowClear
       />
-
-      <Select
-        placeholder="Filter Target User"
-        style={{ minWidth: 120 }}
-        options={options.targetUsers}
-        value={filterValues.target_user_id}
-        onChange={handleChange("target_user_id")}
-        allowClear
-      />
+      {isAdmin && (
+        <Select
+          placeholder="Filter Target User"
+          style={{ minWidth: 120 }}
+          options={options.targetUsers}
+          value={filterValues.target_user_id}
+          onChange={handleChange("target_user_id")}
+          allowClear
+        />
+      )}
 
       <Select
         placeholder="Filter Category"

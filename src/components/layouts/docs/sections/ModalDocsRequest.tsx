@@ -1,11 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message, Select } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  message,
+  Select,
+  UploadProps,
+  Upload,
+} from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
 import { memo, useCallback, useEffect, useMemo, useTransition } from "react";
 import {
   CompanyApi,
   DocsCategoryApi,
+  DocsManagerApi,
   DocsRequestApi,
   UserApi,
 } from "@/utils/axios/api-service";
@@ -14,10 +24,31 @@ import dayjs from "dayjs";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { useCompanyStore } from "@/stores/useCompanyStore";
+import { InboxOutlined, StarOutlined } from "@ant-design/icons";
 
 interface ModalComponentProps {
   token: string;
 }
+
+const props: UploadProps = {
+  name: "file",
+  multiple: true,
+  action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+  onChange(info) {
+    const { status } = info.file;
+    if (status !== "uploading") {
+      console.log(info.file, info.fileList);
+    }
+    if (status === "done") {
+      message.success(`${info.file.name} file uploaded successfully.`);
+    } else if (status === "error") {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  },
+  onDrop(e) {
+    console.log("Dropped files", e.dataTransfer.files);
+  },
+};
 
 const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   const { selectedItem, modalType, closeModal } = useDocsRequestStore();
@@ -26,27 +57,21 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   const router = useRouter();
 
   const {
-    loading: compLoading,
     data: compData,
-    total: compTotal,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading,
   } = useCompanyStore();
 
   const {
-    loading: usersLoading,
     data: usersData,
-    total: usersTotal,
     setData: setUsersData,
     setTotal: setUsersTotal,
     setLoading: setUsersLoading,
   } = useAllUsersStore();
 
   const {
-    loading: docCatLoading,
     data: docCatData,
-    total: docCatTotal,
     setData: setDocCatData,
     setTotal: setDocCatTotal,
     setLoading: setDocCatLoading,
@@ -146,6 +171,30 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token);
         } else if (modalType === "delete" && selectedItem) {
           await DocsRequestApi.deleteDocsRequest(selectedItem.id, token);
+        } else if (modalType === "upload_request" && selectedItem) {
+          const uploadReq = await DocsManagerApi.createDocsManager(
+            selectedItem.id,
+            token,
+          );
+          if (uploadReq) {
+            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
+          }
+        } else if (modalType === "edit_request" && selectedItem) {
+          const editReq = await DocsManagerApi.updateDocsManager(
+            selectedItem.id,
+            token,
+          );
+          if (editReq) {
+            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
+          }
+        } else if (modalType === "delete_request" && selectedItem) {
+          const deleteReq = await DocsManagerApi.deleteDocsManager(
+            selectedItem.id,
+            token,
+          );
+          if (deleteReq) {
+            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
+          }
         }
 
         router.refresh();
@@ -170,6 +219,9 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           view: "Detail Permintaan Dokumen",
           edit: "Edit Permintaan Dokumen",
           delete: "Hapus Permintaan Dokumen",
+          upload_request: "Upload Permintaan Dokumen",
+          edit_request: "Edit Informasi Dokumen Anda",
+          delete_request: "Hapus Dokumen Anda",
         }[modalType!]
       }
       centered
@@ -228,6 +280,27 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
             <strong>{selectedItem.request_title}</strong>?
           </p>
         )}
+
+        {modalType === "upload_request" && selectedItem && (
+          <Form>
+            <Upload.Dragger {...props}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibited from uploading
+                company data or other banned files.
+              </p>
+            </Upload.Dragger>
+          </Form>
+        )}
+
+        {modalType === "edit_request" && selectedItem && <></>}
+
+        {modalType === "delete_request" && selectedItem && <></>}
       </Form>
     </Modal>
   );

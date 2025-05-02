@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -19,9 +20,15 @@ const { Search } = Input;
 
 interface DocsReqClientProps {
   initialToken: string;
+  isAdmin: boolean;
+  currentUser: any;
 }
 
-const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
+const AllDocsManager: React.FC<DocsReqClientProps> = ({
+  initialToken,
+  isAdmin,
+  currentUser,
+}) => {
   const {
     pageSize,
     current,
@@ -68,7 +75,7 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
         search: searchTerm || undefined,
         status: filters.status || undefined,
         admin_id: filters.admin_id || undefined,
-        target_user_id: filters.target_user_id || undefined,
+        target_user_id: isAdmin ? filters.target_user_id || undefined : currentUser.id,
         category_id: filters.category_id || undefined,
       };
 
@@ -100,6 +107,8 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
     filters.target_user_id,
     filters.category_id,
     searchTerm,
+    isAdmin,
+    currentUser.id,
     initialToken,
     setData,
     setTotal,
@@ -139,14 +148,16 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({ initialToken }) => {
             />
           </Flex>
           <Flex align="center">
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              loading={loading}
-              onClick={() => openModal("create")}
-            >
-              Tambah Permintaan Dokumen
-            </Button>
+            {isAdmin && (
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                loading={loading}
+                onClick={() => openModal("create")}
+              >
+                Tambah Permintaan Dokumen
+              </Button>
+            )}
           </Flex>
         </Flex>
         <FilterDocsRequest
