@@ -1,100 +1,77 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import packageJson from "../../../package.json";
+import useAuthStore from "@/stores/AuthStore";
 
-export function getAccessToken() {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("access_token");
-  }
-  return null;
-}
-
-async function refreshToken() {
-  if (typeof window === "undefined") {
-    throw new Error("Cannot refresh token on the server side");
-  }
-  const storedRefreshToken = localStorage.getItem("refresh_token");
-
-  if (!storedRefreshToken) {
-    throw new Error("No refresh token available");
-  }
-
-  try {
-    const response = await axiosInstance.post("/v1/auth/token/refresh", {
-      refresh_token: storedRefreshToken,
-    });
-
-    const { access_token, refresh_token } = response.data;
-
-    const now = new Date();
-    const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000);
-    const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7);
-
-    localStorage.setItem("access_token", access_token);
-    document.cookie = `access_token=${
-      response.data.data.access_token
-    }; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
-    if (refresh_token) {
-      localStorage.setItem("refresh_token", refresh_token);
-      document.cookie = `refresh_token=${
-        response.data.data.refresh_token
-      }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
-    }
-    return access_token;
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    throw error;
-  }
-}
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: API_BASE,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    version: packageJson.version,
+    "X-App-Version": packageJson.version,
   },
-  timeout: 5 * 1000,
+  timeout: 5_000,
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = getAccessToken();
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
+    const token = useAuthStore.getState().accessToken;
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => Promise.reject(error),
+  (err) => Promise.reject(err),
 );
 
+let isRefreshing = false;
+let queue: Array<{
+  resolve: (tok: string) => void;
+  reject: (err: any) => void;
+}> = [];
+
+function processQueue(error: any, token: string | null = null) {
+  queue.forEach(({ resolve, reject }) => (error ? reject(error) : resolve(token!)));
+  queue = [];
+}
+
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const status = error.response ? error.response.status : null;
-
-    if (!error.response) {
-      console.error("Network error: Please check your internet connection");
-      return Promise.reject(error);
-    }
-
-    if (status === 401) {
-      try {
-        console.warn("Unauthorized: Attempting to refresh token...");
-        const newToken = await refreshToken();
-
-        error.config.headers.Authorization = `Bearer ${newToken}`;
-
-        return axiosInstance.request(error.config);
-      } catch (refreshError) {
-        console.error("Token refresh failed during interceptor:", refreshError);
-        return Promise.reject(refreshError);
+  (res) => res,
+  (error) => {
+    const { response, config: originalReq } = error;
+    if (response?.status === 401 && !originalReq._retry) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          queue.push({ resolve, reject });
+        }).then((newToken) => {
+          originalReq.headers.Authorization = `Bearer ${newToken}`;
+          return axiosInstance(originalReq);
+        });
       }
-    } else if (status === 404) {
-      console.error("Resource not found (404)");
-    } else {
-      console.error("An error occurred:", error);
+
+      originalReq._retry = true;
+      isRefreshing = true;
+
+      return new Promise((resolve, reject) => {
+        axiosInstance
+          .post("/v1/auth/token/refresh", {}, { withCredentials: true })
+          .then(({ data }) => {
+            const { access_token, refresh_token } = data.result;
+            useAuthStore.getState().setAuth(access_token, refresh_token);
+            processQueue(null, access_token);
+            originalReq.headers.Authorization = `Bearer ${access_token}`;
+            resolve(axiosInstance(originalReq));
+          })
+          .catch((err) => {
+            processQueue(err, null);
+            useAuthStore.getState().clearAuth();
+            reject(err);
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      });
     }
 
     return Promise.reject(error);

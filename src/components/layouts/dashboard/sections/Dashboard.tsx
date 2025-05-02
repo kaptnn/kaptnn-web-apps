@@ -82,7 +82,6 @@ const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
         end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
       }));
 
-      console.log(docCatRes.result);
       setCompData(formattedCompanies);
       setCompTotal(compRes.meta.totalItems);
 

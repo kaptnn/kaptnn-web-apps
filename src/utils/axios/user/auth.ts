@@ -88,10 +88,7 @@ class AuthService {
     }
   };
 
-  public refreshAccessToken = async (
-    refreshToken: string,
-    signal?: AbortSignal,
-  ): Promise<DataType> => {
+  public refreshAccessToken = async (refreshToken: string, signal?: AbortSignal) => {
     try {
       const response = await this.axiosInstance.post(`/v1/auth/token/refresh`, {
         refreshToken,

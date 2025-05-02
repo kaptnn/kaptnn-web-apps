@@ -3,6 +3,7 @@ import { getCookie } from "@/utils/axios/utils";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import { seo_data } from "@/utils/constants/seo_data";
+import { UserApi } from "@/utils/axios/api-service";
 
 export const metadata: Metadata = {
   title: `${seo_data.title.dashboard.user.users} | KAP Tambunan & Nasafi`,
@@ -18,7 +19,10 @@ const AllUsersPage = async () => {
   const token = await getCookie("access_token");
   if (!token) redirect("/login");
 
-  return <AllUsers initialToken={token} />;
+  const currentUser = await UserApi.getCurrentUser(token);
+  const isAdmin = currentUser.profile.role === "admin";
+
+  return <AllUsers initialToken={token} isAdmin={isAdmin} />;
 };
 
 export default AllUsersPage;

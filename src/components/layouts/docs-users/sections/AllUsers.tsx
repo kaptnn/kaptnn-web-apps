@@ -11,9 +11,10 @@ import { DataType } from "../utils/table";
 
 interface AllUsersClientProps {
   initialToken: string;
+  isAdmin: boolean;
 }
 
-const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken }) => {
+const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
   const {
     pageSize,
     current,
@@ -72,14 +73,16 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken }) => {
             />
           </Flex>
           <Flex align="center">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              loading={loading}
-              onClick={() => openModal("create")}
-            >
-              Add New User
-            </Button>
+            {isAdmin && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                loading={loading}
+                onClick={() => openModal("create")}
+              >
+                Add New User
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Flex>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Modal,
@@ -24,7 +23,7 @@ import dayjs from "dayjs";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { useCompanyStore } from "@/stores/useCompanyStore";
-import { InboxOutlined, StarOutlined } from "@ant-design/icons";
+import { InboxOutlined } from "@ant-design/icons";
 
 interface ModalComponentProps {
   token: string;

@@ -16,7 +16,10 @@ export const metadata: Metadata = {
 
 const DashboardPage = async () => {
   const token = await getCookie("access_token");
-  if (!token) redirect("/login");
+
+  if (!token) {
+    return redirect("/login");
+  }
 
   return <Dashboard initialToken={token} />;
 };
