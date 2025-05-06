@@ -24,7 +24,9 @@ const CategoryPage = async () => {
 
   if (!isAdmin) redirect("/dashboard");
 
-  return <DocsCategory initialToken={token} />;
+  return (
+    <DocsCategory initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />
+  );
 };
 
 export default CategoryPage;

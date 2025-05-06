@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
     Accept: "application/json",
     "X-App-Version": packageJson.version,
   },
-  timeout: 5_000,
+  timeout: 5 * 1000,
   withCredentials: true,
 });
 

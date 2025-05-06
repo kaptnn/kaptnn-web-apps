@@ -39,7 +39,7 @@ export const useCompanyStore = create<CompanyState>((set) => ({
   modalType: null,
   total: 0,
   current: 1,
-  pageSize: 5,
+  pageSize: 10,
   selectedItem: null,
   selectedRowKeys: [],
   filters: {},
