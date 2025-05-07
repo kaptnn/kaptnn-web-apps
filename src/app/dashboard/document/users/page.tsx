@@ -22,7 +22,7 @@ const AllUsersPage = async () => {
   const currentUser = await UserApi.getCurrentUser(token);
   const isAdmin = currentUser.profile.role === "admin";
 
-  return <AllUsers initialToken={token} isAdmin={isAdmin} />;
+  return <AllUsers initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />;
 };
 
 export default AllUsersPage;

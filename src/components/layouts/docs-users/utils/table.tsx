@@ -46,25 +46,29 @@ export const columns = (
     sorter: true,
     render: (item: any) => (
       <Flex align="center" justify="center">
-        <Tag color="blue">{item}</Tag>
+        <Tag color="blue" className="capitalize">
+          {item}
+        </Tag>
       </Flex>
     ),
   },
   {
     title: "Membership",
-    dataIndex: ["profile", "membership"],
+    dataIndex: ["profile", "membership_status"],
     key: "membership",
     sorter: true,
     render: (item: any) => (
       <Flex align="center" justify="center">
-        <Tag color="gold">{item}</Tag>
+        <Tag color="gold" className="capitalize">
+          {item}
+        </Tag>
       </Flex>
     ),
   },
   {
     title: "Nama Perusahaan",
-    dataIndex: "company_name",
-    key: "company_name",
+    dataIndex: "company_id",
+    key: "company_id",
     sorter: true,
   },
   {

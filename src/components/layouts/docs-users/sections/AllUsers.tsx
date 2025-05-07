@@ -1,17 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button, Flex, Input, message } from "antd";
 import DashboardLayouts from "../../DashboardLayouts";
 import { PlusOutlined } from "@ant-design/icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { UserApi } from "@/utils/axios/api-service";
 import { DataType } from "../utils/table";
+import type { GetProps } from "antd";
+import { GetAllUsersParams } from "@/utils/axios/user";
+import FilterAllUsers, { FilterOptions } from "./FilterAllUsers";
+import { debounce } from "lodash";
+import TableAllUsers from "./TableAllUsers";
+import ModalAllUsers from "./ModalAllUsers";
+
+type SearchProps = GetProps<typeof Input.Search>;
 
 interface AllUsersClientProps {
   initialToken: string;
   isAdmin: boolean;
+  currentUser: any;
 }
 
 const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
@@ -19,21 +29,38 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
     pageSize,
     current,
     loading,
+    filters,
+    data,
     setData,
     setLoading,
     setCurrent,
     setTotal,
+    setFilters,
     openModal,
   } = useAllUsersStore();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || "");
+
+  const options: FilterOptions = useMemo(
+    () => ({
+      companies: data.map((cat) => ({ value: cat.id, label: cat.name })),
+    }),
+    [data],
+  );
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await UserApi.getAllUsers(
-        { page: current, limit: pageSize, sort: "created_at", order: "asc" },
-        initialToken,
-      );
+      const params: GetAllUsersParams = {
+        page: current,
+        limit: pageSize,
+        sort: filters.sort,
+        order: filters.order,
+        name: searchTerm || undefined,
+        email: filters.email,
+        company_id: filters.company_id,
+      };
+
+      const response = await UserApi.getAllUsers(params, initialToken);
 
       const formatted: DataType[] = response.result.map((c: DataType) => ({
         ...c,
@@ -48,14 +75,50 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, current, pageSize, initialToken, setData, setTotal]);
+  }, [
+    setLoading,
+    current,
+    pageSize,
+    filters.sort,
+    filters.order,
+    filters.email,
+    filters.company_id,
+    searchTerm,
+    initialToken,
+    setData,
+    setTotal,
+  ]);
+
+  const debouncedFetch = useMemo(() => debounce(() => fetchUsers(), 500), [fetchUsers]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    debouncedFetch();
+    return debouncedFetch.cancel;
+  }, [debouncedFetch]);
 
-  const onSearch = (value: string) => {
+  const onSearch: SearchProps["onSearch"] = (value: string, _e, info) => {
+    setFilters({ ...filters, name: value });
     setSearchTerm(value);
+    setCurrent(1);
+  };
+
+  const debouncedSetSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        setFilters({ ...filters, name: value });
+        setCurrent(1);
+      }, 500),
+    [filters, setFilters, setCurrent],
+  );
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSetSearchFilter(value);
+  };
+
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    setFilters(newFilters);
     setCurrent(1);
   };
 
@@ -65,8 +128,10 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
             <Input.Search
-              placeholder="Search users..."
+              placeholder="Search"
+              value={searchTerm}
               onSearch={onSearch}
+              onChange={handleSearchInputChange}
               loading={false}
               enterButton
               allowClear
@@ -80,11 +145,18 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
                 loading={loading}
                 onClick={() => openModal("create")}
               >
-                Add New User
+                Tambah Pengguna Baru
               </Button>
             )}
           </Flex>
         </Flex>
+        <FilterAllUsers
+          filterValues={{ ...filters }}
+          onFilterChange={handleFilterChange}
+          options={options}
+        />
+        <TableAllUsers token={initialToken} fetchData={fetchUsers} />
+        <ModalAllUsers token={initialToken} />
       </Flex>
     </DashboardLayouts>
   );

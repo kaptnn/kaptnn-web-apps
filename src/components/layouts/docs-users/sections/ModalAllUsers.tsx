@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Modal, Form, Input, DatePicker, message } from "antd";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { memo, useCallback, useEffect, useTransition } from "react";
@@ -19,18 +18,12 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
   const router = useRouter();
 
   const {
-    loading: compLoading,
-    data: compData,
-    total: compTotal,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading,
   } = useCompanyStore();
 
   const {
-    loading: usersLoading,
-    data: usersData,
-    total: usersTotal,
     setData: setUsersData,
     setTotal: setUsersTotal,
     setLoading: setUsersLoading,
