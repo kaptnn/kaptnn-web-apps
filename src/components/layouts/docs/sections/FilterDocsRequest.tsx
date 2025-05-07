@@ -76,6 +76,7 @@ const FilterDocsRequest: React.FC<FilterComponentProps> = ({
         onChange={handleChange("admin_id")}
         allowClear
       />
+
       {isAdmin && (
         <Select
           placeholder="Filter Target User"

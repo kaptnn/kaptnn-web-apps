@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Modal, Form, Input, DatePicker, message } from "antd";
+import { Modal, Form, Input, message } from "antd";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 import { memo, useCallback, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -17,9 +16,6 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
   const router = useRouter();
 
   const {
-    loading: docCatLoading,
-    data: docCatData,
-    total: docCatTotal,
     setData: setDocCatData,
     setTotal: setDocCatTotal,
     setLoading: setDocCatLoading,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -14,6 +15,10 @@ import FilterDocsRequest, { FilterOptions } from "./FilterDocsRequest";
 import debounce from "lodash/debounce";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { useDocsCategoryStore } from "@/stores/useDocsCategory";
+import { GetAllDocumentRequestParams } from "@/utils/axios/docs/request";
+import type { GetProps } from "antd";
+
+type SearchProps = GetProps<typeof Input.Search>;
 
 const { Search } = Input;
 
@@ -66,12 +71,12 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
   const fetchDocumentRequest = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {
+      const params: GetAllDocumentRequestParams = {
         page: current,
         limit: pageSize,
         sort: filters.sort,
         order: filters.order,
-        search: searchTerm || undefined,
+        name: searchTerm || undefined,
         status: filters.status || undefined,
         admin_id: filters.admin_id || undefined,
         target_user_id: isAdmin ? filters.target_user_id || undefined : currentUser.id,
@@ -123,9 +128,25 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
     return debouncedFetch.cancel;
   }, [debouncedFetch]);
 
-  const onSearch = (value: string) => {
+  const onSearch: SearchProps["onSearch"] = (value: string, _e, info) => {
+    setFilters({ ...filters, name: value });
     setSearchTerm(value);
     setCurrent(1);
+  };
+
+  const debouncedSetSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        setFilters({ ...filters, name: value });
+        setCurrent(1);
+      }, 500),
+    [filters, setFilters, setCurrent],
+  );
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSetSearchFilter(value);
   };
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
@@ -140,7 +161,9 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
           <Flex align="center">
             <Search
               placeholder="Search"
+              value={searchTerm}
               onSearch={onSearch}
+              onChange={handleSearchInputChange}
               loading={false}
               enterButton
               allowClear

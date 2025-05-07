@@ -135,14 +135,16 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
             />
           </Flex>
           <Flex align="center">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              loading={loading}
-              onClick={() => openModal("create")}
-            >
-              Tambah Kategori
-            </Button>
+            {isAdmin && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                loading={loading}
+                onClick={() => openModal("create")}
+              >
+                Tambah Kategori
+              </Button>
+            )}
           </Flex>
         </Flex>
         <FilterDocsCategory
