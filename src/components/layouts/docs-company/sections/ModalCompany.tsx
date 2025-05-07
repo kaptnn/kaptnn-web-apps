@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message } from "antd";
+import { Modal, Form, Input, DatePicker, message, InputNumber } from "antd";
 import { useCompanyStore } from "@/stores/useCompanyStore";
 import { memo, useCallback, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -19,18 +18,12 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
   const router = useRouter();
 
   const {
-    loading: compLoading,
-    data: compData,
-    total: compTotal,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading,
   } = useCompanyStore();
 
   const {
-    loading: usersLoading,
-    data: usersData,
-    total: usersTotal,
     setData: setUsersData,
     setTotal: setUsersTotal,
     setLoading: setUsersLoading,
@@ -100,7 +93,11 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
         }
 
         const values = form.getFieldsValue();
-        const payload = { ...values, due_date: dayjs(values.due_date) };
+        const payload = {
+          ...values,
+          start_audit_period: dayjs(values.start_audit_period),
+          end_audit_period: dayjs(values.end_audit_period),
+        };
 
         if (modalType === "create") {
           await CompanyApi.createCompany(payload, token);
@@ -142,15 +139,24 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
       <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
         {(modalType === "create" || modalType === "edit") && (
           <>
-            <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
+            <Form.Item
+              name="company_name"
+              label="Nama Perusahaan"
+              rules={[{ required: true }]}
+            >
               <Input />
             </Form.Item>
-            <Form.Item name="request_desc" label="Deskripsi">
-              <Input.TextArea rows={4} />
+            <Form.Item name="year_of_assignment" label="Tahun Penugasan">
+              <InputNumber style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item name="due_date" label="Due Date">
-              <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
+            <div className="grid grid-cols-2 gap-6">
+              <Form.Item name="start_audit_period" label="Waktu Periode Mulai">
+                <DatePicker style={{ width: "100%" }} />
+              </Form.Item>
+              <Form.Item name="end_audit_period" label="Waktu Periode Selesai">
+                <DatePicker style={{ width: "100%" }} />
+              </Form.Item>
+            </div>
           </>
         )}
         {modalType === "view" && selectedItem && (

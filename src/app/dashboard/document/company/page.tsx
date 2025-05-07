@@ -24,7 +24,7 @@ const CompanyPage = async () => {
 
   if (!isAdmin) redirect("/dashboard");
 
-  return <Company initialToken={token} />;
+  return <Company initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />;
 };
 
 export default CompanyPage;

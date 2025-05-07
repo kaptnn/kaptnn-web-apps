@@ -49,6 +49,7 @@ const FilterDocsRequest: React.FC<FilterComponentProps> = ({
         options={sortOptions}
         value={filterValues.sort}
         onChange={handleChange("sort")}
+        allowClear
       />
 
       <Select
@@ -57,6 +58,7 @@ const FilterDocsRequest: React.FC<FilterComponentProps> = ({
         options={orderOptions}
         value={filterValues.order}
         onChange={handleChange("order")}
+        allowClear
       />
 
       <Select

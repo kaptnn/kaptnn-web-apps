@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import useAuthStore from "@/stores/AuthStore";
-import { GetAllDocumentCategoryParams } from "@/utils/axios/docs/category";
+import { GetAllCompaniesParams } from "@/utils/axios/company";
 import { Flex, Select } from "antd";
 import { memo } from "react";
 
+export interface FilterOptions {
+  year_of_assignment: { value: number; label: number }[];
+}
+
 interface FilterComponentProps {
-  filterValues: GetAllDocumentCategoryParams;
-  onFilterChange: (filters: GetAllDocumentCategoryParams) => void;
+  filterValues: GetAllCompaniesParams;
+  onFilterChange: (filters: GetAllCompaniesParams) => void;
+  options: FilterOptions;
 }
 
 const sortOptions = [
@@ -20,15 +25,16 @@ const orderOptions = [
   { value: "desc", label: "Descending" },
 ];
 
-const FilterDocsCategory: React.FC<FilterComponentProps> = ({
+const FilterCompany: React.FC<FilterComponentProps> = ({
   filterValues,
   onFilterChange,
+  options,
 }) => {
   const { userInfo } = useAuthStore();
   const isAdmin = userInfo.profile.role === "admin";
 
   const handleChange =
-    <K extends keyof GetAllDocumentCategoryParams>(field: K) =>
+    <K extends keyof GetAllCompaniesParams>(field: K) =>
     (value: any) => {
       onFilterChange({ ...filterValues, [field]: value });
     };
@@ -52,8 +58,17 @@ const FilterDocsCategory: React.FC<FilterComponentProps> = ({
         onChange={handleChange("order")}
         allowClear
       />
+
+      <Select
+        placeholder="Filter Status"
+        style={{ minWidth: 120 }}
+        options={options.year_of_assignment}
+        value={filterValues.year_of_assignmenet}
+        onChange={handleChange("year_of_assignmenet")}
+        allowClear
+      />
     </Flex>
   );
 };
 
-export default memo(FilterDocsCategory);
+export default memo(FilterCompany);
