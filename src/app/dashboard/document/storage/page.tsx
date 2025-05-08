@@ -24,7 +24,9 @@ const DocumentStoragePage = async () => {
 
   if (!isAdmin) redirect("/dashboard");
 
-  return <DocsStorage initialToken={token} />;
+  return (
+    <DocsStorage initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />
+  );
 };
 
 export default DocumentStoragePage;

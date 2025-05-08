@@ -1,4 +1,5 @@
 import Dashboard from "@/components/layouts/dashboard";
+import { UserApi } from "@/utils/axios/api-service";
 import { getCookie } from "@/utils/axios/utils";
 import { seo_data } from "@/utils/constants/seo_data";
 import { Metadata } from "next";
@@ -16,12 +17,14 @@ export const metadata: Metadata = {
 
 const DashboardPage = async () => {
   const token = await getCookie("access_token");
+  if (!token) return redirect("/login");
 
-  if (!token) {
-    return redirect("/login");
-  }
+  const currentUser = await UserApi.getCurrentUser(token);
+  const isAdmin = currentUser.profile.role === "admin";
 
-  return <Dashboard initialToken={token} />;
+  if (!isAdmin) redirect("/dashboard");
+
+  return <Dashboard initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />;
 };
 
 export default DashboardPage;

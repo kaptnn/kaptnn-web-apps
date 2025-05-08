@@ -67,8 +67,8 @@ export const columns = (
   },
   {
     title: "Nama Perusahaan",
-    dataIndex: "company_id",
-    key: "company_id",
+    dataIndex: "company_name",
+    key: "company_name",
     sorter: true,
   },
   {

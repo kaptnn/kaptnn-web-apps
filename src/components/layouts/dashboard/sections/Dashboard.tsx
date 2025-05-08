@@ -19,9 +19,15 @@ import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 
 interface DashboardClientProps {
   initialToken: string;
+  isAdmin: boolean;
+  currentUser: any;
 }
 
-const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
+const Dashboard: React.FC<DashboardClientProps> = ({
+  initialToken,
+  isAdmin,
+  currentUser,
+}) => {
   const {
     loading: compLoading,
     data: compData,
@@ -135,7 +141,7 @@ const Dashboard: React.FC<DashboardClientProps> = ({ initialToken }) => {
     };
   }, [docReqData]);
 
-  if (compLoading || docReqLoading || usersLoading) {
+  if (compLoading || docReqLoading || usersLoading || docCatLoading) {
     return (
       <DashboardLayouts>
         <main className="h-screen w-full items-center justify-center">

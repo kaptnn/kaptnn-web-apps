@@ -15,6 +15,7 @@ import FilterAllUsers, { FilterOptions } from "./FilterAllUsers";
 import { debounce } from "lodash";
 import TableAllUsers from "./TableAllUsers";
 import ModalAllUsers from "./ModalAllUsers";
+import { useCompanyStore } from "@/stores/useCompanyStore";
 
 type SearchProps = GetProps<typeof Input.Search>;
 
@@ -38,13 +39,20 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
     setFilters,
     openModal,
   } = useAllUsersStore();
+
+  const { data: dataComps } = useCompanyStore();
+
+  const companyMap = useMemo(() => {
+    return new Map((dataComps || []).map((comp) => [comp.id, comp.company_name]));
+  }, [dataComps]);
+
   const [searchTerm, setSearchTerm] = useState<string>(filters.name || "");
 
   const options: FilterOptions = useMemo(
     () => ({
-      companies: data.map((cat) => ({ value: cat.id, label: cat.name })),
+      companies: dataComps.map((cat) => ({ value: cat.id, label: cat.company_name })),
     }),
-    [data],
+    [dataComps],
   );
 
   const fetchUsers = useCallback(async () => {
@@ -65,6 +73,7 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
       const formatted: DataType[] = response.result.map((c: DataType) => ({
         ...c,
         key: c.id,
+        company_name: companyMap.get(c.company_id) || "Unknown",
       }));
 
       setData(formatted);
@@ -87,6 +96,7 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
     initialToken,
     setData,
     setTotal,
+    companyMap,
   ]);
 
   const debouncedFetch = useMemo(() => debounce(() => fetchUsers(), 500), [fetchUsers]);

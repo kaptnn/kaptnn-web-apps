@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const Loading = () => {
   return (
-    <main className="h-screen w-full items-center justify-center">
+    <main className="h-screen w-full items-center justify-center bg-white dark:bg-white">
       <Flex className="h-screen w-full" justify="center" align="center">
         <Spin />
       </Flex>
