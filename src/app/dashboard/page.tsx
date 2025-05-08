@@ -22,8 +22,6 @@ const DashboardPage = async () => {
   const currentUser = await UserApi.getCurrentUser(token);
   const isAdmin = currentUser.profile.role === "admin";
 
-  if (!isAdmin) redirect("/dashboard");
-
   return <Dashboard initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />;
 };
 
