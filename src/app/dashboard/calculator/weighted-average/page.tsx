@@ -1,24 +1,24 @@
-import WeightedAverageCalculator from "@/components/layouts/calc-weighted-average";
-import { getCookie } from "@/utils/axios/utils";
-import { redirect } from "next/navigation";
-import { Metadata } from "next";
-import { seo_data } from "@/utils/constants/seo_data";
+import WeightedAverageCalculator from '@/components/layouts/calc-weighted-average'
+import { getCookie } from '@/utils/axios/utils'
+import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
+import { seo_data } from '@/utils/constants/seo_data'
 
 export const metadata: Metadata = {
-  title: `${seo_data.title.dashboard.calculator["weighted-average"]} | KAP Tambunan & Nasafi`,
-  applicationName: "KAP TNN Datatrail Website",
-  creator: "KAP TNN Tech Teams",
+  title: `${seo_data.title.dashboard.calculator['weighted-average']} | KAP Tambunan & Nasafi`,
+  applicationName: 'KAP TNN Datatrail Website',
+  creator: 'KAP TNN Tech Teams',
   alternates: {
-    canonical: "https://kaptnn.com/",
+    canonical: 'https://kaptnn.com/'
   },
-  keywords: ["Data", "Datatrail", "Accountant", "Document", "Document Management"],
-};
+  keywords: ['Data', 'Datatrail', 'Accountant', 'Document', 'Document Management']
+}
 
 const WeightedAverageCalculatorPage = async () => {
-  const token = await getCookie("access_token");
-  if (!token) redirect("/login");
+  const token = await getCookie('access_token')
+  if (!token) redirect('/login')
 
-  return <WeightedAverageCalculator />;
-};
+  return <WeightedAverageCalculator />
+}
 
-export default WeightedAverageCalculatorPage;
+export default WeightedAverageCalculatorPage

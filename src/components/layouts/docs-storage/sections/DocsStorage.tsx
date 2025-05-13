@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
+'use client'
 
-import { useAllUsersStore } from "@/stores/useAllUsersStore";
-import DashboardLayouts from "../../DashboardLayouts";
-import { Button, Card, Col, Flex, Input, Row, Typography } from "antd";
-import { FolderTwoTone, PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useAllUsersStore } from '@/stores/useAllUsersStore'
+import DashboardLayouts from '../../DashboardLayouts'
+import { Button, Card, Col, Flex, Input, Row, Typography } from 'antd'
+import { FolderTwoTone, PlusOutlined } from '@ant-design/icons'
+import { useState } from 'react'
 
 interface DocsStorageClientProps {
-  initialToken: string;
-  isAdmin: boolean;
-  currentUser: any;
+  initialToken: string
+  isAdmin: boolean
+  currentUser: any
 }
 
 const DocsStorage: React.FC<DocsStorageClientProps> = ({
   initialToken,
   isAdmin,
-  currentUser,
+  currentUser
 }) => {
   const {
     pageSize,
@@ -27,9 +27,9 @@ const DocsStorage: React.FC<DocsStorageClientProps> = ({
     setLoading,
     setCurrent,
     setTotal,
-    openModal,
-  } = useAllUsersStore();
-  const [searchTerm, setSearchTerm] = useState("");
+    openModal
+  } = useAllUsersStore()
+  const [searchTerm, setSearchTerm] = useState('')
 
   return (
     <DashboardLayouts>
@@ -50,7 +50,7 @@ const DocsStorage: React.FC<DocsStorageClientProps> = ({
                 icon={<PlusOutlined />}
                 type="primary"
                 loading={loading}
-                onClick={() => openModal("create")}
+                onClick={() => openModal('create')}
               >
                 Tambah Folder
               </Button>
@@ -66,7 +66,7 @@ const DocsStorage: React.FC<DocsStorageClientProps> = ({
         </Flex>
       </Flex>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default DocsStorage;
+export default DocsStorage

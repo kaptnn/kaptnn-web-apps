@@ -1,3 +1,3 @@
-import DepreciationCalculator from "./sections/DepreciationCalculator";
+import DepreciationCalculator from './sections/DepreciationCalculator'
 
-export default DepreciationCalculator;
+export default DepreciationCalculator

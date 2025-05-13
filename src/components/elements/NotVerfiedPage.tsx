@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { Empty, Flex, Typography } from "antd";
-import DashboardLayouts from "../layouts/DashboardLayouts";
+import { Empty, Flex, Typography } from 'antd'
+import DashboardLayouts from '../layouts/DashboardLayouts'
 
 const NotVerfiedPage = () => {
   return (
@@ -13,7 +13,7 @@ const NotVerfiedPage = () => {
         </Empty>
       </Flex>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default NotVerfiedPage;
+export default NotVerfiedPage

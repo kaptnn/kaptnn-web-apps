@@ -1,3 +1,3 @@
-import Dashboard from "./sections/Dashboard";
+import Dashboard from './sections/Dashboard'
 
-export default Dashboard;
+export default Dashboard

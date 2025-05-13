@@ -1,43 +1,43 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import useAuthStore from "@/stores/AuthStore";
-import { GetAllCompaniesParams } from "@/utils/axios/company";
-import { Flex, Select } from "antd";
-import { memo } from "react";
+import useAuthStore from '@/stores/AuthStore'
+import { GetAllCompaniesParams } from '@/utils/axios/company'
+import { Flex, Select } from 'antd'
+import { memo } from 'react'
 
 export interface FilterOptions {
-  year_of_assignment: { value: number; label: number }[];
+  year_of_assignment: { value: number; label: number }[]
 }
 
 interface FilterComponentProps {
-  filterValues: GetAllCompaniesParams;
-  onFilterChange: (filters: GetAllCompaniesParams) => void;
-  options: FilterOptions;
+  filterValues: GetAllCompaniesParams
+  onFilterChange: (filters: GetAllCompaniesParams) => void
+  options: FilterOptions
 }
 
 const sortOptions = [
-  { value: "created_at", label: "Created At" },
-  { value: "due_date", label: "Due Date" },
-];
+  { value: 'created_at', label: 'Created At' },
+  { value: 'due_date', label: 'Due Date' }
+]
 
 const orderOptions = [
-  { value: "asc", label: "Ascending" },
-  { value: "desc", label: "Descending" },
-];
+  { value: 'asc', label: 'Ascending' },
+  { value: 'desc', label: 'Descending' }
+]
 
 const FilterCompany: React.FC<FilterComponentProps> = ({
   filterValues,
   onFilterChange,
-  options,
+  options
 }) => {
-  const { userInfo } = useAuthStore();
-  const isAdmin = userInfo.profile.role === "admin";
+  const { userInfo } = useAuthStore()
+  const isAdmin = userInfo.profile.role === 'admin'
 
   const handleChange =
     <K extends keyof GetAllCompaniesParams>(field: K) =>
     (value: any) => {
-      onFilterChange({ ...filterValues, [field]: value });
-    };
+      onFilterChange({ ...filterValues, [field]: value })
+    }
 
   return (
     <Flex className="w-full" align="center" gap={12} wrap>
@@ -46,7 +46,7 @@ const FilterCompany: React.FC<FilterComponentProps> = ({
         style={{ minWidth: 120 }}
         options={sortOptions}
         value={filterValues.sort}
-        onChange={handleChange("sort")}
+        onChange={handleChange('sort')}
         allowClear
       />
 
@@ -55,7 +55,7 @@ const FilterCompany: React.FC<FilterComponentProps> = ({
         style={{ minWidth: 120 }}
         options={orderOptions}
         value={filterValues.order}
-        onChange={handleChange("order")}
+        onChange={handleChange('order')}
         allowClear
       />
 
@@ -64,11 +64,11 @@ const FilterCompany: React.FC<FilterComponentProps> = ({
         style={{ minWidth: 120 }}
         options={options.year_of_assignment}
         value={filterValues.year_of_assignmenet}
-        onChange={handleChange("year_of_assignmenet")}
+        onChange={handleChange('year_of_assignmenet')}
         allowClear
       />
     </Flex>
-  );
-};
+  )
+}
 
-export default memo(FilterCompany);
+export default memo(FilterCompany)

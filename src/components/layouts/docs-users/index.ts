@@ -1,3 +1,3 @@
-import AllUsers from "./sections/AllUsers";
+import AllUsers from './sections/AllUsers'
 
-export default AllUsers;
+export default AllUsers

@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { Avatar, Flex, Input, Typography } from "antd";
-import DashboardLayouts from "../../DashboardLayouts";
-import useAuthStore from "@/stores/AuthStore";
+import { Avatar, Flex, Input, Typography } from 'antd'
+import DashboardLayouts from '../../DashboardLayouts'
+import useAuthStore from '@/stores/AuthStore'
 
 const ProfileSetting = () => {
-  const { userInfo } = useAuthStore();
-  const name = userInfo?.name.split(" ")[0];
+  const { userInfo } = useAuthStore()
+  const name = userInfo?.name.split(' ')[0]
 
   return (
     <DashboardLayouts>
@@ -73,7 +73,7 @@ const ProfileSetting = () => {
         </Flex>
       </Flex>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default ProfileSetting;
+export default ProfileSetting

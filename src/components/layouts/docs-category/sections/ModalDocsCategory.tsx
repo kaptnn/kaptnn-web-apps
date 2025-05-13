@@ -1,110 +1,110 @@
-import { Modal, Form, Input, message } from "antd";
-import { useDocsCategoryStore } from "@/stores/useDocsCategory";
-import { memo, useCallback, useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { DocsCategoryApi } from "@/utils/axios/api-service";
-import dayjs from "dayjs";
+import { Modal, Form, Input, message } from 'antd'
+import { useDocsCategoryStore } from '@/stores/useDocsCategory'
+import { memo, useCallback, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { DocsCategoryApi } from '@/utils/axios/api-service'
+import dayjs from 'dayjs'
 
 interface ModalComponentProps {
-  token: string;
+  token: string
 }
 
 const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
-  const { selectedItem, modalType, closeModal } = useDocsCategoryStore();
-  const [form] = Form.useForm();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const { selectedItem, modalType, closeModal } = useDocsCategoryStore()
+  const [form] = Form.useForm()
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const {
     setData: setDocCatData,
     setTotal: setDocCatTotal,
-    setLoading: setDocCatLoading,
-  } = useDocsCategoryStore();
+    setLoading: setDocCatLoading
+  } = useDocsCategoryStore()
 
   const fetchData = useCallback(async () => {
-    setDocCatLoading(true);
+    setDocCatLoading(true)
     try {
       const [docCatRes] = await Promise.all([
-        DocsCategoryApi.getAllDocsCategory({}, token),
-      ]);
+        DocsCategoryApi.getAllDocsCategory({}, token)
+      ])
 
-      setDocCatData(docCatRes.result);
-      setDocCatTotal(docCatRes.meta.totalItems);
+      setDocCatData(docCatRes.result)
+      setDocCatTotal(docCatRes.meta.totalItems)
     } catch (error) {
-      console.error("Dashboard fetch error:", error);
-      message.error("Failed to fetch dashboard data.");
+      console.error('Dashboard fetch error:', error)
+      message.error('Failed to fetch dashboard data.')
     } finally {
-      setDocCatLoading(false);
+      setDocCatLoading(false)
     }
-  }, [token, setDocCatLoading, setDocCatData, setDocCatTotal]);
+  }, [token, setDocCatLoading, setDocCatData, setDocCatTotal])
 
   useEffect(() => {
-    fetchData();
-    if ((modalType === "edit" || modalType === "view") && selectedItem) {
-      form.setFieldsValue({ ...selectedItem });
+    fetchData()
+    if ((modalType === 'edit' || modalType === 'view') && selectedItem) {
+      form.setFieldsValue({ ...selectedItem })
     } else {
-      form.resetFields();
+      form.resetFields()
     }
-  }, [modalType, selectedItem, fetchData, form]);
+  }, [modalType, selectedItem, fetchData, form])
 
   const handleFinish = useCallback(async () => {
     startTransition(async () => {
       try {
-        if (modalType === "view") {
-          closeModal();
-          return;
+        if (modalType === 'view') {
+          closeModal()
+          return
         }
 
-        const values = form.getFieldsValue();
-        const payload = { ...values, due_date: dayjs(values.due_date) };
+        const values = form.getFieldsValue()
+        const payload = { ...values, due_date: dayjs(values.due_date) }
 
-        if (modalType === "create") {
-          await DocsCategoryApi.createDocsCategory(payload, token);
-        } else if (modalType === "edit" && selectedItem) {
-          await DocsCategoryApi.updateDocsCategory(selectedItem.id, payload, token);
-        } else if (modalType === "delete" && selectedItem) {
-          await DocsCategoryApi.deleteDocsCategory(selectedItem.id, token);
+        if (modalType === 'create') {
+          await DocsCategoryApi.createDocsCategory(payload, token)
+        } else if (modalType === 'edit' && selectedItem) {
+          await DocsCategoryApi.updateDocsCategory(selectedItem.id, payload, token)
+        } else if (modalType === 'delete' && selectedItem) {
+          await DocsCategoryApi.deleteDocsCategory(selectedItem.id, token)
         }
 
-        router.refresh();
-        closeModal();
+        router.refresh()
+        closeModal()
       } catch (error: unknown) {
         if (error) {
-          const errorMessage = error || "Something went wrong!";
-          console.error("Login Error:", errorMessage);
+          const errorMessage = error || 'Something went wrong!'
+          console.error('Login Error:', errorMessage)
         } else {
-          console.error("Network Error:", error);
+          console.error('Network Error:', error)
         }
       }
-    });
-  }, [closeModal, form, modalType, router, selectedItem, token]);
+    })
+  }, [closeModal, form, modalType, router, selectedItem, token])
 
   return (
     <Modal
       open={!!modalType}
       title={
         {
-          create: "Buat Kategori Dokumen",
-          view: "Detail Kategori Dokumen",
-          edit: "Edit Kategori Dokumen",
-          delete: "Hapus Kategori Dokumen",
+          create: 'Buat Kategori Dokumen',
+          view: 'Detail Kategori Dokumen',
+          edit: 'Edit Kategori Dokumen',
+          delete: 'Hapus Kategori Dokumen'
         }[modalType!]
       }
       centered
       onCancel={closeModal}
       onOk={handleFinish}
-      okButtonProps={{ danger: modalType === "delete", loading: isPending }}
-      okText={isPending ? "Tunggu Sebentar" : "OK"}
+      okButtonProps={{ danger: modalType === 'delete', loading: isPending }}
+      okText={isPending ? 'Tunggu Sebentar' : 'OK'}
       cancelText="Batal"
       forceRender
     >
       <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
-        {(modalType === "create" || modalType === "edit") && (
+        {(modalType === 'create' || modalType === 'edit') && (
           <Form.Item name="name" label="Nama Kategori" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
         )}
-        {modalType === "view" && selectedItem && (
+        {modalType === 'view' && selectedItem && (
           <>
             <p>
               <strong>Nama Kategori:</strong> {selectedItem.name}
@@ -117,15 +117,15 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
             </p>
           </>
         )}
-        {modalType === "delete" && selectedItem && (
+        {modalType === 'delete' && selectedItem && (
           <p>
-            Apakah Anda yakin ingin menghapus kategori dokumen{" "}
+            Apakah Anda yakin ingin menghapus kategori dokumen{' '}
             <strong>{selectedItem.name}</strong>?
           </p>
         )}
       </Form>
     </Modal>
-  );
-};
+  )
+}
 
-export default memo(DocsCategoryModals);
+export default memo(DocsCategoryModals)

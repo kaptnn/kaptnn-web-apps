@@ -1,33 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
+'use client'
 
-import { useEffect, useCallback, useState, useMemo } from "react";
-import { Input, Button, Flex, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import CompanyTable from "./TableCompany";
-import CompanyModals from "./ModalCompany";
-import DashboardLayouts from "../../DashboardLayouts";
-import { useCompanyStore } from "@/stores/useCompanyStore";
-import { DataType } from "../utils/table";
-import { CompanyApi } from "@/utils/axios/api-service";
-import type { GetProps } from "antd";
-import { GetAllCompaniesParams } from "@/utils/axios/company";
-import { debounce } from "lodash";
-import FilterCompany, { FilterOptions } from "./FilterCompany";
+import { useEffect, useCallback, useState, useMemo } from 'react'
+import { Input, Button, Flex, message } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import CompanyTable from './TableCompany'
+import CompanyModals from './ModalCompany'
+import DashboardLayouts from '../../DashboardLayouts'
+import { useCompanyStore } from '@/stores/useCompanyStore'
+import { DataType } from '../utils/table'
+import { CompanyApi } from '@/utils/axios/api-service'
+import type { GetProps } from 'antd'
+import { GetAllCompaniesParams } from '@/utils/axios/company'
+import { debounce } from 'lodash'
+import FilterCompany, { FilterOptions } from './FilterCompany'
 
-type SearchProps = GetProps<typeof Input.Search>;
+type SearchProps = GetProps<typeof Input.Search>
 
 interface CompanyClientProps {
-  initialToken: string;
-  isAdmin: boolean;
-  currentUser: any;
+  initialToken: string
+  isAdmin: boolean
+  currentUser: any
 }
 
 const Company: React.FC<CompanyClientProps> = ({
   initialToken,
   isAdmin,
-  currentUser,
+  currentUser
 }) => {
   const {
     pageSize,
@@ -40,23 +40,23 @@ const Company: React.FC<CompanyClientProps> = ({
     setCurrent,
     setTotal,
     setFilters,
-    openModal,
-  } = useCompanyStore();
-  const [searchTerm, setSearchTerm] = useState("");
+    openModal
+  } = useCompanyStore()
+  const [searchTerm, setSearchTerm] = useState('')
 
   const options: FilterOptions = useMemo(() => {
-    const uniqueYears = Array.from(new Set(data.map((cat) => cat.year_of_assignment)));
+    const uniqueYears = Array.from(new Set(data.map(cat => cat.year_of_assignment)))
 
     return {
-      year_of_assignment: uniqueYears.map((year) => ({
+      year_of_assignment: uniqueYears.map(year => ({
         value: year,
-        label: year,
-      })),
-    };
-  }, [data]);
+        label: year
+      }))
+    }
+  }, [data])
 
   const fetchCompanies = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const params: GetAllCompaniesParams = {
         page: current,
@@ -64,25 +64,25 @@ const Company: React.FC<CompanyClientProps> = ({
         sort: filters.sort,
         order: filters.order,
         name: searchTerm || undefined,
-        year_of_assignmenet: filters.year_of_assignmenet || undefined,
-      };
+        year_of_assignmenet: filters.year_of_assignmenet || undefined
+      }
 
-      const response = await CompanyApi.getAllCompanies(params, initialToken);
+      const response = await CompanyApi.getAllCompanies(params, initialToken)
 
       const formatted: DataType[] = response.result.map((c: DataType) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split("T")[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
-      }));
+        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
+        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+      }))
 
-      setData(formatted);
-      setTotal(response.meta.totalItems);
+      setData(formatted)
+      setTotal(response.meta.totalItems)
     } catch (err) {
-      console.error(err);
-      message.error("Failed to fetch companies.");
+      console.error(err)
+      message.error('Failed to fetch companies.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }, [
     setLoading,
@@ -94,44 +94,44 @@ const Company: React.FC<CompanyClientProps> = ({
     searchTerm,
     initialToken,
     setData,
-    setTotal,
-  ]);
+    setTotal
+  ])
 
   const debouncedFetch = useMemo(
     () => debounce(() => fetchCompanies(), 500),
-    [fetchCompanies],
-  );
+    [fetchCompanies]
+  )
 
   useEffect(() => {
-    debouncedFetch();
-    return debouncedFetch.cancel;
-  }, [debouncedFetch]);
+    debouncedFetch()
+    return debouncedFetch.cancel
+  }, [debouncedFetch])
 
-  const onSearch: SearchProps["onSearch"] = (value: string, _e, info) => {
-    setFilters({ ...filters, name: value });
-    setSearchTerm(value);
-    setCurrent(1);
-  };
+  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
+  }
 
   const debouncedSetSearchFilter = useMemo(
     () =>
       debounce((value: string) => {
-        setFilters({ ...filters, name: value });
-        setCurrent(1);
+        setFilters({ ...filters, name: value })
+        setCurrent(1)
       }, 500),
-    [filters, setFilters, setCurrent],
-  );
+    [filters, setFilters, setCurrent]
+  )
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    debouncedSetSearchFilter(value);
-  };
+    const value = e.target.value
+    setSearchTerm(value)
+    debouncedSetSearchFilter(value)
+  }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-    setFilters(newFilters);
-    setCurrent(1);
-  };
+    setFilters(newFilters)
+    setCurrent(1)
+  }
 
   return (
     <DashboardLayouts>
@@ -154,7 +154,7 @@ const Company: React.FC<CompanyClientProps> = ({
                 icon={<PlusOutlined />}
                 type="primary"
                 loading={loading}
-                onClick={() => openModal("create")}
+                onClick={() => openModal('create')}
               >
                 Tambah Perusahaan
               </Button>
@@ -170,7 +170,7 @@ const Company: React.FC<CompanyClientProps> = ({
         <CompanyModals token={initialToken} />
       </Flex>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default Company;
+export default Company

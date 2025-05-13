@@ -1,81 +1,81 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
-import packageJson from "../../../package.json";
-import useAuthStore from "@/stores/AuthStore";
+import axios from 'axios'
+import packageJson from '../../../package.json'
+import useAuthStore from '@/stores/AuthStore'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'
 
 const axiosInstance = axios.create({
   baseURL: API_BASE,
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "X-App-Version": packageJson.version,
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    'X-App-Version': packageJson.version
   },
   timeout: 5 * 1000,
-  withCredentials: true,
-});
+  withCredentials: true
+})
 
 axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().accessToken;
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
+  config => {
+    const token = useAuthStore.getState().accessToken
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
   },
-  (err) => Promise.reject(err),
-);
+  err => Promise.reject(err)
+)
 
-let isRefreshing = false;
+let isRefreshing = false
 let queue: Array<{
-  resolve: (tok: string) => void;
-  reject: (err: any) => void;
-}> = [];
+  resolve: (tok: string) => void
+  reject: (err: any) => void
+}> = []
 
 function processQueue(error: any, token: string | null = null) {
-  queue.forEach(({ resolve, reject }) => (error ? reject(error) : resolve(token!)));
-  queue = [];
+  queue.forEach(({ resolve, reject }) => (error ? reject(error) : resolve(token!)))
+  queue = []
 }
 
 axiosInstance.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    const { response, config: originalReq } = error;
+  res => res,
+  error => {
+    const { response, config: originalReq } = error
     if (response?.status === 401 && !originalReq._retry) {
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
-          queue.push({ resolve, reject });
-        }).then((newToken) => {
-          originalReq.headers.Authorization = `Bearer ${newToken}`;
-          return axiosInstance(originalReq);
-        });
+          queue.push({ resolve, reject })
+        }).then(newToken => {
+          originalReq.headers.Authorization = `Bearer ${newToken}`
+          return axiosInstance(originalReq)
+        })
       }
 
-      originalReq._retry = true;
-      isRefreshing = true;
+      originalReq._retry = true
+      isRefreshing = true
 
       return new Promise((resolve, reject) => {
         axiosInstance
-          .post("/v1/auth/token/refresh", {}, { withCredentials: true })
+          .post('/v1/auth/token/refresh', {}, { withCredentials: true })
           .then(({ data }) => {
-            const { access_token, refresh_token } = data.result;
-            useAuthStore.getState().setAuth(access_token, refresh_token);
-            processQueue(null, access_token);
-            originalReq.headers.Authorization = `Bearer ${access_token}`;
-            resolve(axiosInstance(originalReq));
+            const { access_token, refresh_token } = data.result
+            useAuthStore.getState().setAuth(access_token, refresh_token)
+            processQueue(null, access_token)
+            originalReq.headers.Authorization = `Bearer ${access_token}`
+            resolve(axiosInstance(originalReq))
           })
-          .catch((err) => {
-            processQueue(err, null);
-            useAuthStore.getState().clearAuth();
-            reject(err);
+          .catch(err => {
+            processQueue(err, null)
+            useAuthStore.getState().clearAuth()
+            reject(err)
           })
           .finally(() => {
-            isRefreshing = false;
-          });
-      });
+            isRefreshing = false
+          })
+      })
     }
 
-    return Promise.reject(error);
-  },
-);
+    return Promise.reject(error)
+  }
+)
 
-export default axiosInstance;
+export default axiosInstance

@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { Button, Flex, Typography } from "antd";
+import { Button, Flex, Typography } from 'antd'
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph } = Typography
 
 const Home: React.FC = () => {
   return (
@@ -48,7 +48,7 @@ const Home: React.FC = () => {
         </Flex>
       </div>
     </main>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

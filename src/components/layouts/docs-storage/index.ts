@@ -1,3 +1,3 @@
-import DocsStorage from "./sections/DocsStorage";
+import DocsStorage from './sections/DocsStorage'
 
-export default DocsStorage;
+export default DocsStorage

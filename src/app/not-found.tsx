@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { Button, Empty, Flex } from "antd";
+import { Button, Empty, Flex } from 'antd'
 
 const NotFound = () => {
   return (
@@ -10,7 +10,7 @@ const NotFound = () => {
           <Button
             type="primary"
             onClick={() => {
-              window.location.href = "/";
+              window.location.href = '/'
             }}
           >
             Back to Homepage
@@ -18,7 +18,7 @@ const NotFound = () => {
         </Empty>
       </Flex>
     </main>
-  );
-};
+  )
+}
 
-export default NotFound;
+export default NotFound

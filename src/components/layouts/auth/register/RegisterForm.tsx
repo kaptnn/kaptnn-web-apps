@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, Select, Typography } from "antd";
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { registerSchema } from "@/utils/constants/user";
-import { z } from "zod";
-import { AuthApi } from "@/utils/axios/api-service";
+import Link from 'next/link'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Form, Input, Select, Typography } from 'antd'
+import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { registerSchema } from '@/utils/constants/user'
+import { z } from 'zod'
+import { AuthApi } from '@/utils/axios/api-service'
 
-const { Paragraph } = Typography;
+const { Paragraph } = Typography
 
 const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
-  const [form] = Form.useForm();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [form] = Form.useForm()
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleFinish = (values: z.infer<typeof registerSchema>) => {
     startTransition(async () => {
@@ -23,22 +23,22 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
           name: values.name,
           email: values.email,
           company_id: values.company_id,
-          password: values.password,
-        });
+          password: values.password
+        })
 
         if (response.status === 201) {
-          router.push("/login");
+          router.push('/login')
         }
       } catch (error: unknown) {
         if (error) {
-          const errorMessage = error || "Something went wrong!";
-          console.error("Login Error:", errorMessage);
+          const errorMessage = error || 'Something went wrong!'
+          console.error('Login Error:', errorMessage)
         } else {
-          console.error("Network Error:", error);
+          console.error('Network Error:', error)
         }
       }
-    });
-  };
+    })
+  }
 
   return (
     <div className="grid min-h-screen grid-cols-1 gap-16 bg-white pb-16 md:grid-cols-2 md:gap-6 md:pb-0">
@@ -61,9 +61,9 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             rules={[
               {
                 required: true,
-                message: "Masukkan nama lengkap anda!",
-                whitespace: true,
-              },
+                message: 'Masukkan nama lengkap anda!',
+                whitespace: true
+              }
             ]}
           >
             <Input />
@@ -75,9 +75,9 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             rules={[
               {
                 required: true,
-                message: "Masukkan nama lengkap anda!",
-                whitespace: true,
-              },
+                message: 'Masukkan nama lengkap anda!',
+                whitespace: true
+              }
             ]}
           >
             <Input />
@@ -87,15 +87,15 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             <Form.Item
               name="phoneNumber"
               label="Nomor Telepon"
-              rules={[{ required: true, message: "Masukkan nomor telepon anda!" }]}
+              rules={[{ required: true, message: 'Masukkan nomor telepon anda!' }]}
             >
-              <Input addonBefore={"+62"} style={{ width: "100%" }} />
+              <Input addonBefore={'+62'} style={{ width: '100%' }} />
             </Form.Item>
 
             <Form.Item
               name="company_id"
               label="Nama Perusahaan"
-              rules={[{ required: true, message: "Masukkan nama perusahaan anda!" }]}
+              rules={[{ required: true, message: 'Masukkan nama perusahaan anda!' }]}
             >
               <Select placeholder="Pilih Metode Perhitungan" options={companies} />
             </Form.Item>
@@ -119,11 +119,11 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
                 validator: (_, value) =>
                   value
                     ? Promise.resolve()
-                    : Promise.reject(new Error("Should accept agreement")),
-              },
+                    : Promise.reject(new Error('Should accept agreement'))
+              }
             ]}
           >
-            <Checkbox onChange={(e) => e.target.checked}>
+            <Checkbox onChange={e => e.target.checked}>
               I have read the <a href="">agreement</a>
             </Checkbox>
           </Form.Item>
@@ -135,7 +135,7 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
               className="w-full"
               loading={isPending}
             >
-              {isPending ? "Tunggu Sebentar" : "Daftar Sekarang"}
+              {isPending ? 'Tunggu Sebentar' : 'Daftar Sekarang'}
             </Button>
           </Form.Item>
 
@@ -146,7 +146,7 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
         </Form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

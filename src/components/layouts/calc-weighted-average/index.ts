@@ -1,3 +1,3 @@
-import WeightedAverageCalculator from "./sections/WeightedAverageCalculator";
+import WeightedAverageCalculator from './sections/WeightedAverageCalculator'
 
-export default WeightedAverageCalculator;
+export default WeightedAverageCalculator

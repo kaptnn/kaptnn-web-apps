@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Table } from "antd";
-import { useCompanyStore } from "@/stores/useCompanyStore";
-import { columns as baseColumns } from "../utils/table";
-import { memo, useMemo } from "react";
+import { Table } from 'antd'
+import { useCompanyStore } from '@/stores/useCompanyStore'
+import { columns as baseColumns } from '../utils/table'
+import { memo, useMemo } from 'react'
 
 interface TableComponentProps {
-  token: string;
-  fetchData: () => void;
+  token: string
+  fetchData: () => void
 }
 
 const CompanyTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
@@ -20,12 +20,12 @@ const CompanyTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
     setSelectedRowKeys,
     setCurrent,
     setPageSize,
-    openModal,
-  } = useCompanyStore();
+    openModal
+  } = useCompanyStore()
 
-  const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys);
+  const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys)
 
-  const columns = useMemo(() => baseColumns(openModal), [openModal]);
+  const columns = useMemo(() => baseColumns(openModal), [openModal])
 
   return (
     <Table
@@ -40,14 +40,14 @@ const CompanyTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
         total,
         showSizeChanger: true,
         onChange: (page, size) => {
-          setCurrent(page);
-          setPageSize(size || pageSize);
-          fetchData();
+          setCurrent(page)
+          setPageSize(size || pageSize)
+          fetchData()
         },
-        position: ["bottomCenter"],
+        position: ['bottomCenter']
       }}
     />
-  );
-};
+  )
+}
 
-export default memo(CompanyTable);
+export default memo(CompanyTable)

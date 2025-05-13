@@ -1,75 +1,75 @@
-"use client";
+'use client'
 
-import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
-import Link from "next/link";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { z } from "zod";
-import { loginSchema } from "@/utils/constants/user";
-import { AuthApi, CompanyApi, UserApi } from "@/utils/axios/api-service";
-import axiosInstance from "@/utils/axios";
-import useAuthStore from "@/stores/AuthStore";
+import { Button, Checkbox, Form, Input, Flex, Typography } from 'antd'
+import Link from 'next/link'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { z } from 'zod'
+import { loginSchema } from '@/utils/constants/user'
+import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
+import axiosInstance from '@/utils/axios'
+import useAuthStore from '@/stores/AuthStore'
 
-const { Paragraph } = Typography;
+const { Paragraph } = Typography
 
 const Login = () => {
-  const [form] = Form.useForm();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [form] = Form.useForm()
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleFinish = async (values: z.infer<typeof loginSchema>) => {
     startTransition(async () => {
       try {
         const response = await AuthApi.loginUser({
           email: values.email,
-          password: values.password,
-        });
+          password: values.password
+        })
         if (!response?.access_token) {
-          router.push("/login");
-          return;
+          router.push('/login')
+          return
         }
 
-        localStorage.setItem("access_token", response.access_token);
-        localStorage.setItem("refresh_token", response.refresh_token);
-        axiosInstance.defaults.headers.Authorization = `Bearer ${response.access_token}`;
+        localStorage.setItem('access_token', response.access_token)
+        localStorage.setItem('refresh_token', response.refresh_token)
+        axiosInstance.defaults.headers.Authorization = `Bearer ${response.access_token}`
 
-        const now = new Date();
-        const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000);
-        const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7);
+        const now = new Date()
+        const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000)
+        const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7)
 
         document.cookie = `access_token=${
           response.access_token
-        }; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
+        }; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`
         document.cookie = `refresh_token=${
           response.refresh_token
-        }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`;
+        }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`
 
-        useAuthStore.getState().setAuth(response.access_token, response.refresh_token);
+        useAuthStore.getState().setAuth(response.access_token, response.refresh_token)
 
-        const rawCurrentUserData = await UserApi.getCurrentUser(response.access_token);
+        const rawCurrentUserData = await UserApi.getCurrentUser(response.access_token)
         const rawCompanyByIdData = await CompanyApi.getCompanyById(
           rawCurrentUserData.company_id,
-          response.access_token,
-        );
+          response.access_token
+        )
 
         const currentUserData = {
           ...rawCurrentUserData,
-          company_name: rawCompanyByIdData.company_name,
-        };
-
-        useAuthStore.getState().setUserInfo(currentUserData);
-
-        router.push("/dashboard");
-      } catch (error: unknown) {
-        let errorMessage = "Something went wrong!";
-        if (error instanceof Error) {
-          errorMessage = error.message;
+          company_name: rawCompanyByIdData.company_name
         }
-        console.error("Login Error:", errorMessage);
+
+        useAuthStore.getState().setUserInfo(currentUserData)
+
+        router.push('/dashboard')
+      } catch (error: unknown) {
+        let errorMessage = 'Something went wrong!'
+        if (error instanceof Error) {
+          errorMessage = error.message
+        }
+        console.error('Login Error:', errorMessage)
       }
-    });
-  };
+    })
+  }
 
   return (
     <div className="grid min-h-screen grid-cols-1 gap-16 bg-white md:mb-0 md:grid-cols-2 md:gap-6">
@@ -96,7 +96,7 @@ const Login = () => {
 
           <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
-              <Checkbox onChange={(e) => e.target.checked}>Remember me</Checkbox>
+              <Checkbox onChange={e => e.target.checked}>Remember me</Checkbox>
 
               <Link href="/forgot-password">Lupa Kata Sandi?</Link>
             </Flex>
@@ -104,7 +104,7 @@ const Login = () => {
 
           <Form.Item>
             <Button block type="primary" htmlType="submit" loading={isPending}>
-              {isPending ? "Tunggu Sebentar" : "Masuk"}
+              {isPending ? 'Tunggu Sebentar' : 'Masuk'}
             </Button>
           </Form.Item>
 
@@ -114,7 +114,7 @@ const Login = () => {
         </Form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

@@ -1,4 +1,4 @@
-import { Flex, Spin } from "antd";
+import { Flex, Spin } from 'antd'
 
 const LoadingPage = () => {
   return (
@@ -7,7 +7,7 @@ const LoadingPage = () => {
         <Spin />
       </Flex>
     </main>
-  );
-};
+  )
+}
 
-export default LoadingPage;
+export default LoadingPage

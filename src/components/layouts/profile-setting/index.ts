@@ -1,3 +1,3 @@
-import ProfileSetting from "./sections/ProfileSetting";
+import ProfileSetting from './sections/ProfileSetting'
 
-export default ProfileSetting;
+export default ProfileSetting

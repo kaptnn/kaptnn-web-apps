@@ -1,3 +1,3 @@
-import PresentValueCalculator from "./sections/PresentValueCalculator";
+import PresentValueCalculator from './sections/PresentValueCalculator'
 
-export default PresentValueCalculator;
+export default PresentValueCalculator

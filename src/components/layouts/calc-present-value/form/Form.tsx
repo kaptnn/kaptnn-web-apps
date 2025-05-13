@@ -1,5 +1,5 @@
 const PresentValueCalculatorForm = () => {
-  return <div>Form</div>;
-};
+  return <div>Form</div>
+}
 
-export default PresentValueCalculatorForm;
+export default PresentValueCalculatorForm

@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { ReactNode, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Avatar,
   Breadcrumb,
@@ -13,62 +13,62 @@ import {
   Spin,
   theme,
   Typography,
-  type MenuProps,
-} from "antd";
+  type MenuProps
+} from 'antd'
 import {
   getMenuItemsByRole,
   getDefaultOpenKeys,
-  accountProfileItems,
-} from "@/utils/constants/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import useAuthStore from "@/stores/AuthStore";
-import { BellOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+  accountProfileItems
+} from '@/utils/constants/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import useAuthStore from '@/stores/AuthStore'
+import { BellOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content } = Layout
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const userInfo = useAuthStore((state) => state.userInfo);
-  const role = userInfo?.profile.role ?? "client";
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const userInfo = useAuthStore(state => state.userInfo)
+  const role = userInfo?.profile.role ?? 'client'
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [openKeys, setOpenKeys] = useState<string[]>([])
 
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const menuItems = getMenuItemsByRole(role);
+  const menuItems = getMenuItemsByRole(role)
 
   useEffect(() => {
-    setOpenKeys(getDefaultOpenKeys(pathname, menuItems));
-  }, [pathname, menuItems]);
+    setOpenKeys(getDefaultOpenKeys(pathname, menuItems))
+  }, [pathname, menuItems])
 
   const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+    token: { colorBgContainer, borderRadiusLG }
+  } = theme.useToken()
 
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    router.push(e.key);
-  };
+  const handleMenuClick: MenuProps['onClick'] = e => {
+    router.push(e.key)
+  }
 
   const breadcrumbItems = pathname
-    .split("/")
+    .split('/')
     .filter(Boolean)
     .map((segment, index, arr) => {
-      const title = segment.charAt(0).toUpperCase() + segment.slice(1);
-      const href = `/${arr.slice(0, index + 1).join("/")}`;
+      const title = segment.charAt(0).toUpperCase() + segment.slice(1)
+      const href = `/${arr.slice(0, index + 1).join('/')}`
       return {
         title,
-        href: index === arr.length - 1 ? undefined : href,
-      };
-    });
+        href: index === arr.length - 1 ? undefined : href
+      }
+    })
 
-  const onOpenChange: MenuProps["onOpenChange"] = (keys) => {
-    setOpenKeys(keys);
-  };
+  const onOpenChange: MenuProps['onOpenChange'] = keys => {
+    setOpenKeys(keys)
+  }
 
   if (userInfo === null) {
     return (
@@ -77,33 +77,33 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           <Spin />
         </Flex>
       </main>
-    );
+    )
   }
 
   return (
     <Layout>
       <Sider
         style={{
-          width: "100%",
-          overflow: "auto",
-          height: "100vh",
-          position: "sticky",
+          width: '100%',
+          overflow: 'auto',
+          height: '100vh',
+          position: 'sticky',
           insetInlineStart: 0,
           top: 0,
           bottom: 0,
-          scrollbarWidth: "thin",
-          scrollbarGutter: "stable",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          scrollbarWidth: 'thin',
+          scrollbarGutter: 'stable',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between'
         }}
       >
         <Flex vertical>
           <div className="ml-1 h-24 w-full p-4">
             <div className="flex h-full w-full items-center justify-center rounded bg-white p-4">
-              <Link href={"/"}>
+              <Link href={'/'}>
                 <Image
-                  src={"/kaptnn-logo.webp"}
+                  src={'/kaptnn-logo.webp'}
                   alt="Logo KAP TNN"
                   width={1024}
                   height={1024}
@@ -113,7 +113,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
           <Menu
             theme="dark"
-            defaultSelectedKeys={["/dashboard"]}
+            defaultSelectedKeys={['/dashboard']}
             selectedKeys={[`${pathname}`]}
             mode="inline"
             items={menuItems}
@@ -129,13 +129,13 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           style={{
             padding: 16,
             background: colorBgContainer,
-            position: "sticky",
+            position: 'sticky',
             top: 0,
             zIndex: 1,
-            width: "100%",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
           className="shadow-md shadow-gray-700/10"
         >
@@ -153,7 +153,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             <Flex
               align="center"
               justify="center"
-              onClick={() => alert("Notification")}
+              onClick={() => alert('Notification')}
               className="cursor-pointer rounded-full transition-all duration-150 hover:bg-gray-200/50"
               style={{ margin: 0, padding: 8 }}
             >
@@ -161,12 +161,12 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             </Flex>
             <Dropdown
               menu={{ items: accountProfileItems }}
-              trigger={["click"]}
+              trigger={['click']}
               placement="bottomRight"
               arrow
             >
               <Avatar
-                onClick={(e) => e?.preventDefault()}
+                onClick={e => e?.preventDefault()}
                 size="large"
                 className="capitalize hover:cursor-pointer"
                 style={{ marginLeft: 8 }}
@@ -179,11 +179,11 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         <Content
           style={{
-            margin: "24px",
+            margin: '24px',
             padding: 24,
-            height: "100%",
+            height: '100%',
             background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            borderRadius: borderRadiusLG
           }}
         >
           {children}
@@ -201,7 +201,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
         </Modal>
       </Layout>
     </Layout>
-  );
-};
+  )
+}
 
-export default DashboardLayouts;
+export default DashboardLayouts

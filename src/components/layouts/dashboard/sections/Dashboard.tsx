@@ -1,32 +1,32 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+'use client'
 
-import { useEffect, useCallback, useMemo } from "react";
-import { Row, Col, Card, Spin, message, Flex, Typography } from "antd";
-import DashboardLayouts from "../../DashboardLayouts";
-import { useCompanyStore } from "@/stores/useCompanyStore";
-import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
-import axiosInstance from "@/utils/axios";
+import { useEffect, useCallback, useMemo } from 'react'
+import { Row, Col, Card, Spin, message, Flex, Typography } from 'antd'
+import DashboardLayouts from '../../DashboardLayouts'
+import { useCompanyStore } from '@/stores/useCompanyStore'
+import { useDocsRequestStore } from '@/stores/useDocsRequestStore'
+import axiosInstance from '@/utils/axios'
 import {
   CompanyApi,
   DocsCategoryApi,
   DocsRequestApi,
-  UserApi,
-} from "@/utils/axios/api-service";
-import { useAllUsersStore } from "@/stores/useAllUsersStore";
-import { useDocsCategoryStore } from "@/stores/useDocsCategory";
+  UserApi
+} from '@/utils/axios/api-service'
+import { useAllUsersStore } from '@/stores/useAllUsersStore'
+import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 
 interface DashboardClientProps {
-  initialToken: string;
-  isAdmin: boolean;
-  currentUser: any;
+  initialToken: string
+  isAdmin: boolean
+  currentUser: any
 }
 
 const Dashboard: React.FC<DashboardClientProps> = ({
   initialToken,
   isAdmin,
-  currentUser,
+  currentUser
 }) => {
   const {
     loading: compLoading,
@@ -34,8 +34,8 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     total: compTotal,
     setData: setCompData,
     setTotal: setCompTotal,
-    setLoading: setCompLoading,
-  } = useCompanyStore();
+    setLoading: setCompLoading
+  } = useCompanyStore()
 
   const {
     loading: usersLoading,
@@ -43,8 +43,8 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     total: usersTotal,
     setData: setUsersData,
     setTotal: setUsersTotal,
-    setLoading: setUsersLoading,
-  } = useAllUsersStore();
+    setLoading: setUsersLoading
+  } = useAllUsersStore()
 
   const {
     loading: docReqLoading,
@@ -52,8 +52,8 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     total: docReqTotal,
     setData: setDocReqData,
     setTotal: setDocReqTotal,
-    setLoading: setDocReqLoading,
-  } = useDocsRequestStore();
+    setLoading: setDocReqLoading
+  } = useDocsRequestStore()
 
   const {
     loading: docCatLoading,
@@ -61,52 +61,52 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     total: docCatTotal,
     setData: setDocCatData,
     setTotal: setDocCatTotal,
-    setLoading: setDocCatLoading,
-  } = useDocsCategoryStore();
+    setLoading: setDocCatLoading
+  } = useDocsCategoryStore()
 
   useEffect(() => {
-    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${initialToken}`;
-  }, [initialToken]);
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`
+  }, [initialToken])
 
   const fetchData = useCallback(async () => {
-    setCompLoading(true);
-    setDocReqLoading(true);
-    setUsersLoading(true);
-    setDocCatLoading(true);
+    setCompLoading(true)
+    setDocReqLoading(true)
+    setUsersLoading(true)
+    setDocCatLoading(true)
     try {
       const [compRes, docReqRes, usersRes, docCatRes] = await Promise.all([
         CompanyApi.getAllCompanies({}, initialToken),
         DocsRequestApi.getAllDocsRequest({}, initialToken),
         UserApi.getAllUsers({}, initialToken),
-        DocsCategoryApi.getAllDocsCategory({}, initialToken),
-      ]);
+        DocsCategoryApi.getAllDocsCategory({}, initialToken)
+      ])
 
       const formattedCompanies = compRes.result.map((c: any) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split("T")[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
-      }));
+        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
+        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+      }))
 
-      setCompData(formattedCompanies);
-      setCompTotal(compRes.meta.totalItems);
+      setCompData(formattedCompanies)
+      setCompTotal(compRes.meta.totalItems)
 
-      setDocReqData(docReqRes.result);
-      setDocReqTotal(docReqRes.meta.totalItems);
+      setDocReqData(docReqRes.result)
+      setDocReqTotal(docReqRes.meta.totalItems)
 
-      setUsersData(usersRes.result);
-      setUsersTotal(usersRes.meta.totalItems);
+      setUsersData(usersRes.result)
+      setUsersTotal(usersRes.meta.totalItems)
 
-      setDocCatData(docCatRes.result);
-      setDocCatTotal(docCatRes.meta.totalItems);
+      setDocCatData(docCatRes.result)
+      setDocCatTotal(docCatRes.meta.totalItems)
     } catch (error) {
-      console.error("Dashboard fetch error:", error);
-      message.error("Failed to fetch dashboard data.");
+      console.error('Dashboard fetch error:', error)
+      message.error('Failed to fetch dashboard data.')
     } finally {
-      setCompLoading(false);
-      setDocReqLoading(false);
-      setUsersLoading(false);
-      setDocCatLoading(false);
+      setCompLoading(false)
+      setDocReqLoading(false)
+      setUsersLoading(false)
+      setDocCatLoading(false)
     }
   }, [
     setCompLoading,
@@ -121,25 +121,25 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     setUsersData,
     setUsersTotal,
     setDocCatData,
-    setDocCatTotal,
-  ]);
+    setDocCatTotal
+  ])
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData()
+  }, [fetchData])
 
   const stats = useMemo(() => {
     const fulfilledCount = docReqData.filter(
-      (d: any) => d.status === "fulfilled",
-    ).length;
-    const totalCount = docReqData.length;
-    const pct = totalCount ? (fulfilledCount / totalCount) * 100 : 0;
+      (d: any) => d.status === 'fulfilled'
+    ).length
+    const totalCount = docReqData.length
+    const pct = totalCount ? (fulfilledCount / totalCount) * 100 : 0
     return {
       fulfilled: fulfilledCount,
       unfulfilled: totalCount - fulfilledCount,
-      pct: +pct.toFixed(2),
-    };
-  }, [docReqData]);
+      pct: +pct.toFixed(2)
+    }
+  }, [docReqData])
 
   return (
     <DashboardLayouts>
@@ -500,7 +500,7 @@ const Dashboard: React.FC<DashboardClientProps> = ({
         </Col>
       </Row>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

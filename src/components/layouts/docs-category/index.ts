@@ -1,3 +1,3 @@
-import DocsCategory from "./sections/DocsCategory";
+import DocsCategory from './sections/DocsCategory'
 
-export default DocsCategory;
+export default DocsCategory

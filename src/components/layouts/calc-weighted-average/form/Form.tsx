@@ -1,34 +1,34 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button, Form, Input, Select } from "antd";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from 'react'
+import { Button, Form, Input, Select } from 'antd'
+import { Controller, useForm } from 'react-hook-form'
 
 type FormValues = {
-  numRows: number;
-  weights: number[];
-  lossRates: number[];
-  goal?: number;
-  calculationType: "weighted_average" | "goal_seeking";
-};
+  numRows: number
+  weights: number[]
+  lossRates: number[]
+  goal?: number
+  calculationType: 'weighted_average' | 'goal_seeking'
+}
 
 const WeightedAverageCalculatorForm = () => {
   const { control, handleSubmit, watch, setValue } = useForm<FormValues>({
     defaultValues: {
-      calculationType: "weighted_average",
+      calculationType: 'weighted_average',
       numRows: 0,
       weights: [],
       lossRates: [],
-      goal: undefined,
-    },
-  });
+      goal: undefined
+    }
+  })
 
-  const [numRows, setNumRows] = useState(0);
-  const calculationType = watch("calculationType");
+  const [numRows, setNumRows] = useState(0)
+  const calculationType = watch('calculationType')
 
   const onSubmit = (data: FormValues) => {
-    console.log("Form Submitted:", data);
-  };
+    console.log('Form Submitted:', data)
+  }
 
   return (
     <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
@@ -39,23 +39,23 @@ const WeightedAverageCalculatorForm = () => {
           render={({ field }) => (
             <Select
               {...field}
-              onChange={(value) => {
-                field.onChange(value);
-                setNumRows(0);
-                setValue("numRows", 0);
-                setValue("weights", []);
-                setValue("lossRates", []);
-                setValue("goal", undefined);
+              onChange={value => {
+                field.onChange(value)
+                setNumRows(0)
+                setValue('numRows', 0)
+                setValue('weights', [])
+                setValue('lossRates', [])
+                setValue('goal', undefined)
               }}
               options={[
                 {
-                  value: "weighted_average",
-                  label: "Weighted Average Calculator",
+                  value: 'weighted_average',
+                  label: 'Weighted Average Calculator'
                 },
                 {
-                  value: "goal_seeking",
-                  label: "Goal Seeking Weighted Average",
-                },
+                  value: 'goal_seeking',
+                  label: 'Goal Seeking Weighted Average'
+                }
               ]}
             />
           )}
@@ -66,19 +66,19 @@ const WeightedAverageCalculatorForm = () => {
         <Controller
           name="numRows"
           control={control}
-          rules={{ required: "Number of rows is required" }}
+          rules={{ required: 'Number of rows is required' }}
           render={({ field }) => (
             <Input
               {...field}
               type="number"
               placeholder="Enter number of rows"
               value={field.value}
-              onChange={(e) => {
-                const value = Math.max(0, parseInt(e.target.value, 10) || 0);
-                setNumRows(value);
-                field.onChange(value);
-                setValue("weights", Array(value).fill(0));
-                setValue("lossRates", Array(value).fill(0));
+              onChange={e => {
+                const value = Math.max(0, parseInt(e.target.value, 10) || 0)
+                setNumRows(value)
+                field.onChange(value)
+                setValue('weights', Array(value).fill(0))
+                setValue('lossRates', Array(value).fill(0))
               }}
             />
           )}
@@ -88,12 +88,12 @@ const WeightedAverageCalculatorForm = () => {
       {numRows > 0 && (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "12px",
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px'
           }}
         >
-          {calculationType === "weighted_average" &&
+          {calculationType === 'weighted_average' &&
             Array.from({ length: numRows }).map((_, i) => (
               <Form.Item key={`lossRates-${i}`}>
                 <Controller
@@ -103,8 +103,8 @@ const WeightedAverageCalculatorForm = () => {
                     <Input
                       {...field}
                       type="number"
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      value={field.value ?? ''}
+                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                       placeholder={`Loss Rate ${i + 1}`}
                     />
                   )}
@@ -121,8 +121,8 @@ const WeightedAverageCalculatorForm = () => {
                   <Input
                     {...field}
                     type="number"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    value={field.value ?? ''}
+                    onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                     placeholder={`Weight ${i + 1}`}
                   />
                 )}
@@ -132,7 +132,7 @@ const WeightedAverageCalculatorForm = () => {
         </div>
       )}
 
-      {calculationType === "goal_seeking" && (
+      {calculationType === 'goal_seeking' && (
         <Form.Item label="Enter Target Weighted Average Goal:">
           <Controller
             name="goal"
@@ -141,8 +141,8 @@ const WeightedAverageCalculatorForm = () => {
               <Input
                 {...field}
                 type="number"
-                value={field.value ?? ""}
-                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                value={field.value ?? ''}
+                onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                 placeholder="Enter target goal"
               />
             )}
@@ -152,13 +152,13 @@ const WeightedAverageCalculatorForm = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" className="w-full">
-          {calculationType === "goal_seeking"
-            ? "Hitung Goal Seeking"
-            : "Hitung Weighted Average"}
+          {calculationType === 'goal_seeking'
+            ? 'Hitung Goal Seeking'
+            : 'Hitung Weighted Average'}
         </Button>
       </Form.Item>
     </Form>
-  );
-};
+  )
+}
 
-export default WeightedAverageCalculatorForm;
+export default WeightedAverageCalculatorForm

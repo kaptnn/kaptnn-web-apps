@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { ReactNode } from "react";
-import { ThemeProvider } from "next-themes";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider, theme } from "antd";
+import { ReactNode } from 'react'
+import { ThemeProvider } from 'next-themes'
+import { AntdRegistry } from '@ant-design/nextjs-registry'
+import { ConfigProvider, theme } from 'antd'
 
 interface Props {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export default function Providers({ children }: Props) {
@@ -16,7 +16,7 @@ export default function Providers({ children }: Props) {
         <AntDesignProvider>{children}</AntDesignProvider>
       </ThemeProvider>
     </AntdRegistry>
-  );
+  )
 }
 
 function AntDesignProvider({ children }: { children: ReactNode }) {
@@ -24,5 +24,5 @@ function AntDesignProvider({ children }: { children: ReactNode }) {
     <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
       {children}
     </ConfigProvider>
-  );
+  )
 }

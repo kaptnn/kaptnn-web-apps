@@ -1,3 +1,3 @@
-import Company from "./sections/Company";
+import Company from './sections/Company'
 
-export default Company;
+export default Company

@@ -1,19 +1,19 @@
-import LoadingPage from "@/components/elements/LoadingPage";
-import { seo_data } from "@/utils/constants/seo_data";
-import { Metadata } from "next";
+import LoadingPage from '@/components/elements/LoadingPage'
+import { seo_data } from '@/utils/constants/seo_data'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.loading} | KAP Tambunan & Nasafi`,
-  applicationName: "KAP TNN Datatrail Website",
-  creator: "KAP TNN Tech Teams",
+  applicationName: 'KAP TNN Datatrail Website',
+  creator: 'KAP TNN Tech Teams',
   alternates: {
-    canonical: "https://kaptnn.com/",
+    canonical: 'https://kaptnn.com/'
   },
-  keywords: ["Data", "Datatrail", "Accountant", "Document", "Document Management"],
-};
+  keywords: ['Data', 'Datatrail', 'Accountant', 'Document', 'Document Management']
+}
 
 const Loading = () => {
-  return <LoadingPage />;
-};
+  return <LoadingPage />
+}
 
-export default Loading;
+export default Loading

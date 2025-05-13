@@ -1,3 +1,3 @@
-import AllCalculator from "./sections/AllCalculator";
+import AllCalculator from './sections/AllCalculator'
 
-export default AllCalculator;
+export default AllCalculator
