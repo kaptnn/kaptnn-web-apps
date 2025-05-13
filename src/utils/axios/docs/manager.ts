@@ -1,19 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosInstance } from "axios";
 
-export interface getDocumentRequestProps {
+export interface DocumentManagerProps {
   id: string;
-  company_name: string;
-  created_at: string | Date;
-  updated_at: string | Date;
-}
-
-export interface CompanyProps {
-  id: string;
-  company_name: string;
-  year_of_assignment: number;
-  start_audit_period: Date;
-  end_audit_period: Date;
+  request_id?: string;
+  uploaded_by?: string;
+  company_id?: string;
+  document_name?: string;
+  document_path?: string;
+  file_size?: number;
+  mime_type?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -24,11 +20,21 @@ export interface PaginationMeta {
   totalItems: number;
 }
 
-export interface GetAllCompaniesParams {
+export interface GetAllDocumentManagerParams {
   page?: number;
   limit?: number;
   sort?: string;
   order?: "asc" | "desc";
+  name?: string;
+}
+
+export interface CreateDocMetadata {
+  request_id: string;
+  document_name: string;
+}
+
+export interface UpdateDocMetadata {
+  document_name?: string;
 }
 
 class DocsManagerService {
@@ -45,12 +51,12 @@ class DocsManagerService {
   }
 
   public getAllDocsManager = async (
-    params: GetAllCompaniesParams = {},
+    params: GetAllDocumentManagerParams = {},
     token?: string,
     signal?: AbortSignal,
-  ): Promise<{ result: CompanyProps[]; meta: PaginationMeta }> => {
+  ): Promise<{ result: DocumentManagerProps[]; meta: PaginationMeta }> => {
     try {
-      const response = await this.axiosInstance.get(`/v1/companies`, {
+      const response = await this.axiosInstance.get(`/v1/documents`, {
         params,
         headers: this.getAuthHeaders(token),
         signal,
@@ -72,14 +78,14 @@ class DocsManagerService {
   };
 
   public getDocsManagerById = async (
-    companyId: string,
+    docsId: string,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
+  ): Promise<DocumentManagerProps> => {
+    if (!docsId) throw new Error("Company ID is required");
     try {
       const response = await this.axiosInstance.get(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
+        `/v1/documents/${encodeURIComponent(docsId)}`,
         {
           headers: this.getAuthHeaders(token),
           signal,
@@ -87,25 +93,33 @@ class DocsManagerService {
       );
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error fetching company by ID ${companyId}:`, error);
+      console.error(`Error fetching company by ID ${docsId}:`, error);
       const msg =
-        error?.response?.data?.message ||
-        `Failed to fetch company with ID ${companyId}`;
+        error?.response?.data?.message || `Failed to fetch company with ID ${docsId}`;
       throw new Error(msg);
     }
   };
 
   public createDocsManager = async (
-    payload: any,
+    metadata: CreateDocMetadata,
+    file: File,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!payload.company_name) throw new Error("Company name is required");
+  ): Promise<DocumentManagerProps> => {
+    if (!metadata.document_name) throw new Error("Document name is required");
+    if (!file) throw new Error("File is required for upload");
+
+    const formData = new FormData();
+    formData.append("request_id", metadata.request_id);
+    formData.append("document_name", metadata.document_name);
+    formData.append("file", file, file.name);
+
     try {
-      const response = await this.axiosInstance.post(`/v1/companies`, payload, {
+      const response = await this.axiosInstance.post(`/v1/documents`, formData, {
         headers: this.getAuthHeaders(token),
         signal,
       });
+
       return response.data.result;
     } catch (error: any) {
       console.error("Error creating company:", error);
@@ -115,51 +129,59 @@ class DocsManagerService {
   };
 
   public updateDocsManager = async (
-    companyId: string,
-    payload: any,
+    docsId: string,
+    metadata: UpdateDocMetadata,
+    file?: File,
     token?: string,
     signal?: AbortSignal,
-  ): Promise<CompanyProps> => {
-    if (!companyId) throw new Error("Company ID is required");
-    try {
-      const response = await this.axiosInstance.put(
-        `/v1/companies/company/id/${encodeURIComponent(companyId)}`,
-        payload,
-        {
-          headers: this.getAuthHeaders(token),
-          signal,
-        },
-      );
-      return response.data.result;
-    } catch (error: any) {
-      console.error(`Error updating company ${companyId}:`, error);
-      const msg =
-        error?.response?.data?.message ||
-        `Failed to update company with ID ${companyId}`;
-      throw new Error(msg);
+  ) => {
+    if (!docsId) throw new Error("Document ID is required");
+    if (file) {
+      const formData = new FormData();
+      if (metadata.document_name) {
+        formData.append("document_name", metadata.document_name);
+      }
+      formData.append("file", file, file.name);
+
+      try {
+        const response = await this.axiosInstance.put(
+          `/v1/documents/${encodeURIComponent(docsId)}`,
+          formData,
+          {
+            headers: this.getAuthHeaders(token),
+            signal,
+          },
+        );
+        return response.data.result;
+      } catch (error: any) {
+        console.error(`Error updating company ${docsId}:`, error);
+        const msg =
+          error?.response?.data?.message ||
+          `Failed to update company with ID ${docsId}`;
+        throw new Error(msg);
+      }
     }
   };
 
   public deleteDocsManager = async (
-    companyId: string,
+    docsId: string,
     token?: string,
     signal?: AbortSignal,
   ) => {
-    if (!companyId) throw new Error("Company ID is required");
+    if (!docsId) throw new Error("Document ID is required");
     try {
       const response = await this.axiosInstance.delete<{
         message: string;
         result: { id: string };
-      }>(`/v1/companies/company/id/${encodeURIComponent(companyId)}`, {
+      }>(`/v1/documents/${encodeURIComponent(docsId)}`, {
         headers: this.getAuthHeaders(token),
         signal,
       });
       return response.data.result;
     } catch (error: any) {
-      console.error(`Error deleting company ${companyId}:`, error);
+      console.error(`Error deleting company ${docsId}:`, error);
       const msg =
-        error?.response?.data?.message ||
-        `Failed to delete company with ID ${companyId}`;
+        error?.response?.data?.message || `Failed to delete company with ID ${docsId}`;
       throw new Error(msg);
     }
   };

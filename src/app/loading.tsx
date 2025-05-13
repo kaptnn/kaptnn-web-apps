@@ -1,5 +1,5 @@
+import LoadingPage from "@/components/elements/LoadingPage";
 import { seo_data } from "@/utils/constants/seo_data";
-import { Flex, Spin } from "antd";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,13 +13,7 @@ export const metadata: Metadata = {
 };
 
 const Loading = () => {
-  return (
-    <main className="h-screen w-full items-center justify-center bg-white dark:bg-white">
-      <Flex className="h-screen w-full" justify="center" align="center">
-        <Spin />
-      </Flex>
-    </main>
-  );
+  return <LoadingPage />;
 };
 
 export default Loading;

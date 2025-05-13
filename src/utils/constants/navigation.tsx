@@ -31,7 +31,7 @@ export const adminMenuItems: MenuItem[] = [
   getItem("Dashboard", "/dashboard", <LayoutOutlined />),
   getItem("Docs", "/document", <PieChartOutlined />, [
     getItem("Docs Request", "/dashboard/document"),
-    getItem("Docs Storage", "/dashboard/document/storage"),
+    // getItem("Docs Storage", "/dashboard/document/storage"),
     getItem("Docs Category", "/dashboard/document/category"),
     getItem("All Users", "/dashboard/document/users"),
     getItem("All Companies", "/dashboard/document/company"),

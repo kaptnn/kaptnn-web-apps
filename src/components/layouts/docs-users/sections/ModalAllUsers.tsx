@@ -105,6 +105,16 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
             },
             token,
           );
+        } else if (modalType === "verify" && selectedItem) {
+          await UserApi.updateUserById(
+            selectedItem.id,
+            {
+              role: selectedItem.profile.role,
+              membership_status: selectedItem.profile.membership_status,
+              is_verified: true,
+            },
+            token,
+          );
         }
 
         router.refresh();
@@ -125,10 +135,11 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
       open={!!modalType}
       title={
         {
-          create: "Buat Permintaan Dokumen",
-          view: "Detail Permintaan Dokumen",
-          edit: "Edit Permintaan Dokumen",
-          delete: "Hapus Permintaan Dokumen",
+          create: "Buat Pengguna Baru",
+          view: "Detail Data Pengguna",
+          edit: "Edit Data Pengguna",
+          delete: "Hapus Data Pengguna",
+          verify: "Verifikasi Data Pengguna",
         }[modalType!]
       }
       centered
@@ -154,6 +165,12 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         {modalType === "delete" && selectedItem && (
           <p>
             Apakah Anda yakin ingin menghapus permintaan{" "}
+            <strong>{selectedItem.name}</strong>?
+          </p>
+        )}
+        {modalType === "verify" && selectedItem && (
+          <p>
+            Apakah Anda yakin ingin memverifikasi data pengguna{" "}
             <strong>{selectedItem.name}</strong>?
           </p>
         )}

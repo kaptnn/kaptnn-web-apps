@@ -1,111 +1,137 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CaretDownOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from "antd";
+import React from "react";
+import { Table, Dropdown, Button, Tag, Flex } from "antd";
+import type { MenuProps } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import {
+  SettingOutlined,
+  CaretDownOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
+} from "@ant-design/icons";
+
+export type ActionType = "view" | "edit" | "verify" | "delete";
+
+export interface UserProfileDataType {
+  id: string;
+  is_verified: boolean;
+  membership_status: string;
+  role: string;
+}
 
 export interface DataType {
-  result: any;
   key: React.Key;
   id: string;
   name: string;
   email: string;
   company_id: string;
+  company_name: string;
   profile: UserProfileDataType;
 }
 
-export interface UserProfileDataType {
-  id: string;
-  is_verified: boolean;
-  membership: string;
-  role: string;
-}
-
-export type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
-
 export const columns = (
-  onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
-) => [
-  Table.SELECTION_COLUMN,
-  Table.EXPAND_COLUMN,
-  { title: "Nama User", dataIndex: "name", key: "name", sorter: true },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    sorter: true,
-    render: (item: any) => (
-      <Flex align="center" justify="start">
-        <Tag>{item}</Tag>
-      </Flex>
-    ),
-  },
-  {
-    title: "Role",
-    dataIndex: ["profile", "role"],
-    key: "role",
-    sorter: true,
-    render: (item: any) => (
-      <Flex align="center" justify="center">
-        <Tag color="blue" className="capitalize">
-          {item}
-        </Tag>
-      </Flex>
-    ),
-  },
-  {
-    title: "Membership",
-    dataIndex: ["profile", "membership_status"],
-    key: "membership",
-    sorter: true,
-    render: (item: any) => (
-      <Flex align="center" justify="center">
-        <Tag color="gold" className="capitalize">
-          {item}
-        </Tag>
-      </Flex>
-    ),
-  },
-  {
-    title: "Nama Perusahaan",
-    dataIndex: "company_name",
-    key: "company_name",
-    sorter: true,
-  },
-  {
+  onAction: (action: ActionType, record: DataType) => void,
+  isAdmin: boolean,
+): ColumnsType<DataType> => {
+  const baseColumns: ColumnsType<DataType> = [
+    Table.SELECTION_COLUMN,
+    {
+      title: "Nama User",
+      dataIndex: "name",
+      key: "name",
+      sorter: true,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: true,
+      render: (email: string) => (
+        <Flex align="center" justify="start">
+          <Tag>{email}</Tag>
+        </Flex>
+      ),
+    },
+    {
+      title: "Role",
+      dataIndex: ["profile", "role"],
+      key: "role",
+      sorter: true,
+      render: (role: string) => (
+        <Flex align="center" justify="start">
+          <Tag className="capitalize" color="blue">
+            {role}
+          </Tag>
+        </Flex>
+      ),
+    },
+    {
+      title: "Membership",
+      dataIndex: ["profile", "membership_status"],
+      key: "membership",
+      sorter: true,
+      render: (m: string) => (
+        <Flex align="center" justify="center">
+          <Tag className="capitalize" color="gold">
+            {m}
+          </Tag>
+        </Flex>
+      ),
+    },
+    {
+      title: "Nama Perusahaan",
+      dataIndex: "company_name",
+      key: "company_name",
+      sorter: true,
+    },
+    {
+      title: "Verifikasi",
+      dataIndex: ["profile", "is_verified"],
+      key: "verification",
+      sorter: true,
+      render: (isVerified: boolean) => (
+        <Flex align="center" justify="center">
+          {isVerified ? (
+            <CheckCircleFilled style={{ color: "green" }} />
+          ) : (
+            <CloseCircleFilled style={{ color: "red" }} />
+          )}
+        </Flex>
+      ),
+    },
+  ];
+
+  const actionColumn: ColumnsType<DataType>[number] = {
     title: "Action",
-    dataIndex: "",
-    key: "x",
-    render: (_text: any, record: DataType) => {
-      const menu: MenuProps = {
-        items: [
-          {
-            key: "view",
-            label: "View Data",
-          },
-          {
-            key: "edit",
-            label: "Edit Data",
-          },
-          {
-            key: "divider",
-            type: "divider",
-          },
-          {
-            key: "delete",
-            label: "Delete Data",
-            danger: true,
-          },
-        ],
-        onClick: ({ key }) => onAction(key as any, record),
-      };
+    key: "action",
+    render: (_: any, record: DataType) => {
+      const items: MenuProps["items"] = [
+        { key: "view", label: "View Data" },
+        { key: "edit", label: "Edit Data" },
+        ...(isAdmin && !record.profile.is_verified
+          ? [{ key: "verify", label: "Verify User" }]
+          : []),
+        { type: "divider" },
+        { key: "delete", label: "Delete Data", danger: true },
+      ];
+
       return (
-        <Dropdown menu={menu} placement="bottomRight" arrow trigger={["click"]}>
-          <Button>
-            <SettingOutlined />
+        <Dropdown
+          menu={{
+            items,
+            onClick: ({ key }) => onAction(key as ActionType, record),
+          }}
+          placement="bottomRight"
+          arrow
+          trigger={["click"]}
+        >
+          <Button icon={<SettingOutlined />}>
             <CaretDownOutlined />
           </Button>
         </Dropdown>
       );
     },
-  },
-];
+  };
+
+  return isAdmin ? [...baseColumns, actionColumn] : baseColumns;
+};

@@ -25,7 +25,11 @@ interface AllUsersClientProps {
   currentUser: any;
 }
 
-const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
+const AllUsers: React.FC<AllUsersClientProps> = ({
+  initialToken,
+  isAdmin,
+  currentUser,
+}) => {
   const {
     pageSize,
     current,
@@ -65,7 +69,7 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
         order: filters.order,
         name: searchTerm || undefined,
         email: filters.email,
-        company_id: filters.company_id,
+        company_id: isAdmin ? filters.company_id : currentUser?.company_id,
       };
 
       const response = await UserApi.getAllUsers(params, initialToken);
@@ -93,6 +97,8 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
     filters.email,
     filters.company_id,
     searchTerm,
+    isAdmin,
+    currentUser?.company_id,
     initialToken,
     setData,
     setTotal,
@@ -148,23 +154,13 @@ const AllUsers: React.FC<AllUsersClientProps> = ({ initialToken, isAdmin }) => {
             />
           </Flex>
           <Flex align="center">
-            {isAdmin && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                loading={loading}
-                onClick={() => openModal("create")}
-              >
-                Tambah Pengguna Baru
-              </Button>
-            )}
+            <FilterAllUsers
+              filterValues={{ ...filters }}
+              onFilterChange={handleFilterChange}
+              options={options}
+            />
           </Flex>
         </Flex>
-        <FilterAllUsers
-          filterValues={{ ...filters }}
-          onFilterChange={handleFilterChange}
-          options={options}
-        />
         <TableAllUsers token={initialToken} fetchData={fetchUsers} />
         <ModalAllUsers token={initialToken} />
       </Flex>

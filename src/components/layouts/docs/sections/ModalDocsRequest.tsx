@@ -1,16 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Modal,
-  Form,
-  Input,
-  DatePicker,
-  message,
-  Select,
-  UploadProps,
-  Upload,
-} from "antd";
+import { Modal, Form, Input, DatePicker, message, Select, Upload, Spin } from "antd";
 import { useDocsRequestStore } from "@/stores/useDocsRequestStore";
-import { memo, useCallback, useEffect, useMemo, useTransition } from "react";
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   CompanyApi,
   DocsCategoryApi,
@@ -24,39 +15,23 @@ import { useDocsCategoryStore } from "@/stores/useDocsCategory";
 import { useAllUsersStore } from "@/stores/useAllUsersStore";
 import { useCompanyStore } from "@/stores/useCompanyStore";
 import { InboxOutlined } from "@ant-design/icons";
+import type { UploadFile, UploadProps } from "antd";
+import { CreateDocMetadata } from "@/utils/axios/docs/manager";
 
 interface ModalComponentProps {
   token: string;
 }
 
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
-
 const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   const { selectedItem, modalType, closeModal } = useDocsRequestStore();
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const {
     data: compData,
+    loading: compLoading,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading,
@@ -64,6 +39,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const {
     data: usersData,
+    loading: usersLoading,
     setData: setUsersData,
     setTotal: setUsersTotal,
     setLoading: setUsersLoading,
@@ -71,6 +47,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const {
     data: docCatData,
+    loading: docCatLoading,
     setData: setDocCatData,
     setTotal: setDocCatTotal,
     setLoading: setDocCatLoading,
@@ -87,14 +64,16 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         DocsCategoryApi.getAllDocsCategory({}, token),
       ]);
 
-      const formattedCompanies = compRes.result.map((c: any) => ({
-        ...c,
-        key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split("T")[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
-      }));
-
-      setCompData(formattedCompanies);
+      setCompData(
+        compRes.result.map((c: any) => ({
+          ...c,
+          key: c.id,
+          start_audit_period: new Date(c.start_audit_period)
+            .toISOString()
+            .split("T")[0],
+          end_audit_period: new Date(c.end_audit_period).toISOString().split("T")[0],
+        })),
+      );
       setCompTotal(compRes.meta.totalItems);
 
       setUsersData(usersRes.result);
@@ -124,21 +103,29 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   ]);
 
   useEffect(() => {
+    if (!modalType) return;
+
     fetchData();
+
     if ((modalType === "edit" || modalType === "view") && selectedItem) {
       form.setFieldsValue({
         ...selectedItem,
-        due_date: selectedItem.due_date ? dayjs(selectedItem.due_date) : null,
+        due_date: selectedItem.due_date ? dayjs(selectedItem.due_date) : undefined,
       });
     } else {
       form.resetFields();
+      setFileList([]);
     }
   }, [modalType, selectedItem, form, fetchData]);
 
   const selectedCompanyId = Form.useWatch("company_id", form);
-  const filteredUsers = selectedCompanyId
-    ? usersData.filter((u: any) => u.company_id === selectedCompanyId)
-    : usersData;
+  const filteredUsers = useMemo(
+    () =>
+      selectedCompanyId
+        ? usersData.filter((u) => u.company_id === selectedCompanyId)
+        : usersData,
+    [selectedCompanyId, usersData],
+  );
 
   const companyOptions = useMemo(
     () => compData.map((c) => ({ value: c.id, label: c.company_name })),
@@ -153,6 +140,18 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
     [docCatData],
   );
 
+  const uploadProps: UploadProps = {
+    multiple: true,
+    onRemove: (file) => {
+      setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+    },
+    beforeUpload: (file) => {
+      setFileList((prev) => [...prev, file]);
+      return false;
+    },
+    fileList,
+  };
+
   const handleFinish = useCallback(async () => {
     startTransition(async () => {
       try {
@@ -162,52 +161,67 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         }
 
         const values = form.getFieldsValue();
-        const payload = { ...values, due_date: dayjs(values.due_date) };
+        const payload = {
+          ...values,
+          due_date: values.due_date ? dayjs(values.due_date).toISOString() : undefined,
+        };
 
-        if (modalType === "create") {
-          await DocsRequestApi.createDocsRequest(payload, token);
-        } else if (modalType === "edit" && selectedItem) {
-          await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token);
-        } else if (modalType === "delete" && selectedItem) {
-          await DocsRequestApi.deleteDocsRequest(selectedItem.id, token);
-        } else if (modalType === "upload_request" && selectedItem) {
-          const uploadReq = await DocsManagerApi.createDocsManager(
-            selectedItem.id,
-            token,
-          );
-          if (uploadReq) {
-            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
-          }
-        } else if (modalType === "edit_request" && selectedItem) {
-          const editReq = await DocsManagerApi.updateDocsManager(
-            selectedItem.id,
-            token,
-          );
-          if (editReq) {
-            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
-          }
-        } else if (modalType === "delete_request" && selectedItem) {
-          const deleteReq = await DocsManagerApi.deleteDocsManager(
-            selectedItem.id,
-            token,
-          );
-          if (deleteReq) {
-            await DocsRequestApi.updateDocsRequest(selectedItem.id, token);
-          }
+        switch (modalType) {
+          case "create":
+            await DocsRequestApi.createDocsRequest(payload, token);
+            break;
+
+          case "edit":
+            if (!selectedItem) throw new Error("No item to edit");
+            await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token);
+            break;
+
+          case "delete":
+            if (!selectedItem) throw new Error("No item to delete");
+            await DocsRequestApi.deleteDocsRequest(selectedItem.id, token);
+            break;
+
+          case "upload_request":
+            if (!selectedItem) throw new Error("No item to upload files to");
+            const metadata: CreateDocMetadata = {
+              request_id: selectedItem.id,
+              document_name: values.title,
+            };
+
+            await Promise.all(
+              fileList.map((file) => {
+                if (!file.originFileObj) {
+                  return Promise.reject(new Error("Missing file object for upload"));
+                }
+                return DocsManagerApi.createDocsManager(
+                  metadata,
+                  file.originFileObj as File,
+                  token,
+                );
+              }),
+            );
+            break;
+
+          default:
+            break;
         }
 
+        message.success("Operasi berhasil");
         router.refresh();
         closeModal();
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || "Something went wrong!";
           console.error("Login Error:", errorMessage);
+          message.error(
+            (errorMessage as Error).message || "Terjadi kesalahan. Silakan coba lagi.",
+          );
         } else {
           console.error("Network Error:", error);
         }
       }
     });
-  }, [closeModal, form, modalType, router, selectedItem, token]);
+  }, [closeModal, fileList, form, modalType, router, selectedItem, token]);
 
   return (
     <Modal
@@ -231,6 +245,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
       cancelText="Batal"
       forceRender
     >
+      {(compLoading || usersLoading || docCatLoading) && <Spin />}
       <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
         {(modalType === "create" || modalType === "edit") && (
           <>
@@ -281,20 +296,24 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
 
         {modalType === "upload_request" && selectedItem && (
-          <Form>
-            <Upload.Dragger {...props}>
+          <>
+            <Form.Item
+              name="title"
+              label="Judul Upload"
+              rules={[{ required: true, message: "Judul diperlukan" }]}
+            >
+              <Input maxLength={255} />
+            </Form.Item>
+            <Upload.Dragger {...uploadProps}>
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
-              <p className="ant-upload-text">
-                Click or drag file to this area to upload
-              </p>
+              <p className="ant-upload-text">Klik atau tarik file ke area ini</p>
               <p className="ant-upload-hint">
-                Support for a single or bulk upload. Strictly prohibited from uploading
-                company data or other banned files.
+                Anda dapat mengunggah beberapa file sekaligus.
               </p>
             </Upload.Dragger>
-          </Form>
+          </>
         )}
 
         {modalType === "edit_request" && selectedItem && <></>}

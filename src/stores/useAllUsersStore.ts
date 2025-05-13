@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { DataType } from "@/components/layouts/docs-users/utils/table";
 import { GetAllUsersParams } from "@/utils/axios/user";
 
-type ModalType = "create" | "view" | "edit" | "delete" | null;
+type ModalType = "create" | "view" | "edit" | "delete" | "verify" | null;
 
 interface AllUsersState {
   data: DataType[];

@@ -18,7 +18,6 @@ export const columns = (
   onAction: (type: "view" | "edit" | "delete", record: DataType) => void,
 ) => [
   Table.SELECTION_COLUMN,
-  Table.EXPAND_COLUMN,
   {
     title: "Company Name",
     dataIndex: "company_name",
