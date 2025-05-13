@@ -84,22 +84,23 @@ export const columns = (
       key: "company_name",
       sorter: true,
     },
-    {
-      title: "Verifikasi",
-      dataIndex: ["profile", "is_verified"],
-      key: "verification",
-      sorter: true,
-      render: (isVerified: boolean) => (
-        <Flex align="center" justify="center">
-          {isVerified ? (
-            <CheckCircleFilled style={{ color: "green" }} />
-          ) : (
-            <CloseCircleFilled style={{ color: "red" }} />
-          )}
-        </Flex>
-      ),
-    },
   ];
+
+  const verificationColumn: ColumnsType<DataType>[number] = {
+    title: "Verifikasi",
+    dataIndex: ["profile", "is_verified"],
+    key: "verification",
+    sorter: true,
+    render: (isVerified: boolean) => (
+      <Flex align="center" justify="center">
+        {isVerified ? (
+          <CheckCircleFilled style={{ color: "green" }} />
+        ) : (
+          <CloseCircleFilled style={{ color: "red" }} />
+        )}
+      </Flex>
+    ),
+  };
 
   const actionColumn: ColumnsType<DataType>[number] = {
     title: "Action",
@@ -133,5 +134,5 @@ export const columns = (
     },
   };
 
-  return isAdmin ? [...baseColumns, actionColumn] : baseColumns;
+  return isAdmin ? [...baseColumns, verificationColumn, actionColumn] : baseColumns;
 };
