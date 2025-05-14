@@ -1,15 +1,4 @@
 {
-  "importOrder": [
-    "^(next/(.*)$)|^(next$)",
-    "<THIRD_PARTY_MODULES>",
-    "^@/components/(.*)$",
-    "^@/utils/(.*)$",
-    "^@/stores/(.*)$",
-    "^@/hooks/(.*)$",
-    "^[./]"
-  ],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
   "semi": false,
   "tabWidth": 2,
   "printWidth": 88,

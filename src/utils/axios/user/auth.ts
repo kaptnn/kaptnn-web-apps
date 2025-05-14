@@ -61,6 +61,7 @@ class AuthService {
     try {
       const response = await this.axiosInstance.post(`/v1/auth/login`, payload, {
         headers: this.getAuthHeaders(token),
+        withCredentials: true,
         signal
       })
       return response.data.result
