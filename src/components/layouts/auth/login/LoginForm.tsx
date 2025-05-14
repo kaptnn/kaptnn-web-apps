@@ -3,20 +3,28 @@
 import { Button, Checkbox, Form, Input, Flex, Typography } from 'antd'
 import Link from 'next/link'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { loginSchema } from '@/utils/constants/user'
 import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
 import axiosInstance from '@/utils/axios'
 import useAuthStore from '@/stores/AuthStore'
+import LoadingPage from '@/components/elements/LoadingPage'
 
 const { Paragraph } = Typography
 
 const Login = () => {
   const [form] = Form.useForm()
   const [isPending, startTransition] = useTransition()
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return <LoadingPage />
 
   const handleFinish = async (values: z.infer<typeof loginSchema>) => {
     startTransition(async () => {

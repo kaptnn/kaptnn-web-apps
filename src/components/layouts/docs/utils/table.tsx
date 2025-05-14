@@ -5,8 +5,7 @@ import {
   ClockCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
-  SettingOutlined,
-  UserOutlined
+  SettingOutlined
 } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from 'antd'
 
@@ -52,13 +51,17 @@ export const columns = (
     render: (item: string) => {
       return (
         <Flex align="center" justify="center">
-          <Avatar
-            className="capitalize"
-            style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
-            size="default"
-          >
-            {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
-          </Avatar>
+          {item ? (
+            <Avatar
+              className="capitalize"
+              style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
+              size="default"
+            >
+              {item?.charAt(0)?.toUpperCase()}
+            </Avatar>
+          ) : (
+            '-'
+          )}
         </Flex>
       )
     }
@@ -71,13 +74,17 @@ export const columns = (
     render: (item: string) => {
       return (
         <Flex align="center" justify="center">
-          <Avatar
-            className="capitalize"
-            style={{ backgroundColor: '#7265e6', verticalAlign: 'middle' }}
-            size="default"
-          >
-            {item?.charAt(0)?.toUpperCase() ?? <UserOutlined />}
-          </Avatar>
+          {item ? (
+            <Avatar
+              className="capitalize"
+              style={{ backgroundColor: '#7265e6', verticalAlign: 'middle' }}
+              size="default"
+            >
+              {item?.charAt(0)?.toUpperCase()}
+            </Avatar>
+          ) : (
+            '-'
+          )}
         </Flex>
       )
     }
@@ -118,7 +125,7 @@ export const columns = (
       const { color, icon } = statusMap[item] || statusMap.none
       return (
         <Flex align="center" justify="center">
-          <Tag icon={icon} color={color}>
+          <Tag icon={icon} color={color} className="capitalize">
             {item}
           </Tag>
         </Flex>

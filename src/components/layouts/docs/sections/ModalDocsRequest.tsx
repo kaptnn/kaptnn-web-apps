@@ -1,5 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message, Select, Upload, Spin } from 'antd'
+import {
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  message,
+  Select,
+  Upload,
+  Flex,
+  Typography,
+  Tag,
+  Skeleton
+} from 'antd'
 import { useDocsRequestStore } from '@/stores/useDocsRequestStore'
 import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import {
@@ -17,6 +29,8 @@ import { useCompanyStore } from '@/stores/useCompanyStore'
 import { InboxOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd'
 import { CreateDocMetadata } from '@/utils/axios/docs/manager'
+
+const { Title, Paragraph } = Typography
 
 interface ModalComponentProps {
   token: string
@@ -245,81 +259,103 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
       cancelText="Batal"
       forceRender
     >
-      {(compLoading || usersLoading || docCatLoading) && <Spin />}
-      <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
-        {(modalType === 'create' || modalType === 'edit') && (
-          <>
-            <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name="request_desc" label="Deskripsi">
-              <Input.TextArea rows={4} />
-            </Form.Item>
-            <Form.Item name="company_id" label="Perusahaan">
-              <Select placeholder="Pilih Perusahaan" options={companyOptions} />
-            </Form.Item>
-            <Form.Item name="target_user_id" label="Target Pengguna">
-              <Select placeholder="Pilih Target Pengguna" options={userOptions} />
-            </Form.Item>
-            <Form.Item name="category_id" label="Kategori">
-              <Select placeholder="Pilih Kategori Dokumen" options={categoryOptions} />
-            </Form.Item>
-            <Form.Item name="due_date" label="Due Date">
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-          </>
-        )}
-        {modalType === 'view' && selectedItem && (
-          <>
-            <p>
-              <strong>Judul:</strong> {selectedItem.request_title}
-            </p>
-            <p>
-              <strong>Deskripsi:</strong> {selectedItem.request_desc}
-            </p>
-            <p>
-              <strong>Target Pengguna:</strong> {selectedItem.target_user_id}
-            </p>
-            <p>
-              <strong>Due Date:</strong> {selectedItem.due_date}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedItem.status}
-            </p>
-          </>
-        )}
-        {modalType === 'delete' && selectedItem && (
-          <p>
-            Apakah Anda yakin ingin menghapus permintaan{' '}
-            <strong>{selectedItem.request_title}</strong>?
-          </p>
-        )}
+      <Skeleton loading={compLoading || usersLoading || docCatLoading}>
+        <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
+          {(modalType === 'create' || modalType === 'edit') && (
+            <>
+              <Form.Item
+                name="request_title"
+                label="Judul"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item name="request_desc" label="Deskripsi">
+                <Input.TextArea rows={4} />
+              </Form.Item>
+              <Form.Item name="company_id" label="Perusahaan">
+                <Select placeholder="Pilih Perusahaan" options={companyOptions} />
+              </Form.Item>
+              <Form.Item name="target_user_id" label="Target Pengguna">
+                <Select placeholder="Pilih Target Pengguna" options={userOptions} />
+              </Form.Item>
+              <Form.Item name="category_id" label="Kategori">
+                <Select
+                  placeholder="Pilih Kategori Dokumen"
+                  options={categoryOptions}
+                />
+              </Form.Item>
+              <Form.Item name="due_date" label="Deadline Pengumpulan">
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </>
+          )}
+          {modalType === 'view' && selectedItem && (
+            <Flex vertical>
+              <Title level={5} style={{ fontWeight: 'bold' }}>
+                {selectedItem.request_title}
+              </Title>
+              <Flex vertical>
+                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                  Deskripsi:
+                </Paragraph>
+                <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
+                  {selectedItem.request_desc}
+                </Paragraph>
+              </Flex>
+              <Flex vertical>
+                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                  Deadline Pengumpulan:
+                </Paragraph>
+                <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
+                  {selectedItem.due_date}
+                </Paragraph>
+              </Flex>
+              <Flex vertical>
+                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                  Status:
+                </Paragraph>
+                <Tag style={{ margin: 0 }} className="w-max capitalize">
+                  {selectedItem.status}
+                </Tag>
+              </Flex>
+            </Flex>
+          )}
+          {modalType === 'delete' && selectedItem && (
+            <Flex>
+              <Paragraph>
+                Apakah Anda yakin ingin menghapus permintaan{' '}
+                <strong>{selectedItem.request_title}</strong>?
+              </Paragraph>
+            </Flex>
+          )}
 
-        {modalType === 'upload_request' && selectedItem && (
-          <>
-            <Form.Item
-              name="title"
-              label="Judul Upload"
-              rules={[{ required: true, message: 'Judul diperlukan' }]}
-            >
-              <Input maxLength={255} />
-            </Form.Item>
-            <Upload.Dragger {...uploadProps}>
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">Klik atau tarik file ke area ini</p>
-              <p className="ant-upload-hint">
-                Anda dapat mengunggah beberapa file sekaligus.
-              </p>
-            </Upload.Dragger>
-          </>
-        )}
+          {modalType === 'upload_request' && selectedItem && (
+            <>
+              <Form.Item
+                name="title"
+                label="Judul Upload"
+                rules={[{ required: true, message: 'Judul diperlukan' }]}
+              >
+                <Input maxLength={255} />
+              </Form.Item>
+              <Upload.Dragger {...uploadProps}>
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">Klik atau tarik file ke area ini</p>
+                <p className="ant-upload-hint">
+                  Anda dapat mengunggah beberapa file sekaligus.
+                </p>
+              </Upload.Dragger>
+            </>
+          )}
 
-        {modalType === 'edit_request' && selectedItem && <></>}
+          {modalType === 'edit_request' && selectedItem && <></>}
 
-        {modalType === 'delete_request' && selectedItem && <></>}
-      </Form>
+          {modalType === 'delete_request' && selectedItem && <></>}
+        </Form>
+      </Skeleton>
     </Modal>
   )
 }

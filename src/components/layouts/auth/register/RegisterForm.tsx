@@ -3,18 +3,26 @@
 import Link from 'next/link'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Form, Input, Select, Typography } from 'antd'
-import { useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { registerSchema } from '@/utils/constants/user'
 import { z } from 'zod'
 import { AuthApi } from '@/utils/axios/api-service'
+import LoadingPage from '@/components/elements/LoadingPage'
 
 const { Paragraph } = Typography
 
 const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
   const [form] = Form.useForm()
   const [isPending, startTransition] = useTransition()
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return <LoadingPage />
 
   const handleFinish = (values: z.infer<typeof registerSchema>) => {
     startTransition(async () => {

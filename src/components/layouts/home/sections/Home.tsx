@@ -1,10 +1,19 @@
 'use client'
 
+import LoadingPage from '@/components/elements/LoadingPage'
 import { Button, Flex, Typography } from 'antd'
+import { useEffect, useState } from 'react'
 
 const { Title, Paragraph } = Typography
 
 const Home: React.FC = () => {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return <LoadingPage />
+
   return (
     <main>
       <div className="relative h-screen">
