@@ -30,7 +30,6 @@ export interface GetAllDocumentManagerParams {
 
 export interface CreateDocMetadata {
   request_id: string
-  document_name: string
 }
 
 export interface UpdateDocMetadata {
@@ -106,12 +105,10 @@ class DocsManagerService {
     token?: string,
     signal?: AbortSignal
   ): Promise<DocumentManagerProps> => {
-    if (!metadata.document_name) throw new Error('Document name is required')
     if (!file) throw new Error('File is required for upload')
 
     const formData = new FormData()
     formData.append('request_id', metadata.request_id)
-    formData.append('document_name', metadata.document_name)
     formData.append('file', file, file.name)
 
     try {

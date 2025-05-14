@@ -29,8 +29,11 @@ import { useCompanyStore } from '@/stores/useCompanyStore'
 import { InboxOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd'
 import { CreateDocMetadata } from '@/utils/axios/docs/manager'
+import { RcFile } from 'antd/es/upload'
 
 const { Title, Paragraph } = Typography
+
+const { Dragger } = Upload
 
 interface ModalComponentProps {
   token: string
@@ -156,11 +159,28 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const uploadProps: UploadProps = {
     multiple: true,
+    onChange: info => {
+      let newFileList = [...info.fileList]
+
+      newFileList = newFileList.slice(-2)
+
+      newFileList = newFileList.map(file => {
+        if (file.response) {
+          file.url = file.response.url
+        }
+        return file
+      })
+
+      setFileList(newFileList)
+    },
     onRemove: file => {
-      setFileList(prev => prev.filter(f => f.uid !== file.uid))
+      const index = fileList.indexOf(file)
+      const newFileList = fileList.slice()
+      newFileList.splice(index, 1)
+      setFileList(newFileList)
     },
     beforeUpload: file => {
-      setFileList(prev => [...prev, file])
+      setFileList([...fileList, file])
       return false
     },
     fileList
@@ -197,23 +217,22 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
           case 'upload_request':
             if (!selectedItem) throw new Error('No item to upload files to')
-            const metadata: CreateDocMetadata = {
-              request_id: selectedItem.id,
-              document_name: values.title
+
+            const rcFiles: RcFile[] = fileList
+              .map(f => f.originFileObj)
+              .filter((f): f is RcFile => !!f)
+
+            if (!rcFiles.length) {
+              throw new Error('No valid files to upload!')
             }
 
-            await Promise.all(
-              fileList.map(file => {
-                if (!file.originFileObj) {
-                  return Promise.reject(new Error('Missing file object for upload'))
-                }
-                return DocsManagerApi.createDocsManager(
-                  metadata,
-                  file.originFileObj as File,
-                  token
-                )
-              })
-            )
+            const file = rcFiles[0] as unknown as File
+
+            const metadata: CreateDocMetadata = {
+              request_id: selectedItem.id
+            }
+
+            await DocsManagerApi.createDocsManager(metadata, file, token)
             break
 
           default:
@@ -273,11 +292,17 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
               <Form.Item name="request_desc" label="Deskripsi">
                 <Input.TextArea rows={4} />
               </Form.Item>
-              <Form.Item name="company_id" label="Perusahaan">
-                <Select placeholder="Pilih Perusahaan" options={companyOptions} />
-              </Form.Item>
+              {modalType === 'create' && (
+                <Form.Item name="company_id" label="Perusahaan">
+                  <Select placeholder="Pilih Perusahaan" options={companyOptions} />
+                </Form.Item>
+              )}
               <Form.Item name="target_user_id" label="Target Pengguna">
-                <Select placeholder="Pilih Target Pengguna" options={userOptions} />
+                <Select
+                  placeholder="Pilih Target Pengguna"
+                  options={userOptions}
+                  disabled={modalType === 'edit'}
+                />
               </Form.Item>
               <Form.Item name="category_id" label="Kategori">
                 <Select
@@ -290,6 +315,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
               </Form.Item>
             </>
           )}
+
           {modalType === 'view' && selectedItem && (
             <Flex vertical>
               <Title level={5} style={{ fontWeight: 'bold' }}>
@@ -321,6 +347,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
               </Flex>
             </Flex>
           )}
+
           {modalType === 'delete' && selectedItem && (
             <Flex>
               <Paragraph>
@@ -331,29 +358,27 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           )}
 
           {modalType === 'upload_request' && selectedItem && (
-            <>
-              <Form.Item
-                name="title"
-                label="Judul Upload"
-                rules={[{ required: true, message: 'Judul diperlukan' }]}
-              >
-                <Input maxLength={255} />
-              </Form.Item>
-              <Upload.Dragger {...uploadProps}>
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">Klik atau tarik file ke area ini</p>
-                <p className="ant-upload-hint">
-                  Anda dapat mengunggah beberapa file sekaligus.
-                </p>
-              </Upload.Dragger>
-            </>
+            <Dragger {...uploadProps} fileList={fileList}>
+              <>
+                <InboxOutlined />
+              </>
+              <Paragraph className="ant-upload-text">
+                Klik atau tarik file ke area ini
+              </Paragraph>
+              <Paragraph className="ant-upload-hint">
+                Anda dapat mengunggah beberapa file sekaligus.
+              </Paragraph>
+            </Dragger>
           )}
 
-          {modalType === 'edit_request' && selectedItem && <></>}
-
-          {modalType === 'delete_request' && selectedItem && <></>}
+          {modalType === 'delete_request' && selectedItem && (
+            <Flex>
+              <Paragraph>
+                Apakah Anda yakin ingin menghapus permintaan{' '}
+                <strong>{selectedItem.request_title}</strong>?
+              </Paragraph>
+            </Flex>
+          )}
         </Form>
       </Skeleton>
     </Modal>

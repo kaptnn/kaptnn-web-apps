@@ -17,6 +17,7 @@ import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import { GetAllDocumentRequestParams } from '@/utils/axios/docs/request'
 import type { GetProps } from 'antd'
+import LoadingPage from '@/components/elements/LoadingPage'
 
 type SearchProps = GetProps<typeof Input.Search>
 
@@ -45,10 +46,16 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
     setFilters,
     openModal
   } = useDocsRequestStore()
-  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
 
   const { data: users } = useAllUsersStore()
   const { data: categories } = useDocsCategoryStore()
+
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const options: FilterOptions = useMemo(
     () => ({
@@ -153,6 +160,8 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
     setFilters(newFilters)
     setCurrent(1)
   }
+
+  if (!mounted) return <LoadingPage />
 
   return (
     <DashboardLayouts>

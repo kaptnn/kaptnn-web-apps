@@ -168,10 +168,6 @@ export const columns = (
                 label: 'Upload Request'
               },
               {
-                key: 'edit_request',
-                label: 'Edit Request'
-              },
-              {
                 key: 'divider',
                 type: 'divider'
               },

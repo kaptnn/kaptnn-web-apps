@@ -10,7 +10,6 @@ import {
   Layout,
   Menu,
   Modal,
-  Spin,
   theme,
   Typography,
   type MenuProps
@@ -24,6 +23,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import useAuthStore from '@/stores/AuthStore'
 import { BellOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import LoadingPage from '../elements/LoadingPage'
 
 const { Header, Sider, Content } = Layout
 
@@ -35,6 +35,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const userInfo = useAuthStore(state => state.userInfo)
   const role = userInfo?.profile.role ?? 'client'
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [mounted, setMounted] = useState<boolean>(false)
   const [openKeys, setOpenKeys] = useState<string[]>([])
 
   const router = useRouter()
@@ -43,6 +44,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
   const menuItems = getMenuItemsByRole(role)
 
   useEffect(() => {
+    setMounted(true)
     setOpenKeys(getDefaultOpenKeys(pathname, menuItems))
   }, [pathname, menuItems])
 
@@ -70,15 +72,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
     setOpenKeys(keys)
   }
 
-  if (userInfo === null) {
-    return (
-      <main className="h-screen w-full items-center justify-center">
-        <Flex className="h-screen w-full" justify="center" align="center">
-          <Spin />
-        </Flex>
-      </main>
-    )
-  }
+  if (userInfo === null && !mounted) return <LoadingPage />
 
   return (
     <Layout>
@@ -102,12 +96,14 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="ml-1 h-24 w-full p-4">
             <div className="flex h-full w-full items-center justify-center rounded bg-white p-4">
               <Link href={'/'}>
-                <Image
-                  src={'/kaptnn-logo.webp'}
-                  alt="Logo KAP TNN"
-                  width={1024}
-                  height={1024}
-                />
+                {mounted && (
+                  <Image
+                    src={'/kaptnn-logo.webp'}
+                    alt="Logo KAP TNN"
+                    width={1024}
+                    height={1024}
+                  />
+                )}
               </Link>
             </div>
           </div>
