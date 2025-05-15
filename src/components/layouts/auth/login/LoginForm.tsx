@@ -1,24 +1,33 @@
 'use client'
 
-import { Button, Checkbox, Form, Input, Flex, Typography } from 'antd'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { z } from 'zod'
-import { loginSchema } from '@/utils/constants/user'
-import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
 import axiosInstance from '@/utils/axios'
 import useAuthStore from '@/stores/AuthStore'
-import LoadingPage from '@/components/elements/LoadingPage'
+import { z } from 'zod'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Form, Input, Flex, Typography, notification } from 'antd'
+import { memo, useEffect, useState, useTransition } from 'react'
+import { loginSchema } from '@/utils/constants/user'
+import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
 
 const { Paragraph } = Typography
 
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
+
 const Login = () => {
   const [form] = Form.useForm()
-  const [isPending, startTransition] = useTransition()
   const [mounted, setMounted] = useState(false)
-  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const setAuth = useAuthStore(state => state.setAuth)
+  const setUserInfo = useAuthStore(state => state.setUserInfo)
 
   useEffect(() => {
     setMounted(true)
@@ -34,7 +43,11 @@ const Login = () => {
           password: values.password
         })
         if (!response?.access_token) {
-          router.push('/login')
+          notification.error({
+            message: 'Login Gagal',
+            description: 'Email atau kata sandi salah.'
+          })
+          window.location.href = '/login'
           return
         }
 
@@ -53,7 +66,7 @@ const Login = () => {
           response.refresh_token
         }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`
 
-        useAuthStore.getState().setAuth(response.access_token, response.refresh_token)
+        setAuth(response.access_token, response.refresh_token)
 
         const rawCurrentUserData = await UserApi.getCurrentUser(response.access_token)
         const rawCompanyByIdData = await CompanyApi.getCompanyById(
@@ -61,14 +74,16 @@ const Login = () => {
           response.access_token
         )
 
-        const currentUserData = {
+        setUserInfo({
           ...rawCurrentUserData,
           company_name: rawCompanyByIdData.company_name
-        }
+        })
 
-        useAuthStore.getState().setUserInfo(currentUserData)
-
-        router.push('/dashboard')
+        notification.success({
+          message: 'Berhasil Masuk',
+          description: 'Selamat datang kembali!'
+        })
+        window.location.href = '/dashboard'
       } catch (error: unknown) {
         let errorMessage = 'Something went wrong!'
         if (error instanceof Error) {
@@ -94,18 +109,32 @@ const Login = () => {
           layout="vertical"
           scrollToFirstError
         >
-          <Form.Item name="email" label="E-mail" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item
+            name="email"
+            label="E-mail"
+            rules={[{ required: true, message: 'Email wajib diisi' }]}
+          >
+            <Input
+              autoComplete="email"
+              type="email"
+              placeholder="Masukkan email anda"
+            />
           </Form.Item>
 
-          <Form.Item name="password" label="Kata Sandi" rules={[{ required: true }]}>
-            <Input.Password />
+          <Form.Item
+            name="password"
+            label="Kata Sandi"
+            rules={[{ required: true, message: 'Kata sandi wajib diisi' }]}
+          >
+            <Input.Password
+              autoComplete="current-password"
+              placeholder="Masukkan kata sandi anda"
+            />
           </Form.Item>
 
           <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
               <Checkbox onChange={e => e.target.checked}>Remember me</Checkbox>
-
               <Link href="/forgot-password">Lupa Kata Sandi?</Link>
             </Flex>
           </Form.Item>
@@ -125,4 +154,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default memo(Login)

@@ -1,18 +1,27 @@
 'use client'
 
-import LoadingPage from '@/components/elements/LoadingPage'
+import dynamic from 'next/dynamic'
 import { Button, Flex, Typography } from 'antd'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 
 const { Title, Paragraph } = Typography
 
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
+
 const Home: React.FC = () => {
-  const [mounted, setMounted] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   useEffect(() => {
-    setMounted(true)
+    setIsClient(true)
   }, [])
 
-  if (!mounted) return <LoadingPage />
+  if (!isClient) return <LoadingPage />
 
   return (
     <main>
@@ -60,4 +69,4 @@ const Home: React.FC = () => {
   )
 }
 
-export default Home
+export default memo(Home)

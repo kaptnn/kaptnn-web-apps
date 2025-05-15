@@ -1,22 +1,29 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Form, Input, Select, Typography } from 'antd'
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { Button, Checkbox, Form, Input, notification, Select, Typography } from 'antd'
+import { memo, useEffect, useState, useTransition } from 'react'
 import { registerSchema } from '@/utils/constants/user'
 import { z } from 'zod'
 import { AuthApi } from '@/utils/axios/api-service'
-import LoadingPage from '@/components/elements/LoadingPage'
 
 const { Paragraph } = Typography
 
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
+
 const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
-  const [form] = Form.useForm()
-  const [isPending, startTransition] = useTransition()
+  const [form] = Form.useForm<z.infer<typeof registerSchema>>()
   const [mounted, setMounted] = useState(false)
-  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setMounted(true)
@@ -24,7 +31,7 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
 
   if (!mounted) return <LoadingPage />
 
-  const handleFinish = (values: z.infer<typeof registerSchema>) => {
+  const handleFinish = async (values: z.infer<typeof registerSchema>) => {
     startTransition(async () => {
       try {
         const response = await AuthApi.registerUser({
@@ -35,12 +42,20 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
         })
 
         if (response.status === 201) {
-          router.push('/login')
+          notification.success({
+            message: 'Registrasi Berhasil',
+            description: 'Silakan login untuk melanjutkan.'
+          })
+          window.location.href = '/login'
         }
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || 'Something went wrong!'
           console.error('Login Error:', errorMessage)
+          notification.error({
+            message: 'Registrasi Gagal',
+            description: 'Silakan coba lagi nanti.'
+          })
         } else {
           console.error('Network Error:', error)
         }
@@ -69,12 +84,12 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             rules={[
               {
                 required: true,
-                message: 'Masukkan nama lengkap anda!',
+                message: 'Nama lengkap wajib diisi.',
                 whitespace: true
               }
             ]}
           >
-            <Input />
+            <Input autoComplete="name" placeholder="Masukkan nama lengkap" />
           </Form.Item>
 
           <Form.Item
@@ -83,39 +98,57 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             rules={[
               {
                 required: true,
-                message: 'Masukkan nama lengkap anda!',
-                whitespace: true
+                message: 'Masukkan email yang valid.',
+                whitespace: true,
+                type: 'email'
               }
             ]}
           >
-            <Input />
+            <Input placeholder="contoh@domain.com" autoComplete="email" />
+          </Form.Item>
+
+          <Form.Item
+            name="company_id"
+            label="Nama Perusahaan"
+            rules={[{ required: true, message: 'Pilih perusahaan Anda.' }]}
+          >
+            <Select placeholder="Pilih Perusahaan" options={companies} />
           </Form.Item>
 
           <div className="grid w-full grid-cols-1 md:grid-cols-2 md:gap-6">
             <Form.Item
-              name="phoneNumber"
-              label="Nomor Telepon"
-              rules={[{ required: true, message: 'Masukkan nomor telepon anda!' }]}
+              name="password"
+              label="Kata Sandi"
+              rules={[{ required: true, message: 'Kata sandi wajib diisi.' }]}
+              hasFeedback
             >
-              <Input addonBefore={'+62'} style={{ width: '100%' }} />
+              <Input.Password
+                placeholder="Masukkan kata sandi"
+                autoComplete="new-password"
+              />
             </Form.Item>
 
             <Form.Item
-              name="company_id"
-              label="Nama Perusahaan"
-              rules={[{ required: true, message: 'Masukkan nama perusahaan anda!' }]}
+              name="confirmPassword"
+              label="Konfirmasi Kata Sandi"
+              dependencies={['password']}
+              rules={[
+                { required: true, message: 'Konfirmasi kata sandi wajib diisi.' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('Kata sandi tidak cocok.'))
+                  }
+                })
+              ]}
+              hasFeedback
             >
-              <Select placeholder="Pilih Metode Perhitungan" options={companies} />
-            </Form.Item>
-          </div>
-
-          <div className="grid w-full grid-cols-1 md:grid-cols-2 md:gap-6">
-            <Form.Item name="password" label="Kata Sandi" hasFeedback>
-              <Input.Password />
-            </Form.Item>
-
-            <Form.Item name="confirmPassword" label="Konfirmasi Kata Sandi" hasFeedback>
-              <Input.Password />
+              <Input.Password
+                placeholder="Ulangi kata sandi"
+                autoComplete="new-password"
+              />
             </Form.Item>
           </div>
 
@@ -127,21 +160,26 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
                 validator: (_, value) =>
                   value
                     ? Promise.resolve()
-                    : Promise.reject(new Error('Should accept agreement'))
+                    : Promise.reject(new Error('Anda harus setuju dengan perjanjian.'))
               }
             ]}
           >
             <Checkbox onChange={e => e.target.checked}>
-              I have read the <a href="">agreement</a>
+              I have read the{' '}
+              <Link href="/agreement" target="_blank" rel="noopener noreferrer">
+                agreement
+              </Link>
             </Checkbox>
           </Form.Item>
 
           <Form.Item>
             <Button
+              block
               type="primary"
               htmlType="submit"
               className="w-full"
               loading={isPending}
+              aria-busy={isPending}
             >
               {isPending ? 'Tunggu Sebentar' : 'Daftar Sekarang'}
             </Button>
@@ -157,4 +195,4 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
   )
 }
 
-export default Register
+export default memo(Register)
