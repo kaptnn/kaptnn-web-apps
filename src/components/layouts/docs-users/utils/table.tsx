@@ -107,10 +107,9 @@ export const columns = (
     render: (_: any, record: DataType) => {
       const items: MenuProps['items'] = [
         { key: 'view', label: 'View Data' },
-        { key: 'edit', label: 'Edit Data' },
         ...(isAdmin && !record.profile.is_verified
           ? [{ key: 'verify', label: 'Verify User' }]
-          : []),
+          : [{ key: 'unverify', label: 'Disabled User' }]),
         { type: 'divider' },
         { key: 'delete', label: 'Delete Data', danger: true }
       ]

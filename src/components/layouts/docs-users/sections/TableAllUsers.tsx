@@ -2,7 +2,7 @@
 import { Table } from 'antd'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { columns as baseColumns } from '../utils/table'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import useAuthStore from '@/stores/AuthStore'
 
 interface TableComponentProps {
@@ -25,11 +25,25 @@ const AllUsersTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
   } = useAllUsersStore()
 
   const { userInfo } = useAuthStore()
-  const isAdmin = userInfo?.profile.role === 'admin'
-
-  const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys)
+  const isAdmin = useMemo(() => userInfo?.profile?.role === 'admin', [userInfo])
 
   const columns = useMemo(() => baseColumns(openModal, isAdmin), [isAdmin, openModal])
+
+  const onSelectChange = useCallback(
+    (newKeys: React.Key[]) => {
+      setSelectedRowKeys(newKeys)
+    },
+    [setSelectedRowKeys]
+  )
+
+  const onPaginationChange = useCallback(
+    (page: number, size?: number) => {
+      setCurrent(page)
+      setPageSize(size ?? pageSize)
+      fetchData()
+    },
+    [setCurrent, setPageSize, fetchData, pageSize]
+  )
 
   return (
     <Table
@@ -43,11 +57,7 @@ const AllUsersTable: React.FC<TableComponentProps> = ({ token, fetchData }) => {
         pageSize,
         total,
         showSizeChanger: true,
-        onChange: (page, size) => {
-          setCurrent(page)
-          setPageSize(size || pageSize)
-          fetchData()
-        },
+        onChange: onPaginationChange,
         position: ['bottomCenter']
       }}
     />

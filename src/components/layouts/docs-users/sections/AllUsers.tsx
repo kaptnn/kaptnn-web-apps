@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { Button, Flex, Input, message } from 'antd'
+import { Flex, Input, message } from 'antd'
 import DashboardLayouts from '../../DashboardLayouts'
-import { PlusOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { UserApi } from '@/utils/axios/api-service'
 import { DataType } from '../utils/table'
@@ -25,6 +24,8 @@ interface AllUsersClientProps {
   currentUser: any
 }
 
+const { Search } = Input
+
 const AllUsers: React.FC<AllUsersClientProps> = ({
   initialToken,
   isAdmin,
@@ -33,24 +34,22 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
   const {
     pageSize,
     current,
-    loading,
     filters,
-    data,
     setData,
     setLoading,
     setCurrent,
     setTotal,
-    setFilters,
-    openModal
+    setFilters
   } = useAllUsersStore()
 
   const { data: dataComps } = useCompanyStore()
 
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
+  const [mounted, setMounted] = useState(false)
+
   const companyMap = useMemo(() => {
     return new Map((dataComps || []).map(comp => [comp.id, comp.company_name]))
   }, [dataComps])
-
-  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
 
   const options: FilterOptions = useMemo(
     () => ({
@@ -84,7 +83,7 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
       setTotal(response.meta.totalItems)
     } catch (err) {
       console.error(err)
-      message.error('Failed to fetch companies.')
+      message.error('Failed to fetch all users.')
     } finally {
       setLoading(false)
     }
@@ -105,19 +104,6 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
     companyMap
   ])
 
-  const debouncedFetch = useMemo(() => debounce(() => fetchUsers(), 500), [fetchUsers])
-
-  useEffect(() => {
-    debouncedFetch()
-    return debouncedFetch.cancel
-  }, [debouncedFetch])
-
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
-    setFilters({ ...filters, name: value })
-    setSearchTerm(value)
-    setCurrent(1)
-  }
-
   const debouncedSetSearchFilter = useMemo(
     () =>
       debounce((value: string) => {
@@ -127,10 +113,23 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
     [filters, setFilters, setCurrent]
   )
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setMounted(true)
+    fetchUsers()
+  }, [fetchUsers])
+
+  const handleSearchInputChange: SearchProps['onChange'] = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value
     setSearchTerm(value)
     debouncedSetSearchFilter(value)
+  }
+
+  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
@@ -143,12 +142,11 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Input.Search
-              placeholder="Search"
+            <Search
+              placeholder="Cari Nama Pengguna"
               value={searchTerm}
-              onSearch={onSearch}
               onChange={handleSearchInputChange}
-              loading={false}
+              onSearch={onSearch}
               enterButton
               allowClear
             />
@@ -168,4 +166,4 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
   )
 }
 
-export default AllUsers
+export default memo(AllUsers)

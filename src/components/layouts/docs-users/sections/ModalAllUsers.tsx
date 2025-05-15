@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message } from 'antd'
+import { Modal, Form, Input, DatePicker, message, Typography } from 'antd'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { memo, useCallback, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,10 +11,12 @@ interface ModalComponentProps {
   token: string
 }
 
+const { Paragraph } = Typography
+
 const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
-  const { selectedItem, modalType, closeModal } = useAllUsersStore()
   const [form] = Form.useForm()
   const [isPending, startTransition] = useTransition()
+  const { selectedItem, modalType, closeModal } = useAllUsersStore()
   const router = useRouter()
 
   const {
@@ -41,8 +43,8 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
       const formattedCompanies = compRes.result.map((c: any) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+        start_audit_period: dayjs(c.start_audit_period).format('DD-MMMM-YYYY'),
+        end_audit_period: dayjs(c.end_audit_period).format('DD-MMMM-YYYY')
       }))
 
       setCompData(formattedCompanies)
@@ -85,7 +87,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         }
 
         const values = form.getFieldsValue()
-        const payload = { ...values, due_date: dayjs(values.due_date) }
+        const payload = { ...values }
 
         if (modalType === 'create') {
           await AuthApi.registerUser(payload, token)
@@ -115,14 +117,25 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
             },
             token
           )
+        } else if (modalType === 'unverify' && selectedItem) {
+          await UserApi.updateUserById(
+            selectedItem.id,
+            {
+              role: selectedItem.profile.role,
+              membership_status: selectedItem.profile.membership_status,
+              is_verified: false
+            },
+            token
+          )
         }
 
-        router.refresh()
         closeModal()
+        router.refresh()
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || 'Something went wrong!'
           console.error('Login Error:', errorMessage)
+          message.error('Terjadi kesalahan, silakan coba lagi.')
         } else {
           console.error('Network Error:', error)
         }
@@ -139,7 +152,8 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
           view: 'Detail Data Pengguna',
           edit: 'Edit Data Pengguna',
           delete: 'Hapus Data Pengguna',
-          verify: 'Verifikasi Data Pengguna'
+          verify: 'Verifikasi Data Pengguna',
+          unverify: 'Menonaktifkan Data Pengguna'
         }[modalType!]
       }
       centered
@@ -163,16 +177,22 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
         {modalType === 'view' && selectedItem && <></>}
         {modalType === 'delete' && selectedItem && (
-          <p>
+          <Paragraph>
             Apakah Anda yakin ingin menghapus permintaan{' '}
             <strong>{selectedItem.name}</strong>?
-          </p>
+          </Paragraph>
         )}
         {modalType === 'verify' && selectedItem && (
-          <p>
+          <Paragraph>
             Apakah Anda yakin ingin memverifikasi data pengguna{' '}
             <strong>{selectedItem.name}</strong>?
-          </p>
+          </Paragraph>
+        )}
+        {modalType === 'unverify' && selectedItem && (
+          <Paragraph>
+            Apakah Anda yakin ingin menonaktifkan data pengguna{' '}
+            <strong>{selectedItem.name}</strong>?
+          </Paragraph>
         )}
       </Form>
     </Modal>
