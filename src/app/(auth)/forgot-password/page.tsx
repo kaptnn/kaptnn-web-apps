@@ -1,7 +1,7 @@
-import { getCookie } from '@/utils/axios/utils'
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { seo_data } from '@/utils/constants/seo_data'
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.auth['forgot-password']} | KAP Tambunan & Nasafi`,
@@ -14,8 +14,10 @@ export const metadata: Metadata = {
 }
 
 const ForgotPasswordPage = async () => {
-  const token = await getCookie('access_token')
-  if (!token || token) redirect('/')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (!token || token) return redirect('/login')
 
   return <main></main>
 }

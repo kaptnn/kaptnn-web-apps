@@ -1,8 +1,8 @@
 import AllCalculator from '@/components/layouts/calculator'
-import { getCookie } from '@/utils/axios/utils'
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { seo_data } from '@/utils/constants/seo_data'
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.dashboard.calculator.page} | KAP Tambunan & Nasafi`,
@@ -15,8 +15,10 @@ export const metadata: Metadata = {
 }
 
 const CalculatorPage = async () => {
-  const token = await getCookie('access_token')
-  if (!token) redirect('/login')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (!token) return redirect('/login')
 
   return <AllCalculator />
 }

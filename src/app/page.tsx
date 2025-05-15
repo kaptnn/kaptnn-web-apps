@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   keywords: ['Data', 'Datatrail', 'Accountant', 'Document', 'Document Management']
 }
 
-export default function HomePage() {
+const HomePage = async () => {
   return <Home />
 }
+
+export default HomePage

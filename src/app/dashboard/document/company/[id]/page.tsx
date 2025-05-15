@@ -1,17 +1,19 @@
 import { UserApi } from '@/utils/axios/api-service'
-import { getCookie } from '@/utils/axios/utils'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 const CompanyByIdPage = async () => {
-  const token = await getCookie('access_token')
-  if (!token) redirect('/login')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (!token) return redirect('/login')
 
   const currentUser = await UserApi.getCurrentUser(token)
-  const isAdmin = currentUser.profile.role === 'admin'
+  const isAdmin = currentUser?.profile?.role === 'admin'
 
-  if (!isAdmin) redirect('/dashboard')
+  if (!isAdmin) return redirect('/dashboard')
 
-  return <div>CompanyByIdPage</div>
+  return <main>CompanyByIdPage</main>
 }
 
 export default CompanyByIdPage

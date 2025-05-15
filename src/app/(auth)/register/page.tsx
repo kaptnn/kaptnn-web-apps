@@ -1,10 +1,10 @@
 import Register from '@/components/layouts/auth/register'
 import { CompanyApi } from '@/utils/axios/api-service'
 import { CompanyProps } from '@/utils/axios/company'
-import { getCookie } from '@/utils/axios/utils'
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { seo_data } from '@/utils/constants/seo_data'
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.auth.register} | KAP Tambunan & Nasafi`,
@@ -17,12 +17,14 @@ export const metadata: Metadata = {
 }
 
 const RegisterPage = async () => {
-  const token = await getCookie('access_token')
-  if (token) redirect('/dashboard')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (token) return redirect('/dashboard')
 
   const rawCompanies = await CompanyApi.getAllCompanies({}, token)
 
-  const companies = rawCompanies.result.map((company: CompanyProps) => ({
+  const companies = rawCompanies?.result.map((company: CompanyProps) => ({
     value: company.id,
     label: company.company_name
   }))

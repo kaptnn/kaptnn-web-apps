@@ -1,8 +1,8 @@
 import Login from '@/components/layouts/auth/login'
-import { getCookie } from '@/utils/axios/utils'
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { seo_data } from '@/utils/constants/seo_data'
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.auth.login} | KAP Tambunan & Nasafi`,
@@ -15,8 +15,10 @@ export const metadata: Metadata = {
 }
 
 const LoginPage = async () => {
-  const token = await getCookie('access_token')
-  if (token) redirect('/dashboard')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (token) return redirect('/dashboard')
 
   return <Login />
 }

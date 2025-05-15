@@ -1,8 +1,8 @@
 import DocsStorage from '@/components/layouts/docs-storage'
 import { UserApi } from '@/utils/axios/api-service'
-import { getCookie } from '@/utils/axios/utils'
 import { seo_data } from '@/utils/constants/seo_data'
 import { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
@@ -16,13 +16,15 @@ export const metadata: Metadata = {
 }
 
 const DocumentStoragePage = async () => {
-  const token = await getCookie('access_token')
-  if (!token) redirect('/login')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
+
+  if (!token) return redirect('/login')
 
   const currentUser = await UserApi.getCurrentUser(token)
-  const isAdmin = currentUser.profile.role === 'admin'
+  const isAdmin = currentUser?.profile?.role === 'admin'
 
-  if (!isAdmin) redirect('/dashboard')
+  if (!isAdmin) return redirect('/dashboard')
 
   return (
     <DocsStorage initialToken={token} isAdmin={isAdmin} currentUser={currentUser} />
