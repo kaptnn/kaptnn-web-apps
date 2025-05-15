@@ -21,7 +21,7 @@ const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
 })
 
 const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
-  const [form] = Form.useForm<z.infer<typeof registerSchema>>()
+  const [form] = Form.useForm()
   const [mounted, setMounted] = useState(false)
   const [isPending, startTransition] = useTransition()
 

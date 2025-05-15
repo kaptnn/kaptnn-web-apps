@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useEffect, useCallback, useMemo, useState } from 'react'
-import { Row, Col, Card, Spin, message, Flex, Typography, Skeleton } from 'antd'
+import dynamic from 'next/dynamic'
+import { useEffect, useCallback, useMemo, useState, memo } from 'react'
+import { Row, Col, Card, message, Flex, Typography, Skeleton } from 'antd'
 import DashboardLayouts from '../../DashboardLayouts'
 import { useCompanyStore } from '@/stores/useCompanyStore'
 import { useDocsRequestStore } from '@/stores/useDocsRequestStore'
@@ -16,7 +17,11 @@ import {
 } from '@/utils/axios/api-service'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
-import LoadingPage from '@/components/elements/LoadingPage'
+
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => <Skeleton active />
+})
 
 interface DashboardClientProps {
   initialToken: string
@@ -29,14 +34,23 @@ const Dashboard: React.FC<DashboardClientProps> = ({
   isAdmin,
   currentUser
 }) => {
+  const [mounted, setMounted] = useState(false)
+
   const {
     loading: compLoading,
-    data: compData,
     total: compTotal,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading
   } = useCompanyStore()
+
+  const {
+    loading: docCatLoading,
+    total: docCatTotal,
+    setData: setDocCatData,
+    setTotal: setDocCatTotal,
+    setLoading: setDocCatLoading
+  } = useDocsCategoryStore()
 
   const {
     loading: usersLoading,
@@ -56,29 +70,18 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     setLoading: setDocReqLoading
   } = useDocsRequestStore()
 
-  const {
-    loading: docCatLoading,
-    data: docCatData,
-    total: docCatTotal,
-    setData: setDocCatData,
-    setTotal: setDocCatTotal,
-    setLoading: setDocCatLoading
-  } = useDocsCategoryStore()
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`
-  }, [initialToken])
+  const loading = useMemo(
+    () => [compLoading, usersLoading, docCatLoading, docReqLoading].some(Boolean),
+    [compLoading, usersLoading, docCatLoading, docReqLoading]
+  )
 
   const fetchData = useCallback(async () => {
     setCompLoading(true)
     setDocReqLoading(true)
     setUsersLoading(true)
     setDocCatLoading(true)
+
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`
     try {
       const [compRes, docReqRes, usersRes, docCatRes] = await Promise.all([
         CompanyApi.getAllCompanies({}, initialToken),
@@ -131,20 +134,24 @@ const Dashboard: React.FC<DashboardClientProps> = ({
   ])
 
   useEffect(() => {
+    setMounted(true)
     fetchData()
   }, [fetchData])
 
-  const stats = useMemo(() => {
-    const fulfilledCount = docReqData.filter(
-      (d: any) => d.status === 'fulfilled'
-    ).length
-    const totalCount = docReqData.length
-    const pct = totalCount ? (fulfilledCount / totalCount) * 100 : 0
-    return {
-      fulfilled: fulfilledCount,
-      unfulfilled: totalCount - fulfilledCount,
-      pct: +pct.toFixed(2)
-    }
+  const userRolesCount = useMemo(() => {
+    const counts: Record<string, number> = {}
+    usersData.forEach(u => {
+      counts[u.profile.role] = (counts[u.profile.role] || 0) + 1
+    })
+    return Object.entries(counts).map(([label, count]) => ({ label, count }))
+  }, [usersData])
+
+  const docReqStatusCount = useMemo(() => {
+    const counts: Record<string, number> = {}
+    docReqData.forEach(d => {
+      counts[d.status] = (counts[d.status] || 0) + 1
+    })
+    return Object.entries(counts).map(([label, count]) => ({ label, count }))
   }, [docReqData])
 
   if (!mounted) return <LoadingPage />
@@ -154,374 +161,373 @@ const Dashboard: React.FC<DashboardClientProps> = ({
       <Typography.Title level={2} style={{ marginTop: 0 }}>
         {isAdmin ? 'Statistik & Analitik Perusahaan' : 'Statistik & Analitik Anda'}
       </Typography.Title>
-      {isAdmin && (
-        <Skeleton
-          loading={compLoading || usersLoading || docCatLoading || docReqLoading}
-        >
-          <Row gutter={[24, 24]}>
-            <Col span={12}>
-              <Card variant="outlined">
-                <Flex align="center" justify="space-between" className="w-full">
-                  <Typography.Title level={5} style={{ marginTop: 0 }}>
-                    Total Pengguna Aktif
-                  </Typography.Title>
-                  <Typography.Link
-                    href=""
-                    className="hover:underline"
-                    style={{ marginTop: 0 }}
-                  >
-                    Lihat Semua
-                  </Typography.Link>
+
+      <Skeleton loading={loading} active>
+        <Row gutter={[24, 24]}>
+          {isAdmin && (
+            <>
+              <Col span={12}>
+                <Flex vertical gap={24}>
+                  <Card variant="outlined">
+                    <Flex align="center" justify="space-between" className="w-full">
+                      <Typography.Title level={5} style={{ marginTop: 0 }}>
+                        Total Pengguna Aktif
+                      </Typography.Title>
+                      <Typography.Link
+                        href=""
+                        className="hover:underline"
+                        style={{ marginTop: 0 }}
+                      >
+                        Lihat Semua
+                      </Typography.Link>
+                    </Flex>
+
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
+                      {usersTotal} Pengguna
+                    </Typography.Title>
+
+                    <Flex vertical>
+                      <Typography.Paragraph
+                        className="font-medium"
+                        style={{ marginTop: 12, marginBottom: 4 }}
+                      >
+                        Detail Data Pengguna
+                      </Typography.Paragraph>
+
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Admin
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Manager
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Client
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
+
+                  <Card variant="outlined">
+                    <Flex align="center" justify="space-between" className="w-full">
+                      <Typography.Title level={5} style={{ marginTop: 0 }}>
+                        Total Permintaan Dokumen Aktif
+                      </Typography.Title>
+                      <Typography.Link
+                        href=""
+                        className="hover:underline"
+                        style={{ marginTop: 0 }}
+                      >
+                        Lihat Semua
+                      </Typography.Link>
+                    </Flex>
+
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
+                      {docReqTotal} Permintaan
+                    </Typography.Title>
+
+                    <Flex vertical>
+                      <Typography.Paragraph
+                        className="font-medium"
+                        style={{ marginTop: 12, marginBottom: 4 }}
+                      >
+                        Detail Data Permintaan Dokumen
+                      </Typography.Paragraph>
+
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Pending
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Uploaded
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Accepted
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Rejected
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Overdue
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
+
+                  <Card variant="outlined">
+                    <Flex align="center" justify="space-between" className="w-full">
+                      <Typography.Title level={5} style={{ marginTop: 0 }}>
+                        Total Penyimpanan Dokumen
+                      </Typography.Title>
+                      <Typography.Link
+                        href=""
+                        className="hover:underline"
+                        style={{ marginTop: 0 }}
+                      >
+                        Lihat Semua
+                      </Typography.Link>
+                    </Flex>
+
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
+                      {docCatTotal} Kategori
+                    </Typography.Title>
+
+                    <Flex vertical>
+                      <Typography.Paragraph
+                        className="font-medium"
+                        style={{ marginTop: 12, marginBottom: 4 }}
+                      >
+                        Detail Data Kategori Dokumen
+                      </Typography.Paragraph>
+
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Admin
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Manager
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Client
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
                 </Flex>
+              </Col>
 
-                <Typography.Title level={3} style={{ marginTop: 0 }}>
-                  {usersTotal} Pengguna
-                </Typography.Title>
+              <Col span={12}>
+                <Flex vertical gap={24}>
+                  <Card variant="outlined">
+                    <Flex align="center" justify="space-between" className="w-full">
+                      <Typography.Title level={5} style={{ marginTop: 0 }}>
+                        Total Perusahaan Aktif
+                      </Typography.Title>
+                      <Typography.Link
+                        href=""
+                        className="hover:underline"
+                        style={{ marginTop: 0 }}
+                      >
+                        Lihat Semua
+                      </Typography.Link>
+                    </Flex>
 
-                <Flex vertical>
-                  <Typography.Paragraph
-                    className="font-medium"
-                    style={{ marginTop: 12, marginBottom: 4 }}
-                  >
-                    Detail Data Pengguna
-                  </Typography.Paragraph>
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
+                      {compTotal} Perusahaan
+                    </Typography.Title>
 
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Admin
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Manager
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Client
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
+                    <Flex vertical>
+                      <Typography.Paragraph
+                        className="font-medium"
+                        style={{ marginTop: 12, marginBottom: 4 }}
+                      >
+                        Detail Data Perusahaan
+                      </Typography.Paragraph>
+
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Admin
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Manager
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Client
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
+
+                  <Card variant="outlined">
+                    <Flex align="center" justify="space-between" className="w-full">
+                      <Typography.Title level={5} style={{ marginTop: 0 }}>
+                        Total Kategori Dokumen
+                      </Typography.Title>
+                      <Typography.Link
+                        href=""
+                        className="hover:underline"
+                        style={{ marginTop: 0 }}
+                      >
+                        Lihat Semua
+                      </Typography.Link>
+                    </Flex>
+
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
+                      {docCatTotal} Kategori
+                    </Typography.Title>
+
+                    <Flex vertical>
+                      <Typography.Paragraph
+                        className="font-medium"
+                        style={{ marginTop: 12, marginBottom: 4 }}
+                      >
+                        Detail Data Kategori Dokumen
+                      </Typography.Paragraph>
+
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Admin
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Manager
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                      <Flex align="center" justify="space-between" className="w-full">
+                        <Typography.Paragraph style={{ margin: 0 }}>
+                          Client
+                        </Typography.Paragraph>
+                        <Typography.Link
+                          href=""
+                          className="hover:underline"
+                          style={{ margin: 0 }}
+                        >
+                          {usersTotal}
+                        </Typography.Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
                 </Flex>
-              </Card>
-            </Col>
-
-            <Col span={12}>
-              <Card variant="outlined">
-                <Flex align="center" justify="space-between" className="w-full">
-                  <Typography.Title level={5} style={{ marginTop: 0 }}>
-                    Total Perusahaan Aktif
-                  </Typography.Title>
-                  <Typography.Link
-                    href=""
-                    className="hover:underline"
-                    style={{ marginTop: 0 }}
-                  >
-                    Lihat Semua
-                  </Typography.Link>
-                </Flex>
-
-                <Typography.Title level={3} style={{ marginTop: 0 }}>
-                  {compTotal} Perusahaan
-                </Typography.Title>
-
-                <Flex vertical>
-                  <Typography.Paragraph
-                    className="font-medium"
-                    style={{ marginTop: 12, marginBottom: 4 }}
-                  >
-                    Detail Data Perusahaan
-                  </Typography.Paragraph>
-
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Admin
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Manager
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Client
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                </Flex>
-              </Card>
-            </Col>
-
-            <Col span={12}>
-              <Card variant="outlined">
-                <Flex align="center" justify="space-between" className="w-full">
-                  <Typography.Title level={5} style={{ marginTop: 0 }}>
-                    Total Permintaan Dokumen Aktif
-                  </Typography.Title>
-                  <Typography.Link
-                    href=""
-                    className="hover:underline"
-                    style={{ marginTop: 0 }}
-                  >
-                    Lihat Semua
-                  </Typography.Link>
-                </Flex>
-
-                <Typography.Title level={3} style={{ marginTop: 0 }}>
-                  {docReqTotal} Permintaan
-                </Typography.Title>
-
-                <Flex vertical>
-                  <Typography.Paragraph
-                    className="font-medium"
-                    style={{ marginTop: 12, marginBottom: 4 }}
-                  >
-                    Detail Data Permintaan Dokumen
-                  </Typography.Paragraph>
-
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Pending
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Uploaded
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Accepted
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Rejected
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Overdue
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                </Flex>
-              </Card>
-            </Col>
-
-            <Col span={12}>
-              <Card variant="outlined">
-                <Flex align="center" justify="space-between" className="w-full">
-                  <Typography.Title level={5} style={{ marginTop: 0 }}>
-                    Total Kategori Dokumen
-                  </Typography.Title>
-                  <Typography.Link
-                    href=""
-                    className="hover:underline"
-                    style={{ marginTop: 0 }}
-                  >
-                    Lihat Semua
-                  </Typography.Link>
-                </Flex>
-
-                <Typography.Title level={3} style={{ marginTop: 0 }}>
-                  {docCatTotal} Kategori
-                </Typography.Title>
-
-                <Flex vertical>
-                  <Typography.Paragraph
-                    className="font-medium"
-                    style={{ marginTop: 12, marginBottom: 4 }}
-                  >
-                    Detail Data Kategori Dokumen
-                  </Typography.Paragraph>
-
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Admin
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Manager
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Client
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                </Flex>
-              </Card>
-            </Col>
-
-            <Col span={12}>
-              <Card variant="outlined">
-                <Flex align="center" justify="space-between" className="w-full">
-                  <Typography.Title level={5} style={{ marginTop: 0 }}>
-                    Total Penyimpanan Dokumen
-                  </Typography.Title>
-                  <Typography.Link
-                    href=""
-                    className="hover:underline"
-                    style={{ marginTop: 0 }}
-                  >
-                    Lihat Semua
-                  </Typography.Link>
-                </Flex>
-
-                <Typography.Title level={3} style={{ marginTop: 0 }}>
-                  {docCatTotal} Kategori
-                </Typography.Title>
-
-                <Flex vertical>
-                  <Typography.Paragraph
-                    className="font-medium"
-                    style={{ marginTop: 12, marginBottom: 4 }}
-                  >
-                    Detail Data Kategori Dokumen
-                  </Typography.Paragraph>
-
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Admin
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Manager
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                  <Flex align="center" justify="space-between" className="w-full">
-                    <Typography.Paragraph style={{ margin: 0 }}>
-                      Client
-                    </Typography.Paragraph>
-                    <Typography.Link
-                      href=""
-                      className="hover:underline"
-                      style={{ margin: 0 }}
-                    >
-                      {usersTotal}
-                    </Typography.Link>
-                  </Flex>
-                </Flex>
-              </Card>
-            </Col>
-          </Row>
-        </Skeleton>
-      )}
+              </Col>
+            </>
+          )}
+        </Row>
+      </Skeleton>
     </DashboardLayouts>
   )
 }
 
-export default Dashboard
+export default memo(Dashboard)
