@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useEffect, useCallback, useState, useMemo } from 'react'
+import { useEffect, useCallback, useState, useMemo, memo } from 'react'
 import { Input, Button, Flex, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import CompanyTable from './TableCompany'
@@ -15,6 +15,7 @@ import type { GetProps } from 'antd'
 import { GetAllCompaniesParams } from '@/utils/axios/company'
 import { debounce } from 'lodash'
 import FilterCompany, { FilterOptions } from './FilterCompany'
+import dayjs from 'dayjs'
 
 type SearchProps = GetProps<typeof Input.Search>
 
@@ -24,6 +25,8 @@ interface CompanyClientProps {
   currentUser: any
 }
 
+const { Search } = Input
+
 const Company: React.FC<CompanyClientProps> = ({
   initialToken,
   isAdmin,
@@ -32,7 +35,6 @@ const Company: React.FC<CompanyClientProps> = ({
   const {
     pageSize,
     current,
-    loading,
     filters,
     data,
     setData,
@@ -42,13 +44,18 @@ const Company: React.FC<CompanyClientProps> = ({
     setFilters,
     openModal
   } = useCompanyStore()
+
   const [searchTerm, setSearchTerm] = useState('')
 
   const options: FilterOptions = useMemo(() => {
     const uniqueYears = Array.from(new Set(data.map(cat => cat.year_of_assignment)))
 
+    const sortedYears = uniqueYears
+      .filter((y): y is number => typeof y === 'number')
+      .sort((a, b) => a - b)
+
     return {
-      year_of_assignment: uniqueYears.map(year => ({
+      year_of_assignment: sortedYears.map(year => ({
         value: year,
         label: year
       }))
@@ -64,7 +71,7 @@ const Company: React.FC<CompanyClientProps> = ({
         sort: filters.sort,
         order: filters.order,
         name: searchTerm || undefined,
-        year_of_assignmenet: filters.year_of_assignmenet || undefined
+        year_of_assignment: filters.year_of_assignment || undefined
       }
 
       const response = await CompanyApi.getAllCompanies(params, initialToken)
@@ -72,8 +79,8 @@ const Company: React.FC<CompanyClientProps> = ({
       const formatted: DataType[] = response.result.map((c: DataType) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+        start_audit_period: dayjs(c.start_audit_period).format('DD-MMMM-YYYY'),
+        end_audit_period: dayjs(c.end_audit_period).format('DD-MMMM-YYYY')
       }))
 
       setData(formatted)
@@ -90,28 +97,12 @@ const Company: React.FC<CompanyClientProps> = ({
     pageSize,
     filters.sort,
     filters.order,
-    filters.year_of_assignmenet,
+    filters.year_of_assignment,
     searchTerm,
     initialToken,
     setData,
     setTotal
   ])
-
-  const debouncedFetch = useMemo(
-    () => debounce(() => fetchCompanies(), 500),
-    [fetchCompanies]
-  )
-
-  useEffect(() => {
-    debouncedFetch()
-    return debouncedFetch.cancel
-  }, [debouncedFetch])
-
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
-    setFilters({ ...filters, name: value })
-    setSearchTerm(value)
-    setCurrent(1)
-  }
 
   const debouncedSetSearchFilter = useMemo(
     () =>
@@ -122,10 +113,22 @@ const Company: React.FC<CompanyClientProps> = ({
     [filters, setFilters, setCurrent]
   )
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchCompanies()
+  }, [fetchCompanies])
+
+  const handleSearchInputChange: SearchProps['onChange'] = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value
     setSearchTerm(value)
     debouncedSetSearchFilter(value)
+  }
+
+  const onSearch: SearchProps['onSearch'] = (value: string) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
@@ -138,12 +141,11 @@ const Company: React.FC<CompanyClientProps> = ({
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
-            <Input.Search
-              placeholder="Search"
+            <Search
+              placeholder="Cari Nama Perusahaan"
               value={searchTerm}
-              onSearch={onSearch}
               onChange={handleSearchInputChange}
-              loading={false}
+              onSearch={onSearch}
               enterButton
               allowClear
             />
@@ -153,7 +155,6 @@ const Company: React.FC<CompanyClientProps> = ({
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                loading={loading}
                 onClick={() => openModal('create')}
               >
                 Tambah Perusahaan
@@ -173,4 +174,4 @@ const Company: React.FC<CompanyClientProps> = ({
   )
 }
 
-export default Company
+export default memo(Company)

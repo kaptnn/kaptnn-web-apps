@@ -1,20 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message, InputNumber } from 'antd'
+import {
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  message,
+  InputNumber,
+  Typography,
+  Divider,
+  Flex,
+  Tag
+} from 'antd'
 import { useCompanyStore } from '@/stores/useCompanyStore'
 import { memo, useCallback, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { CompanyApi, UserApi } from '@/utils/axios/api-service'
 import dayjs from 'dayjs'
+import { GlobalOutlined } from '@ant-design/icons'
+
+const { Title, Paragraph } = Typography
 
 interface ModalComponentProps {
   token: string
 }
 
 const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
-  const { selectedItem, modalType, closeModal } = useCompanyStore()
   const [form] = Form.useForm()
   const [isPending, startTransition] = useTransition()
+  const { selectedItem, modalType, closeModal } = useCompanyStore()
   const router = useRouter()
 
   const {
@@ -41,8 +55,8 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
       const formattedCompanies = compRes.result.map((c: any) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+        start_audit_period: dayjs(c.start_audit_period).format('DD-MMMM-YYYY'),
+        end_audit_period: dayjs(c.end_audit_period).format('DD-MMMM-YYYY')
       }))
 
       setCompData(formattedCompanies)
@@ -101,18 +115,22 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
 
         if (modalType === 'create') {
           await CompanyApi.createCompany(payload, token)
+          message.success('Perusahaan berhasil dibuat.')
         } else if (modalType === 'edit' && selectedItem) {
           await CompanyApi.updateCompany(selectedItem.id, payload, token)
+          message.success('Perusahaan berhasil diubah.')
         } else if (modalType === 'delete' && selectedItem) {
           await CompanyApi.deleteCompany(selectedItem.id, token)
+          message.success('Perusahaan berhasil dihapus.')
         }
 
-        router.refresh()
         closeModal()
+        router.refresh()
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || 'Something went wrong!'
           console.error('Login Error:', errorMessage)
+          message.error('Terjadi kesalahan, silakan coba lagi.')
         } else {
           console.error('Network Error:', error)
         }
@@ -125,10 +143,10 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
       open={!!modalType}
       title={
         {
-          create: 'Buat Permintaan Dokumen',
-          view: 'Detail Permintaan Dokumen',
-          edit: 'Edit Permintaan Dokumen',
-          delete: 'Hapus Permintaan Dokumen'
+          create: 'Buat Data Perusahaan Baru',
+          view: 'Detail Data Perusahaan',
+          edit: 'Edit Data Perusahaan',
+          delete: 'Hapus Data Perusahaan'
         }[modalType!]
       }
       centered
@@ -161,25 +179,45 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
         {modalType === 'view' && selectedItem && (
           <>
-            <p>
-              <strong>Judul:</strong> {selectedItem.company_name}
-            </p>
-            <p>
-              <strong>Deskripsi:</strong> {selectedItem.year_of_assignment}
-            </p>
-            <p>
-              <strong>Target Pengguna:</strong> {selectedItem.start_audit_period}
-            </p>
-            <p>
-              <strong>Due Date:</strong> {selectedItem.end_audit_period}
-            </p>
+            <Title level={3} style={{ margin: 0, fontWeight: 'bold' }}>
+              {selectedItem.company_name}
+            </Title>
+            <Divider style={{ marginBlock: 16 }} />
+            <Flex vertical gap={8}>
+              <Flex align="center" gap={8}>
+                <Tag
+                  icon={<GlobalOutlined />}
+                  color="blue"
+                  style={{ margin: 0, borderRadius: 9999 }}
+                >
+                  Tahun Penugasan
+                </Tag>
+                <Paragraph style={{ margin: 0, fontWeight: 600 }}>
+                  {selectedItem.year_of_assignment}
+                </Paragraph>
+              </Flex>
+              <div className="grid w-full grid-cols-2 gap-6">
+                <Flex vertical>
+                  <Paragraph style={{ margin: 0 }}>Tanggal Mulai Audit:</Paragraph>
+                  <Paragraph style={{ margin: 0, fontWeight: 600 }}>
+                    {dayjs(selectedItem.start_audit_period).format('DD-MMMM-YYYY')}
+                  </Paragraph>
+                </Flex>
+                <Flex vertical>
+                  <Paragraph style={{ margin: 0 }}>Tanggal Selesai Audit:</Paragraph>
+                  <Paragraph style={{ margin: 0, fontWeight: 600 }}>
+                    {dayjs(selectedItem.end_audit_period).format('DD-MMMM-YYYY')}
+                  </Paragraph>
+                </Flex>
+              </div>
+            </Flex>
           </>
         )}
         {modalType === 'delete' && selectedItem && (
-          <p>
-            Apakah Anda yakin ingin menghapus permintaan{' '}
+          <Paragraph>
+            Apakah Anda yakin ingin menghapus data perusahaan{' '}
             <strong>{selectedItem.company_name}</strong>?
-          </p>
+          </Paragraph>
         )}
       </Form>
     </Modal>

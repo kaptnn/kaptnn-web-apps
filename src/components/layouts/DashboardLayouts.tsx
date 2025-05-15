@@ -127,7 +127,7 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
             background: colorBgContainer,
             position: 'sticky',
             top: 0,
-            zIndex: 1,
+            zIndex: 10,
             width: '100%',
             display: 'flex',
             justifyContent: 'space-between',

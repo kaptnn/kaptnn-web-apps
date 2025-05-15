@@ -17,6 +17,7 @@ import {
 } from '@/utils/axios/api-service'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
+import dayjs from 'dayjs'
 
 const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
   ssr: false,
@@ -93,8 +94,8 @@ const Dashboard: React.FC<DashboardClientProps> = ({
       const formattedCompanies = compRes.result.map((c: any) => ({
         ...c,
         key: c.id,
-        start_audit_period: new Date(c.start_audit_period).toISOString().split('T')[0],
-        end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+        start_audit_period: dayjs(c.start_audit_period).format('DD-MMMM-YYYY'),
+        end_audit_period: dayjs(c.end_audit_period).format('DD-MMMM-YYYY')
       }))
 
       setCompData(formattedCompanies)

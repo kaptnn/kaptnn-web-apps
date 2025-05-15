@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Flex, MenuProps, Table, TableProps, Tag } from 'antd'
+import dayjs from 'dayjs'
 
 export interface DataType {
   key: React.Key
@@ -38,13 +39,23 @@ export const columns = (
     title: 'Mulai Periode Audit',
     dataIndex: 'start_audit_period',
     key: 'start_audit_period',
-    sorter: true
+    sorter: true,
+    render: (item: number) => (
+      <Flex align="center" justify="start">
+        {dayjs(item).format('DD-MMMM-YYYY')}
+      </Flex>
+    )
   },
   {
     title: 'Akhir Periode Audit',
     dataIndex: 'end_audit_period',
     key: 'end_audit_period',
-    sorter: true
+    sorter: true,
+    render: (item: number) => (
+      <Flex align="center" justify="start">
+        {dayjs(item).format('DD-MMMM-YYYY')}
+      </Flex>
+    )
   },
   {
     title: 'Action',

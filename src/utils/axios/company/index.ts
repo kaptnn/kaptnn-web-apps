@@ -22,7 +22,7 @@ export interface GetAllCompaniesParams {
   limit?: number
   sort?: string
   order?: 'asc' | 'desc'
-  year_of_assignmenet?: number
+  year_of_assignment?: number
   name?: string
 }
 
