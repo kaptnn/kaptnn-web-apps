@@ -2,7 +2,7 @@
 import { Table } from 'antd'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import { columns as baseColumns } from '../utils/table'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 
 interface TableComponentProps {
   token: string
@@ -23,9 +23,23 @@ const DocsCategoryTable: React.FC<TableComponentProps> = ({ token, fetchData }) 
     openModal
   } = useDocsCategoryStore()
 
-  const onSelectChange = (newKeys: React.Key[]) => setSelectedRowKeys(newKeys)
-
   const columns = useMemo(() => baseColumns(openModal), [openModal])
+
+  const onSelectChange = useCallback(
+    (newKeys: React.Key[]) => {
+      setSelectedRowKeys(newKeys)
+    },
+    [setSelectedRowKeys]
+  )
+
+  const onPaginationChange = useCallback(
+    (page: number, size?: number) => {
+      setCurrent(page)
+      setPageSize(size ?? pageSize)
+      fetchData()
+    },
+    [setCurrent, setPageSize, fetchData, pageSize]
+  )
 
   return (
     <Table
@@ -39,11 +53,7 @@ const DocsCategoryTable: React.FC<TableComponentProps> = ({ token, fetchData }) 
         pageSize,
         total,
         showSizeChanger: true,
-        onChange: (page, size) => {
-          setCurrent(page)
-          setPageSize(size || pageSize)
-          fetchData()
-        },
+        onChange: onPaginationChange,
         position: ['bottomCenter']
       }}
     />

@@ -153,6 +153,8 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
       onCancel={closeModal}
       onOk={handleFinish}
       okButtonProps={{ danger: modalType === 'delete', loading: isPending }}
+      cancelText="Batal"
+      forceRender
     >
       <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
         {(modalType === 'create' || modalType === 'edit') && (

@@ -45,7 +45,7 @@ const Company: React.FC<CompanyClientProps> = ({
     openModal
   } = useCompanyStore()
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
 
   const options: FilterOptions = useMemo(() => {
     const uniqueYears = Array.from(new Set(data.map(cat => cat.year_of_assignment)))

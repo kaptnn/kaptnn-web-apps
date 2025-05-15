@@ -6,7 +6,7 @@ import { Button, Flex, Input, message } from 'antd'
 import type { GetProps } from 'antd'
 import DashboardLayouts from '../../DashboardLayouts'
 import { PlusOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { DataType } from '../utils/table'
 import { DocsCategoryApi } from '@/utils/axios/api-service'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
@@ -34,7 +34,6 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
   const {
     pageSize,
     current,
-    loading,
     filters,
     setData,
     setLoading,
@@ -43,6 +42,7 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
     openModal,
     setFilters
   } = useDocsCategoryStore()
+
   const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
 
   const fetchDocumentCategory = useCallback(async () => {
@@ -67,7 +67,7 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
       setTotal(response.meta.totalItems)
     } catch (err) {
       console.error(err)
-      message.error('Failed to fetch companies.')
+      message.error('Failed to fetch document categories.')
     } finally {
       setLoading(false)
     }
@@ -83,22 +83,6 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
     setTotal
   ])
 
-  const debouncedFetch = useMemo(
-    () => debounce(() => fetchDocumentCategory(), 500),
-    [fetchDocumentCategory]
-  )
-
-  useEffect(() => {
-    debouncedFetch()
-    return debouncedFetch.cancel
-  }, [debouncedFetch])
-
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
-    setFilters({ ...filters, name: value })
-    setSearchTerm(value)
-    setCurrent(1)
-  }
-
   const debouncedSetSearchFilter = useMemo(
     () =>
       debounce((value: string) => {
@@ -108,10 +92,22 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
     [filters, setFilters, setCurrent]
   )
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchDocumentCategory()
+  }, [fetchDocumentCategory])
+
+  const handleSearchInputChange: SearchProps['onChange'] = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value
     setSearchTerm(value)
     debouncedSetSearchFilter(value)
+  }
+
+  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
@@ -125,11 +121,10 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
         <Flex align="center" justify="space-between" gap="middle">
           <Flex align="center">
             <Search
-              placeholder="Search"
+              placeholder="Cari Nama Kategori"
               value={searchTerm}
               onSearch={onSearch}
               onChange={handleSearchInputChange}
-              loading={false}
               enterButton
               allowClear
             />
@@ -139,7 +134,6 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
-                loading={loading}
                 onClick={() => openModal('create')}
               >
                 Tambah Kategori
@@ -158,4 +152,4 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
   )
 }
 
-export default DocsCategory
+export default memo(DocsCategory)

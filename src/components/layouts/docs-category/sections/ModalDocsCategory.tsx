@@ -1,18 +1,19 @@
-import { Modal, Form, Input, message } from 'antd'
+import { Modal, Form, Input, message, Typography } from 'antd'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import { memo, useCallback, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { DocsCategoryApi } from '@/utils/axios/api-service'
-import dayjs from 'dayjs'
 
 interface ModalComponentProps {
   token: string
 }
 
+const { Paragraph } = Typography
+
 const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
-  const { selectedItem, modalType, closeModal } = useDocsCategoryStore()
   const [form] = Form.useForm()
   const [isPending, startTransition] = useTransition()
+  const { selectedItem, modalType, closeModal } = useDocsCategoryStore()
   const router = useRouter()
 
   const {
@@ -56,7 +57,7 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
         }
 
         const values = form.getFieldsValue()
-        const payload = { ...values, due_date: dayjs(values.due_date) }
+        const payload = { ...values }
 
         if (modalType === 'create') {
           await DocsCategoryApi.createDocsCategory(payload, token)
@@ -66,12 +67,13 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
           await DocsCategoryApi.deleteDocsCategory(selectedItem.id, token)
         }
 
-        router.refresh()
         closeModal()
+        router.refresh()
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || 'Something went wrong!'
           console.error('Login Error:', errorMessage)
+          message.error('Terjadi kesalahan, silakan coba lagi.')
         } else {
           console.error('Network Error:', error)
         }
@@ -118,10 +120,10 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
           </>
         )}
         {modalType === 'delete' && selectedItem && (
-          <p>
+          <Paragraph>
             Apakah Anda yakin ingin menghapus kategori dokumen{' '}
             <strong>{selectedItem.name}</strong>?
-          </p>
+          </Paragraph>
         )}
       </Form>
     </Modal>
