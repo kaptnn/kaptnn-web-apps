@@ -23,7 +23,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 import useAuthStore from '@/stores/AuthStore'
 import { BellOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import LoadingPage from '../elements/LoadingPage'
+import dynamic from 'next/dynamic'
+
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
 
 const { Header, Sider, Content } = Layout
 

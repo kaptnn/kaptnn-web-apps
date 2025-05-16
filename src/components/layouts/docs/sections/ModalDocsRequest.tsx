@@ -9,8 +9,7 @@ import {
   Upload,
   Flex,
   Typography,
-  Tag,
-  Skeleton
+  Tag
 } from 'antd'
 import { useDocsRequestStore } from '@/stores/useDocsRequestStore'
 import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
@@ -40,15 +39,14 @@ interface ModalComponentProps {
 }
 
 const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
-  const { selectedItem, modalType, closeModal } = useDocsRequestStore()
   const [form] = Form.useForm()
-  const [fileList, setFileList] = useState<UploadFile[]>([])
   const [isPending, startTransition] = useTransition()
+  const { selectedItem, modalType, closeModal } = useDocsRequestStore()
+  const [fileList, setFileList] = useState<UploadFile[]>([])
   const router = useRouter()
 
   const {
     data: compData,
-    loading: compLoading,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading
@@ -56,7 +54,6 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const {
     data: usersData,
-    loading: usersLoading,
     setData: setUsersData,
     setTotal: setUsersTotal,
     setLoading: setUsersLoading
@@ -64,7 +61,6 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const {
     data: docCatData,
-    loading: docCatLoading,
     setData: setDocCatData,
     setTotal: setDocCatTotal,
     setLoading: setDocCatLoading
@@ -85,10 +81,8 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         compRes.result.map((c: any) => ({
           ...c,
           key: c.id,
-          start_audit_period: new Date(c.start_audit_period)
-            .toISOString()
-            .split('T')[0],
-          end_audit_period: new Date(c.end_audit_period).toISOString().split('T')[0]
+          start_audit_period: dayjs(c.start_audit_period).format('DD-MMMM-YYYY'),
+          end_audit_period: dayjs(c.end_audit_period).format('DD-MMMM-YYYY')
         }))
       )
       setCompTotal(compRes.meta.totalItems)
@@ -120,10 +114,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
   ])
 
   useEffect(() => {
-    if (!modalType) return
-
     fetchData()
-
     if ((modalType === 'edit' || modalType === 'view') && selectedItem) {
       form.setFieldsValue({
         ...selectedItem,
@@ -197,22 +188,25 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         const values = form.getFieldsValue()
         const payload = {
           ...values,
-          due_date: values.due_date ? dayjs(values.due_date).toISOString() : undefined
+          due_date: dayjs(values.due_date)
         }
 
         switch (modalType) {
           case 'create':
             await DocsRequestApi.createDocsRequest(payload, token)
+            message.success('Permintaan dokumen berhasil dibuat.')
             break
 
           case 'edit':
             if (!selectedItem) throw new Error('No item to edit')
             await DocsRequestApi.updateDocsRequest(selectedItem.id, payload, token)
+            message.success('Permintaan dokumen berhasil diubah.')
             break
 
           case 'delete':
             if (!selectedItem) throw new Error('No item to delete')
             await DocsRequestApi.deleteDocsRequest(selectedItem.id, token)
+            message.success('Permintaan dokumen berhasil dihapus.')
             break
 
           case 'upload_request':
@@ -240,8 +234,8 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         }
 
         message.success('Operasi berhasil')
-        router.refresh()
         closeModal()
+        router.refresh()
       } catch (error: unknown) {
         if (error) {
           const errorMessage = error || 'Something went wrong!'
@@ -278,109 +272,100 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
       cancelText="Batal"
       forceRender
     >
-      <Skeleton loading={compLoading || usersLoading || docCatLoading}>
-        <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
-          {(modalType === 'create' || modalType === 'edit') && (
-            <>
-              <Form.Item
-                name="request_title"
-                label="Judul"
-                rules={[{ required: true }]}
-              >
-                <Input />
+      <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
+        {(modalType === 'create' || modalType === 'edit') && (
+          <>
+            <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="request_desc" label="Deskripsi">
+              <Input.TextArea rows={4} />
+            </Form.Item>
+            {modalType === 'create' && (
+              <Form.Item name="company_id" label="Perusahaan">
+                <Select placeholder="Pilih Perusahaan" options={companyOptions} />
               </Form.Item>
-              <Form.Item name="request_desc" label="Deskripsi">
-                <Input.TextArea rows={4} />
-              </Form.Item>
-              {modalType === 'create' && (
-                <Form.Item name="company_id" label="Perusahaan">
-                  <Select placeholder="Pilih Perusahaan" options={companyOptions} />
-                </Form.Item>
-              )}
-              <Form.Item name="target_user_id" label="Target Pengguna">
-                <Select
-                  placeholder="Pilih Target Pengguna"
-                  options={userOptions}
-                  disabled={modalType === 'edit'}
-                />
-              </Form.Item>
-              <Form.Item name="category_id" label="Kategori">
-                <Select
-                  placeholder="Pilih Kategori Dokumen"
-                  options={categoryOptions}
-                />
-              </Form.Item>
-              <Form.Item name="due_date" label="Deadline Pengumpulan">
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </>
-          )}
+            )}
+            <Form.Item name="target_user_id" label="Target Pengguna">
+              <Select
+                placeholder="Pilih Target Pengguna"
+                options={userOptions}
+                disabled={modalType === 'edit'}
+              />
+            </Form.Item>
+            <Form.Item name="category_id" label="Kategori">
+              <Select placeholder="Pilih Kategori Dokumen" options={categoryOptions} />
+            </Form.Item>
+            <Form.Item name="due_date" label="Deadline Pengumpulan">
+              <DatePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </>
+        )}
 
-          {modalType === 'view' && selectedItem && (
+        {modalType === 'view' && selectedItem && (
+          <Flex vertical>
+            <Title level={5} style={{ fontWeight: 'bold' }}>
+              {selectedItem.request_title}
+            </Title>
             <Flex vertical>
-              <Title level={5} style={{ fontWeight: 'bold' }}>
-                {selectedItem.request_title}
-              </Title>
-              <Flex vertical>
-                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
-                  Deskripsi:
-                </Paragraph>
-                <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
-                  {selectedItem.request_desc}
-                </Paragraph>
-              </Flex>
-              <Flex vertical>
-                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
-                  Deadline Pengumpulan:
-                </Paragraph>
-                <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
-                  {selectedItem.due_date}
-                </Paragraph>
-              </Flex>
-              <Flex vertical>
-                <Paragraph className="text-gray-300" style={{ margin: 0 }}>
-                  Status:
-                </Paragraph>
-                <Tag style={{ margin: 0 }} className="w-max capitalize">
-                  {selectedItem.status}
-                </Tag>
-              </Flex>
-            </Flex>
-          )}
-
-          {modalType === 'delete' && selectedItem && (
-            <Flex>
-              <Paragraph>
-                Apakah Anda yakin ingin menghapus permintaan{' '}
-                <strong>{selectedItem.request_title}</strong>?
+              <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                Deskripsi:
+              </Paragraph>
+              <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
+                {selectedItem.request_desc}
               </Paragraph>
             </Flex>
-          )}
-
-          {modalType === 'upload_request' && selectedItem && (
-            <Dragger {...uploadProps} fileList={fileList}>
-              <>
-                <InboxOutlined />
-              </>
-              <Paragraph className="ant-upload-text">
-                Klik atau tarik file ke area ini
+            <Flex vertical>
+              <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                Deadline Pengumpulan:
               </Paragraph>
-              <Paragraph className="ant-upload-hint">
-                Anda dapat mengunggah beberapa file sekaligus.
-              </Paragraph>
-            </Dragger>
-          )}
-
-          {modalType === 'delete_request' && selectedItem && (
-            <Flex>
-              <Paragraph>
-                Apakah Anda yakin ingin menghapus permintaan{' '}
-                <strong>{selectedItem.request_title}</strong>?
+              <Paragraph className="font-medium text-gray-700" style={{ margin: 0 }}>
+                {selectedItem.due_date}
               </Paragraph>
             </Flex>
-          )}
-        </Form>
-      </Skeleton>
+            <Flex vertical>
+              <Paragraph className="text-gray-300" style={{ margin: 0 }}>
+                Status:
+              </Paragraph>
+              <Tag style={{ margin: 0 }} className="w-max capitalize">
+                {selectedItem.status}
+              </Tag>
+            </Flex>
+          </Flex>
+        )}
+
+        {modalType === 'delete' && selectedItem && (
+          <Flex>
+            <Paragraph>
+              Apakah Anda yakin ingin menghapus permintaan{' '}
+              <strong>{selectedItem.request_title}</strong>?
+            </Paragraph>
+          </Flex>
+        )}
+
+        {modalType === 'upload_request' && selectedItem && (
+          <Dragger {...uploadProps} fileList={fileList}>
+            <>
+              <InboxOutlined />
+            </>
+            <Paragraph className="ant-upload-text">
+              Klik atau tarik file ke area ini
+            </Paragraph>
+            <Paragraph className="ant-upload-hint">
+              Anda dapat mengunggah beberapa file sekaligus.
+            </Paragraph>
+          </Dragger>
+        )}
+
+        {modalType === 'delete_request' && selectedItem && (
+          <Flex>
+            <Paragraph>
+              Apakah Anda yakin ingin menghapus permintaan{' '}
+              <strong>{selectedItem.request_title}</strong>?
+            </Paragraph>
+          </Flex>
+        )}
+      </Form>
     </Modal>
   )
 }

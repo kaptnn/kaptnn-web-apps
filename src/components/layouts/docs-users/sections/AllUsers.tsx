@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { Button, Flex, Input, message } from 'antd'
@@ -138,7 +137,7 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
     debouncedSetSearchFilter(value)
   }
 
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
+  const onSearch: SearchProps['onSearch'] = (value: string) => {
     setFilters({ ...filters, name: value })
     setSearchTerm(value)
     setCurrent(1)

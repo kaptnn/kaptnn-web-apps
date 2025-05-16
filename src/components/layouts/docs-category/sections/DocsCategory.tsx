@@ -104,7 +104,7 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
     debouncedSetSearchFilter(value)
   }
 
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
+  const onSearch: SearchProps['onSearch'] = (value: string) => {
     setFilters({ ...filters, name: value })
     setSearchTerm(value)
     setCurrent(1)

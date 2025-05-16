@@ -1,9 +1,10 @@
 'use client'
 
+import '@ant-design/v5-patch-for-react-19'
 import { ReactNode } from 'react'
 import { ThemeProvider } from 'next-themes'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
-import { ConfigProvider, theme } from 'antd'
+import { ConfigProvider, theme as antdTheme } from 'antd'
 
 interface Props {
   children: ReactNode
@@ -12,17 +13,20 @@ interface Props {
 export default function Providers({ children }: Props) {
   return (
     <AntdRegistry>
-      <ThemeProvider enableSystem={false} forcedTheme="light" disableTransitionOnChange>
-        <AntDesignProvider>{children}</AntDesignProvider>
+      <ThemeProvider
+        enableSystem={false}
+        forcedTheme="light"
+        attribute="class"
+        disableTransitionOnChange
+      >
+        <ConfigProvider
+          theme={{
+            algorithm: antdTheme.defaultAlgorithm
+          }}
+        >
+          {children}
+        </ConfigProvider>
       </ThemeProvider>
     </AntdRegistry>
-  )
-}
-
-function AntDesignProvider({ children }: { children: ReactNode }) {
-  return (
-    <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
-      {children}
-    </ConfigProvider>
   )
 }

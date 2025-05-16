@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import DashboardLayouts from '../../DashboardLayouts'
 import { Input, Button, Flex, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
@@ -17,7 +16,17 @@ import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import { GetAllDocumentRequestParams } from '@/utils/axios/docs/request'
 import type { GetProps } from 'antd'
-import LoadingPage from '@/components/elements/LoadingPage'
+import dynamic from 'next/dynamic'
+import dayjs from 'dayjs'
+
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
 
 type SearchProps = GetProps<typeof Input.Search>
 
@@ -37,7 +46,6 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
   const {
     pageSize,
     current,
-    loading,
     filters,
     setData,
     setLoading,
@@ -52,10 +60,6 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
 
   const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
   const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const options: FilterOptions = useMemo(
     () => ({
@@ -95,15 +99,17 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
       const formatted: DataType[] = response.result.map((item: DataType) => ({
         ...item,
         key: item.id,
-        due_date: item.due_date?.split('T')[0] || '-',
-        upload_date: item.upload_date?.split('T')[0] || '-'
+        due_date: item?.due_date ? dayjs(item.due_date).format('DD-MMMM-YYYY') : '-',
+        upload_date: item?.upload_date
+          ? dayjs(item.upload_date).format('DD-MMMM-YYYY')
+          : '-'
       }))
 
       setData(formatted)
       setTotal(response.meta.totalItems)
     } catch (err) {
       console.error(err)
-      message.error('Failed to fetch companies.')
+      message.error('Failed to fetch document requests.')
     } finally {
       setLoading(false)
     }
@@ -125,22 +131,6 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
     setTotal
   ])
 
-  const debouncedFetch = useMemo(
-    () => debounce(() => fetchDocumentRequest(), 500),
-    [fetchDocumentRequest]
-  )
-
-  useEffect(() => {
-    debouncedFetch()
-    return debouncedFetch.cancel
-  }, [debouncedFetch])
-
-  const onSearch: SearchProps['onSearch'] = (value: string, _e, info) => {
-    setFilters({ ...filters, name: value })
-    setSearchTerm(value)
-    setCurrent(1)
-  }
-
   const debouncedSetSearchFilter = useMemo(
     () =>
       debounce((value: string) => {
@@ -150,10 +140,23 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
     [filters, setFilters, setCurrent]
   )
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setMounted(true)
+    fetchDocumentRequest()
+  }, [fetchDocumentRequest])
+
+  const handleSearchInputChange: SearchProps['onChange'] = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value
     setSearchTerm(value)
     debouncedSetSearchFilter(value)
+  }
+
+  const onSearch: SearchProps['onSearch'] = (value: string) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
@@ -171,9 +174,8 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
             <Search
               placeholder="Search"
               value={searchTerm}
-              onSearch={onSearch}
               onChange={handleSearchInputChange}
-              loading={false}
+              onSearch={onSearch}
               enterButton
               allowClear
             />
@@ -183,7 +185,6 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                loading={loading}
                 onClick={() => openModal('create')}
               >
                 Tambah Permintaan Dokumen
@@ -203,4 +204,4 @@ const AllDocsManager: React.FC<DocsReqClientProps> = ({
   )
 }
 
-export default AllDocsManager
+export default memo(AllDocsManager)
