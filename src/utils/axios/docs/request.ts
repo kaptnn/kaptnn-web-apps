@@ -6,14 +6,14 @@ const VERSION = '/v1'
 const API_PATH = `${VERSION}/document-requests`
 
 export interface DocumentRequestProps {
-  id: string
+  id?: string
   request_title: string
   request_desc: string
   admin_id?: string
   target_user_id: string
   category_id: string
-  due_date: Date
-  upload_date?: Date
+  due_date: Date | string
+  upload_date?: Date | string
   status?: string
   created_at?: Date
   updated_at?: Date
@@ -121,7 +121,7 @@ class DocsRequestService {
 
   public updateDocsRequest = async (
     docsReqId: string,
-    payload: any,
+    payload: DocumentRequestProps,
     token?: string,
     signal?: AbortSignal
   ): Promise<DocumentRequestProps> => {

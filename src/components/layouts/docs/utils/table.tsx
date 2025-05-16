@@ -67,29 +67,6 @@ export const columns = (
     }
   },
   {
-    title: 'Upload Pengguna',
-    dataIndex: 'type',
-    key: 'type',
-    sorter: false,
-    render: (item: string) => {
-      return (
-        <Flex align="center" justify="center">
-          {item ? (
-            <Avatar
-              className="capitalize"
-              style={{ backgroundColor: '#7265e6', verticalAlign: 'middle' }}
-              size="default"
-            >
-              {item?.charAt(0)?.toUpperCase()}
-            </Avatar>
-          ) : (
-            '-'
-          )}
-        </Flex>
-      )
-    }
-  },
-  {
     title: 'Due Date',
     dataIndex: 'due_date',
     key: 'due_date',
@@ -137,51 +114,58 @@ export const columns = (
     key: 'action',
     sorter: false,
     render: (_text: any, record: DataType) => {
-      const menu: MenuProps = {
-        items: isAdmin
-          ? [
-              {
-                key: 'view',
-                label: 'View Data'
-              },
-              {
-                key: 'edit',
-                label: 'Edit Data'
-              },
-              {
-                key: 'divider',
-                type: 'divider'
-              },
-              {
-                key: 'delete',
-                label: 'Delete Data',
-                danger: true
-              }
-            ]
-          : [
-              {
-                key: 'view',
-                label: 'View Request'
-              },
-              {
-                key: 'upload_request',
-                label: 'Upload Request'
-              },
-              {
-                key: 'divider',
-                type: 'divider'
-              },
-              {
-                key: 'delete_request',
-                label: 'Delete Request',
-                danger: true
-              }
-            ],
-        onClick: ({ key }) => onAction(key as any, record)
-      }
+      const items: MenuProps['items'] = isAdmin
+        ? [
+            {
+              key: 'view',
+              label: 'View Data'
+            },
+            {
+              key: 'edit',
+              label: 'Edit Data'
+            },
+            {
+              key: 'accept',
+              label: 'Accept Data',
+              disabled: record.status !== 'uploaded'
+            },
+            {
+              key: 'divider',
+              type: 'divider'
+            },
+            {
+              key: 'delete',
+              label: 'Delete Data',
+              danger: true
+            }
+          ]
+        : [
+            {
+              key: 'view',
+              label: 'View Request'
+            },
+            {
+              key: 'upload_request',
+              label: 'Upload Request'
+            },
+            {
+              key: 'divider',
+              type: 'divider'
+            },
+            {
+              key: 'delete_request',
+              label: 'Delete Request',
+              danger: true
+            }
+          ]
 
       return (
-        <Dropdown menu={menu} placement="bottomRight" arrow trigger={['click']}>
+        <Dropdown
+          menu={{ items, onClick: ({ key }) => onAction(key as any, record) }}
+          placement="bottomRight"
+          arrow
+          trigger={['click']}
+        >
           <Button>
             <SettingOutlined />
             <CaretDownOutlined />

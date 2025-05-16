@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Modal,
@@ -29,6 +30,8 @@ import { InboxOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd'
 import { CreateDocMetadata } from '@/utils/axios/docs/manager'
 import { RcFile } from 'antd/es/upload'
+import axios from 'axios'
+import useAuthStore from '@/stores/AuthStore'
 
 const { Title, Paragraph } = Typography
 
@@ -150,29 +153,18 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   const uploadProps: UploadProps = {
     multiple: true,
+    beforeUpload: () => false,
     onChange: info => {
-      let newFileList = [...info.fileList]
-
-      newFileList = newFileList.slice(-2)
-
-      newFileList = newFileList.map(file => {
-        if (file.response) {
-          file.url = file.response.url
-        }
-        return file
-      })
-
-      setFileList(newFileList)
+      // const { status } = info.file
+      // if (status === 'done') {
+      //   message.success(`${info.file.name} uploaded successfully.`)
+      // } else if (status === 'error') {
+      //   message.error(`${info.file.name} upload failed.`)
+      // }
+      setFileList(info.fileList)
     },
     onRemove: file => {
-      const index = fileList.indexOf(file)
-      const newFileList = fileList.slice()
-      newFileList.splice(index, 1)
-      setFileList(newFileList)
-    },
-    beforeUpload: file => {
-      setFileList([...fileList, file])
-      return false
+      setFileList(curr => curr.filter(f => f.uid !== file.uid))
     },
     fileList
   }
@@ -194,7 +186,7 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         switch (modalType) {
           case 'create':
             await DocsRequestApi.createDocsRequest(payload, token)
-            message.success('Permintaan dokumen berhasil dibuat.')
+            message.success('Permintaan dokumen berhasil ditambahkan.')
             break
 
           case 'edit':
@@ -212,28 +204,57 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           case 'upload_request':
             if (!selectedItem) throw new Error('No item to upload files to')
 
-            const rcFiles: RcFile[] = fileList
-              .map(f => f.originFileObj)
-              .filter((f): f is RcFile => !!f)
-
-            if (!rcFiles.length) {
-              throw new Error('No valid files to upload!')
+            if (!fileList.length) {
+              message.error('No files to upload')
+              return
             }
 
-            const file = rcFiles[0] as unknown as File
+            const form = new FormData()
+            form.append('request_id', selectedItem.id)
+            fileList.forEach(f => {
+              if (f.originFileObj) {
+                form.append('file', f.originFileObj)
+              }
+            })
 
-            const metadata: CreateDocMetadata = {
-              request_id: selectedItem.id
-            }
+            await Promise.all(
+              fileList.map(f => {
+                const form = new FormData()
+                form.append('request_id', selectedItem.id)
+                if (f.originFileObj) {
+                  form.append('file', f.originFileObj)
+                }
 
-            await DocsManagerApi.createDocsManager(metadata, file, token)
+                return DocsManagerApi.createDocsManager(form, token)
+              })
+            )
+
+            const dueDateIso = dayjs(selectedItem.due_date, 'DD-MMM-YYYY').format(
+              'YYYY-MM-DD'
+            )
+
+            await DocsRequestApi.updateDocsRequest(
+              selectedItem.id,
+              {
+                admin_id: selectedItem.admin_id,
+                target_user_id: selectedItem.target_user_id,
+                category_id: selectedItem.category_id,
+                request_title: selectedItem.request_title,
+                request_desc: selectedItem.request_desc,
+                due_date: dueDateIso,
+                upload_date: new Date().toISOString(),
+                status: 'uploaded'
+              },
+              token
+            )
+
+            await message.success('All files uploaded successfully')
             break
 
           default:
             break
         }
 
-        message.success('Operasi berhasil')
         closeModal()
         router.refresh()
       } catch (error: unknown) {
@@ -344,10 +365,8 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
         )}
 
         {modalType === 'upload_request' && selectedItem && (
-          <Dragger {...uploadProps} fileList={fileList}>
-            <>
-              <InboxOutlined />
-            </>
+          <Dragger {...uploadProps}>
+            <InboxOutlined />
             <Paragraph className="ant-upload-text">
               Klik atau tarik file ke area ini
             </Paragraph>

@@ -103,9 +103,10 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
 
         if (modalType === 'create') {
           await AuthApi.registerUser(payload, token)
+          message.success('Pengguna baru berhasil ditambahkan.')
         } else if (modalType === 'delete' && selectedItem) {
           await UserApi.deleteUserById(selectedItem.id, token)
-          message.success('Pengguna baru berhasil ditambahkan.')
+          message.success('Pengguna baru berhasil dihapus.')
         } else if (modalType === 'verify' && selectedItem) {
           await UserApi.updateUserById(
             selectedItem.id,

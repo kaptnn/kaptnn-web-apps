@@ -100,20 +100,17 @@ class DocsManagerService {
   }
 
   public createDocsManager = async (
-    metadata: CreateDocMetadata,
-    file: File,
+    form: FormData,
     token?: string,
     signal?: AbortSignal
   ): Promise<DocumentManagerProps> => {
-    if (!file) throw new Error('File is required for upload')
-
-    const formData = new FormData()
-    formData.append('request_id', metadata.request_id)
-    formData.append('file', file, file.name)
-
+    if (!form) throw new Error('File is required for upload')
     try {
-      const response = await this.axiosInstance.post(`/v1/documents`, formData, {
-        headers: this.getAuthHeaders(token),
+      const response = await this.axiosInstance.post(`/v1/documents`, form, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        },
         signal
       })
 
