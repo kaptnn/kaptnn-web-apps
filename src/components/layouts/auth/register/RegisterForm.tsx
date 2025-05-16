@@ -14,9 +14,7 @@ const { Paragraph } = Typography
 const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
   ssr: false,
   loading: () => (
-    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
-      Loading...
-    </main>
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
   )
 })
 
