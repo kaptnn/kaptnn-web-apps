@@ -62,7 +62,7 @@ const FilterAllUsers: React.FC<FilterComponentProps> = ({
 
       {isAdmin && (
         <Select
-          placeholder="Filter Target User"
+          placeholder="Filter Perusahaan"
           style={{ minWidth: 120 }}
           options={options.companies}
           value={filterValues.company_id}

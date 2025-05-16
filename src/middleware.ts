@@ -1,5 +1,5 @@
 import { UserApi } from '@/utils/axios/api-service'
-import { getCookie } from '@/utils/axios/utils'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = nextUrl
 
   if (AUTH_REQUIRED.includes(pathname)) {
-    const token = await getCookie('access_token')
+    const cookieStore = await cookies()
+    const token = cookieStore.get('access_token')?.value
 
     if (!token) {
       const loginUrl = nextUrl.clone()

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { Flex, Input, message } from 'antd'
+import { Button, Flex, Input, message } from 'antd'
 import DashboardLayouts from '../../DashboardLayouts'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
@@ -15,6 +15,8 @@ import { debounce } from 'lodash'
 import TableAllUsers from './TableAllUsers'
 import ModalAllUsers from './ModalAllUsers'
 import { useCompanyStore } from '@/stores/useCompanyStore'
+import dynamic from 'next/dynamic'
+import { PlusOutlined } from '@ant-design/icons'
 
 type SearchProps = GetProps<typeof Input.Search>
 
@@ -23,6 +25,15 @@ interface AllUsersClientProps {
   isAdmin: boolean
   currentUser: any
 }
+
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
+      Loading...
+    </main>
+  )
+})
 
 const { Search } = Input
 
@@ -39,7 +50,8 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
     setLoading,
     setCurrent,
     setTotal,
-    setFilters
+    setFilters,
+    openModal
   } = useAllUsersStore()
 
   const { data: dataComps } = useCompanyStore()
@@ -137,6 +149,8 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
     setCurrent(1)
   }
 
+  if (!mounted) return <LoadingPage />
+
   return (
     <DashboardLayouts>
       <Flex gap="middle" vertical>
@@ -152,13 +166,22 @@ const AllUsers: React.FC<AllUsersClientProps> = ({
             />
           </Flex>
           <Flex align="center">
-            <FilterAllUsers
-              filterValues={{ ...filters }}
-              onFilterChange={handleFilterChange}
-              options={options}
-            />
+            {isAdmin && (
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => openModal('create')}
+              >
+                Tambah Pengguna Baru
+              </Button>
+            )}
           </Flex>
         </Flex>
+        <FilterAllUsers
+          filterValues={{ ...filters }}
+          onFilterChange={handleFilterChange}
+          options={options}
+        />
         <TableAllUsers token={initialToken} fetchData={fetchUsers} />
         <ModalAllUsers token={initialToken} />
       </Flex>

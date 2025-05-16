@@ -9,7 +9,7 @@ import {
   CloseCircleFilled
 } from '@ant-design/icons'
 
-export type ActionType = 'view' | 'edit' | 'verify' | 'delete'
+export type ActionType = 'view' | 'verify' | 'unverify' | 'delete'
 
 export interface UserProfileDataType {
   id: string

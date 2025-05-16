@@ -1,17 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Modal, Form, Input, DatePicker, message, Typography } from 'antd'
+import {
+  Modal,
+  Form,
+  Input,
+  message,
+  Typography,
+  Select,
+  Tag,
+  Flex,
+  Divider
+} from 'antd'
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { memo, useCallback, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCompanyStore } from '@/stores/useCompanyStore'
 import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
 import dayjs from 'dayjs'
+import { CheckCircleFilled, CloseCircleFilled, GlobalOutlined } from '@ant-design/icons'
 
 interface ModalComponentProps {
   token: string
 }
 
-const { Paragraph } = Typography
+const { Paragraph, Title } = Typography
 
 const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
   const [form] = Form.useForm()
@@ -20,6 +31,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
   const router = useRouter()
 
   const {
+    data: compData,
     setData: setCompData,
     setTotal: setCompTotal,
     setLoading: setCompLoading
@@ -71,7 +83,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   useEffect(() => {
     fetchData()
-    if ((modalType === 'edit' || modalType === 'view') && selectedItem) {
+    if (modalType === 'view' && selectedItem) {
       form.setFieldsValue({ ...selectedItem })
     } else {
       form.resetFields()
@@ -91,22 +103,9 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
 
         if (modalType === 'create') {
           await AuthApi.registerUser(payload, token)
-        } else if (modalType === 'edit' && selectedItem) {
-          // NEED TO BE FIXED
-          await UserApi.getAllUsers(
-            {
-              company_id: selectedItem.id
-            },
-            token
-          )
-          // NEED TO BE FIXED
         } else if (modalType === 'delete' && selectedItem) {
-          await UserApi.getAllUsers(
-            {
-              company_id: selectedItem.id
-            },
-            token
-          )
+          await UserApi.deleteUserById(selectedItem.id, token)
+          message.success('Pengguna baru berhasil ditambahkan.')
         } else if (modalType === 'verify' && selectedItem) {
           await UserApi.updateUserById(
             selectedItem.id,
@@ -117,6 +116,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
             },
             token
           )
+          message.success('Pengguna berhasil diverifikasi.')
         } else if (modalType === 'unverify' && selectedItem) {
           await UserApi.updateUserById(
             selectedItem.id,
@@ -127,6 +127,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
             },
             token
           )
+          message.success('Pengguna berhasil dinonaktifkan.')
         }
 
         closeModal()
@@ -143,6 +144,11 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
     })
   }, [closeModal, form, modalType, router, selectedItem, token])
 
+  const companies = compData?.map((company: any) => ({
+    value: company.id,
+    label: company.company_name
+  }))
+
   return (
     <Modal
       open={!!modalType}
@@ -150,7 +156,6 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         {
           create: 'Buat Pengguna Baru',
           view: 'Detail Data Pengguna',
-          edit: 'Edit Data Pengguna',
           delete: 'Hapus Data Pengguna',
           verify: 'Verifikasi Data Pengguna',
           unverify: 'Menonaktifkan Data Pengguna'
@@ -159,23 +164,141 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
       centered
       onCancel={closeModal}
       onOk={handleFinish}
-      okButtonProps={{ danger: modalType === 'delete', loading: isPending }}
+      okButtonProps={{
+        danger: modalType === 'delete' || modalType === 'unverify',
+        loading: isPending
+      }}
     >
       <Form form={form} layout="vertical" onFinish={handleFinish} scrollToFirstError>
-        {(modalType === 'create' || modalType === 'edit') && (
+        {modalType === 'create' && (
           <>
-            <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
-              <Input />
+            <Form.Item
+              name="name"
+              label="Nama Lengkap"
+              rules={[
+                {
+                  required: true,
+                  message: 'Nama lengkap wajib diisi.',
+                  whitespace: true
+                }
+              ]}
+            >
+              <Input autoComplete="name" placeholder="Masukkan nama lengkap" />
             </Form.Item>
-            <Form.Item name="request_desc" label="Deskripsi">
-              <Input.TextArea rows={4} />
+
+            <Form.Item
+              name="email"
+              label="E-mail"
+              rules={[
+                {
+                  required: true,
+                  message: 'Masukkan email yang valid.',
+                  whitespace: true,
+                  type: 'email'
+                }
+              ]}
+            >
+              <Input placeholder="contoh@domain.com" autoComplete="email" />
             </Form.Item>
-            <Form.Item name="due_date" label="Due Date">
-              <DatePicker style={{ width: '100%' }} />
+
+            <Form.Item
+              name="company_id"
+              label="Nama Perusahaan"
+              rules={[{ required: true, message: 'Pilih perusahaan Anda.' }]}
+            >
+              <Select placeholder="Pilih Perusahaan" options={companies} />
             </Form.Item>
+
+            <div className="grid w-full grid-cols-1 md:grid-cols-2 md:gap-6">
+              <Form.Item
+                name="password"
+                label="Kata Sandi"
+                rules={[{ required: true, message: 'Kata sandi wajib diisi.' }]}
+                hasFeedback
+              >
+                <Input.Password
+                  placeholder="Masukkan kata sandi"
+                  autoComplete="new-password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="confirmPassword"
+                label="Konfirmasi Kata Sandi"
+                dependencies={['password']}
+                rules={[
+                  { required: true, message: 'Konfirmasi kata sandi wajib diisi.' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve()
+                      }
+                      return Promise.reject(new Error('Kata sandi tidak cocok.'))
+                    }
+                  })
+                ]}
+                hasFeedback
+              >
+                <Input.Password
+                  placeholder="Ulangi kata sandi"
+                  autoComplete="new-password"
+                />
+              </Form.Item>
+            </div>
           </>
         )}
-        {modalType === 'view' && selectedItem && <></>}
+        {modalType === 'view' && selectedItem && (
+          <>
+            <Title level={3} style={{ margin: 0, fontWeight: 'bold' }}>
+              {selectedItem.name}
+            </Title>
+            <Paragraph style={{ margin: 0, marginTop: 8 }}>
+              Email: {selectedItem.email}
+            </Paragraph>
+            <Divider style={{ marginBlock: 16 }} />
+            <Flex vertical gap={8}>
+              <Flex align="center" gap={8}>
+                <Tag
+                  icon={<GlobalOutlined />}
+                  color="blue"
+                  style={{ margin: 0, borderRadius: 9999 }}
+                >
+                  {selectedItem.company_name}
+                </Tag>
+              </Flex>
+              <div className="mt-2 grid w-full grid-cols-3 gap-6">
+                <Flex vertical>
+                  <Paragraph style={{ margin: 0 }}>Verifikasi:</Paragraph>
+                  <Paragraph style={{ margin: 0, fontWeight: 600 }}>
+                    {selectedItem.profile.is_verified ? (
+                      <CheckCircleFilled style={{ color: 'green' }} />
+                    ) : (
+                      <CloseCircleFilled style={{ color: 'red' }} />
+                    )}
+                  </Paragraph>
+                </Flex>
+                <Flex vertical>
+                  <Paragraph style={{ margin: 0 }}>Role:</Paragraph>
+                  <Paragraph
+                    style={{ margin: 0, fontWeight: 600 }}
+                    className="capitalize"
+                  >
+                    {selectedItem.profile.role}
+                  </Paragraph>
+                </Flex>
+                <Flex vertical>
+                  <Paragraph style={{ margin: 0 }}>Status Membership:</Paragraph>
+                  <Paragraph
+                    style={{ margin: 0, fontWeight: 600 }}
+                    className="capitalize"
+                  >
+                    {selectedItem.profile.membership_status}
+                  </Paragraph>
+                </Flex>
+              </div>
+            </Flex>
+          </>
+        )}
         {modalType === 'delete' && selectedItem && (
           <Paragraph>
             Apakah Anda yakin ingin menghapus permintaan{' '}
