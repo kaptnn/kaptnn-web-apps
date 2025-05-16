@@ -4,7 +4,7 @@ import '@ant-design/v5-patch-for-react-19'
 import { ReactNode } from 'react'
 import { ThemeProvider } from 'next-themes'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
-import { ConfigProvider, theme as antdTheme } from 'antd'
+import { ConfigProvider, theme as antdTheme, App as AntdApp } from 'antd'
 
 interface Props {
   children: ReactNode
@@ -24,7 +24,7 @@ export default function Providers({ children }: Props) {
             algorithm: antdTheme.defaultAlgorithm
           }}
         >
-          {children}
+          <AntdApp>{children}</AntdApp>
         </ConfigProvider>
       </ThemeProvider>
     </AntdRegistry>
