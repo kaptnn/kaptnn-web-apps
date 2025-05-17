@@ -110,7 +110,14 @@ const Register = ({ companies }: { companies: { value: string; label: string }[]
             label="Nama Perusahaan"
             rules={[{ required: true, message: 'Pilih perusahaan Anda.' }]}
           >
-            <Select placeholder="Pilih Perusahaan" options={companies} />
+            <Select
+              showSearch
+              placeholder="Pilih Perusahaan"
+              options={companies}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </Form.Item>
 
           <div className="grid w-full grid-cols-1 md:grid-cols-2 md:gap-6">

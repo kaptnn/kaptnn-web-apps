@@ -11,7 +11,6 @@ import {
   Menu,
   Modal,
   theme,
-  Typography,
   type MenuProps
 } from 'antd'
 import {
@@ -28,9 +27,7 @@ import dynamic from 'next/dynamic'
 const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
   ssr: false,
   loading: () => (
-    <main role="status" aria-live="polite" className="h-screen w-full bg-white">
-      Loading...
-    </main>
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
   )
 })
 
@@ -199,11 +196,8 @@ const DashboardLayouts: React.FC<DashboardLayoutProps> = ({ children }) => {
           width={1024}
           onCancel={() => setIsModalOpen(false)}
           maskClosable={false}
-        >
-          <Typography.Title level={2} style={{ marginTop: 0 }}>
-            Bantuan & Dokumentasi
-          </Typography.Title>
-        </Modal>
+          title="Bantuan & Dokumentasi"
+        ></Modal>
       </Layout>
     </Layout>
   )

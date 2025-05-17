@@ -229,9 +229,28 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
               })
             )
 
-            const dueDateIso = dayjs(selectedItem.due_date, 'DD-MMM-YYYY').format(
-              'YYYY-MM-DD'
+            await DocsRequestApi.updateDocsRequest(
+              selectedItem.id,
+              {
+                admin_id: selectedItem.admin_id,
+                target_user_id: selectedItem.target_user_id,
+                category_id: selectedItem.category_id,
+                request_title: selectedItem.request_title,
+                request_desc: selectedItem.request_desc,
+                due_date: dayjs(selectedItem.due_date, 'DD-MMM-YYYY').format(
+                  'YYYY-MM-DD'
+                ),
+                upload_date: new Date().toISOString(),
+                status: 'uploaded'
+              },
+              token
             )
+
+            await message.success('All files uploaded successfully')
+            break
+
+          case 'accept':
+            if (!selectedItem) throw new Error('No item to upload files to')
 
             await DocsRequestApi.updateDocsRequest(
               selectedItem.id,
@@ -241,14 +260,16 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
                 category_id: selectedItem.category_id,
                 request_title: selectedItem.request_title,
                 request_desc: selectedItem.request_desc,
-                due_date: dueDateIso,
-                upload_date: new Date().toISOString(),
-                status: 'uploaded'
+                due_date: dayjs(selectedItem.due_date, 'DD-MMM-YYYY').format(
+                  'YYYY-MM-DD'
+                ),
+                upload_date: dayjs(selectedItem.upload_date, 'DD-MMM-YYYY').format(
+                  'YYYY-MM-DD'
+                ),
+                status: 'accepted'
               },
               token
             )
-
-            await message.success('All files uploaded successfully')
             break
 
           default:
@@ -282,7 +303,8 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           delete: 'Hapus Permintaan Dokumen',
           upload_request: 'Upload Permintaan Dokumen',
           edit_request: 'Edit Informasi Dokumen Anda',
-          delete_request: 'Hapus Dokumen Anda'
+          delete_request: 'Hapus Dokumen Anda',
+          accept: 'Terima Upload Permintaan Dokumen'
         }[modalType!]
       }
       centered
@@ -380,6 +402,15 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
           <Flex>
             <Paragraph>
               Apakah Anda yakin ingin menghapus permintaan{' '}
+              <strong>{selectedItem.request_title}</strong>?
+            </Paragraph>
+          </Flex>
+        )}
+
+        {modalType === 'accept' && selectedItem && (
+          <Flex>
+            <Paragraph>
+              Apakah Anda yakin ingin menerima upload permintaan dokumen{' '}
               <strong>{selectedItem.request_title}</strong>?
             </Paragraph>
           </Flex>

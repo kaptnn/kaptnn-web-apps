@@ -22,7 +22,11 @@ const RegisterPage = async () => {
 
   if (token) return redirect('/dashboard')
 
-  const rawCompanies = await CompanyApi.getAllCompanies({}, token)
+  const params = {
+    limit: 100
+  }
+
+  const rawCompanies = await CompanyApi.getAllCompanies(params, token)
 
   const companies = rawCompanies?.result.map((company: CompanyProps) => ({
     value: company.id,

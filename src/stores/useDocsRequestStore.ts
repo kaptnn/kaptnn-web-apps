@@ -10,6 +10,7 @@ type ModalType =
   | 'upload_request'
   | 'edit_request'
   | 'delete_request'
+  | 'accept'
   | null
 
 interface DocsRequestState {
