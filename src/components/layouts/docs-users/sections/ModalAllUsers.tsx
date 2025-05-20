@@ -83,7 +83,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
 
   useEffect(() => {
     fetchData()
-    if (modalType === 'view' && selectedItem) {
+    if ((modalType === 'view' || modalType === 'edit') && selectedItem) {
       form.setFieldsValue({ ...selectedItem })
     } else {
       form.resetFields()
@@ -104,6 +104,21 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         if (modalType === 'create') {
           await AuthApi.registerUser(payload, token)
           message.success('Pengguna baru berhasil ditambahkan.')
+        } else if (modalType === 'edit' && selectedItem) {
+          await UserApi.updateUserById(
+            selectedItem.id,
+            {
+              role: payload?.profile?.role
+                ? payload?.profile?.role
+                : selectedItem.profile.role,
+              membership_status: payload?.profile?.membership_status
+                ? payload?.profile?.membership_status
+                : selectedItem.profile.membership_status,
+              is_verified: selectedItem.profile.is_verified
+            },
+            token
+          )
+          message.success('Pengguna baru berhasil dihapus.')
         } else if (modalType === 'delete' && selectedItem) {
           await UserApi.deleteUserById(selectedItem.id, token)
           message.success('Pengguna baru berhasil dihapus.')
@@ -150,6 +165,19 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
     label: company.company_name
   }))
 
+  const roles = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'employee', label: 'Employee' },
+    { value: 'client', label: 'Client' }
+  ]
+
+  const memberships = [
+    { value: 'basic', label: 'Basic' },
+    { value: 'professional', label: 'Professional' },
+    { value: 'enterprise', label: 'Enterprise' }
+  ]
+
   return (
     <Modal
       open={!!modalType}
@@ -157,6 +185,7 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
         {
           create: 'Buat Pengguna Baru',
           view: 'Detail Data Pengguna',
+          edit: 'Edit Data Pengguna',
           delete: 'Hapus Data Pengguna',
           verify: 'Verifikasi Data Pengguna',
           unverify: 'Menonaktifkan Data Pengguna'
@@ -246,6 +275,61 @@ const AllUsersModals: React.FC<ModalComponentProps> = ({ token }) => {
                 />
               </Form.Item>
             </div>
+          </>
+        )}
+        {modalType === 'edit' && (
+          <>
+            <Form.Item
+              name="name"
+              label="Nama Lengkap"
+              rules={[
+                {
+                  required: true,
+                  message: 'Nama lengkap wajib diisi.',
+                  whitespace: true
+                }
+              ]}
+            >
+              <Input autoComplete="name" placeholder="Masukkan nama lengkap" disabled />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              label="E-mail"
+              rules={[
+                {
+                  required: true,
+                  message: 'Masukkan email yang valid.',
+                  whitespace: true,
+                  type: 'email'
+                }
+              ]}
+            >
+              <Input placeholder="contoh@domain.com" autoComplete="email" disabled />
+            </Form.Item>
+            <Form.Item
+              name="company_id"
+              label="Nama Perusahaan"
+              rules={[{ required: true, message: 'Pilih perusahaan Anda.' }]}
+            >
+              <Select placeholder="Pilih Perusahaan" options={companies} disabled />
+            </Form.Item>
+
+            <Form.Item
+              name={['profile', 'role']}
+              label="Jenis Role"
+              rules={[{ required: true, message: 'Pilih Role Anda.' }]}
+            >
+              <Select placeholder="Pilih Role" options={roles} />
+            </Form.Item>
+
+            <Form.Item
+              name={['profile', 'membership_status']}
+              label="Status Membership"
+              rules={[{ required: true, message: 'Pilih Status Membership Anda.' }]}
+            >
+              <Select placeholder="Pilih Status Membership" options={memberships} />
+            </Form.Item>
           </>
         )}
         {modalType === 'view' && selectedItem && (

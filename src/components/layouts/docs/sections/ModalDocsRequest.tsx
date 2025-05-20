@@ -75,9 +75,24 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
     setDocCatLoading(true)
     try {
       const [compRes, usersRes, docCatRes] = await Promise.all([
-        CompanyApi.getAllCompanies({}, token),
-        UserApi.getAllUsers({}, token),
-        DocsCategoryApi.getAllDocsCategory({}, token)
+        CompanyApi.getAllCompanies(
+          {
+            limit: 100
+          },
+          token
+        ),
+        UserApi.getAllUsers(
+          {
+            limit: 100
+          },
+          token
+        ),
+        DocsCategoryApi.getAllDocsCategory(
+          {
+            limit: 100
+          },
+          token
+        )
       ])
 
       setCompData(
@@ -321,25 +336,55 @@ const DocsRequestModals: React.FC<ModalComponentProps> = ({ token }) => {
             <Form.Item name="request_title" label="Judul" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
-            <Form.Item name="request_desc" label="Deskripsi">
+            <Form.Item
+              name="request_desc"
+              label="Deskripsi"
+              rules={[{ required: true }]}
+            >
               <Input.TextArea rows={4} />
             </Form.Item>
             {modalType === 'create' && (
               <Form.Item name="company_id" label="Perusahaan">
-                <Select placeholder="Pilih Perusahaan" options={companyOptions} />
+                <Select
+                  placeholder="Pilih Perusahaan"
+                  options={companyOptions}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                />
               </Form.Item>
             )}
-            <Form.Item name="target_user_id" label="Target Pengguna">
+            <Form.Item
+              name="target_user_id"
+              label="Target Pengguna"
+              rules={[{ required: true }]}
+            >
               <Select
                 placeholder="Pilih Target Pengguna"
                 options={userOptions}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
                 disabled={modalType === 'edit'}
               />
             </Form.Item>
-            <Form.Item name="category_id" label="Kategori">
-              <Select placeholder="Pilih Kategori Dokumen" options={categoryOptions} />
+            <Form.Item name="category_id" label="Kategori" rules={[{ required: true }]}>
+              <Select
+                placeholder="Pilih Kategori Dokumen"
+                options={categoryOptions}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+              />
             </Form.Item>
-            <Form.Item name="due_date" label="Deadline Pengumpulan">
+            <Form.Item
+              name="due_date"
+              label="Deadline Pengumpulan"
+              rules={[{ required: true }]}
+            >
               <DatePicker style={{ width: '100%' }} />
             </Form.Item>
           </>

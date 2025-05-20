@@ -59,7 +59,7 @@ export const clientMenuItems: MenuItem[] = [
 export const getMenuItemsByRole = (role: string): MenuItem[] => {
   if (role === 'admin') {
     return adminMenuItems
-  } else if (role === 'client') {
+  } else if (role !== 'admin') {
     return clientMenuItems
   }
   return []

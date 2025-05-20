@@ -3,7 +3,7 @@
 import { Empty, Flex, Typography } from 'antd'
 import DashboardLayouts from '../layouts/DashboardLayouts'
 
-const NotVerfiedPage = () => {
+const MaintainedPage = () => {
   return (
     <DashboardLayouts>
       <Flex className="h-full w-full" justify="center" align="center">
@@ -12,10 +12,10 @@ const NotVerfiedPage = () => {
           description
           styles={{ image: { height: 120 } }}
         >
-          <Typography.Title level={3}>Belum Terverifikasi</Typography.Title>
+          <Typography.Title level={3}>Sedang Dalam Perbaikan</Typography.Title>
           <Typography.Paragraph className="max-w-md">
-            Maaf anda belum terverifikasi, mohon hubungi atau tunggu Admin untuk
-            memverifikasi akun anda.
+            Maaf halaman ini sedang dalam perbaikan, mohon tunggu untuk menggunakan
+            halaman ini setelah perbaikan selesai.
           </Typography.Paragraph>
         </Empty>
       </Flex>
@@ -23,4 +23,4 @@ const NotVerfiedPage = () => {
   )
 }
 
-export default NotVerfiedPage
+export default MaintainedPage

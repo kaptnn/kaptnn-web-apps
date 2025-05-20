@@ -107,6 +107,7 @@ export const columns = (
     render: (_: any, record: DataType) => {
       const items: MenuProps['items'] = [
         { key: 'view', label: 'View Data' },
+        ...(record.profile.is_verified ? [{ key: 'edit', label: 'Edit Data' }] : []),
         ...(isAdmin && !record.profile.is_verified
           ? [{ key: 'verify', label: 'Verify User' }]
           : [{ key: 'unverify', label: 'Disabled User' }]),

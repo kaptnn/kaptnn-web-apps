@@ -166,14 +166,26 @@ const CompanyModals: React.FC<ModalComponentProps> = ({ token }) => {
             >
               <Input />
             </Form.Item>
-            <Form.Item name="year_of_assignment" label="Tahun Penugasan">
+            <Form.Item
+              name="year_of_assignment"
+              label="Tahun Penugasan"
+              rules={[{ required: true }]}
+            >
               <InputNumber style={{ width: '100%' }} />
             </Form.Item>
             <div className="grid grid-cols-2 gap-6">
-              <Form.Item name="start_audit_period" label="Waktu Periode Mulai">
+              <Form.Item
+                name="start_audit_period"
+                label="Waktu Periode Mulai"
+                rules={[{ required: true }]}
+              >
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
-              <Form.Item name="end_audit_period" label="Waktu Periode Selesai">
+              <Form.Item
+                name="end_audit_period"
+                label="Waktu Periode Selesai"
+                rules={[{ required: true }]}
+              >
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </div>

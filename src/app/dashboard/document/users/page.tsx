@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { seo_data } from '@/utils/constants/seo_data'
 import { UserApi } from '@/utils/axios/api-service'
-import NotVerfiedPage from '@/components/elements/NotVerfiedPage'
 import { cookies } from 'next/headers'
+import dynamic from 'next/dynamic'
 
 export const metadata: Metadata = {
   title: `${seo_data.title.dashboard.user.users} | KAP Tambunan & Nasafi`,
@@ -15,6 +15,13 @@ export const metadata: Metadata = {
   },
   keywords: ['Data', 'Datatrail', 'Accountant', 'Document', 'Document Management']
 }
+
+const NotVerfiedPage = dynamic(() => import('@/components/elements/NotVerfiedPage'), {
+  ssr: true,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
+  )
+})
 
 const AllUsersPage = async () => {
   const cookieStore = await cookies()
