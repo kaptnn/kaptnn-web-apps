@@ -1,33 +1,21 @@
-import { UserApi } from '@/utils/axios/api-service'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const AUTH_REQUIRED = ['/dashboard']
 
-const ADMIN_ONLY = ['/dashboard/company', '/dashboard/category']
+// const ADMIN_ONLY = ['/dashboard/company', '/dashboard/category']
 
 export async function middleware(request: NextRequest) {
-  const { nextUrl } = request
-  const { pathname } = nextUrl
+  const url = request.nextUrl.clone()
+  const path = url.pathname
+  const cookieStore = await cookies()
+  const token = cookieStore.get('access_token')?.value
 
-  if (AUTH_REQUIRED.includes(pathname)) {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('access_token')?.value
-
+  if (AUTH_REQUIRED.includes(path)) {
     if (!token) {
-      const loginUrl = nextUrl.clone()
-      loginUrl.pathname = '/login'
-      return NextResponse.redirect(loginUrl)
-    }
-
-    const currentUser = await UserApi.getCurrentUser(token)
-    const isAdmin = currentUser.profile.role === 'admin'
-
-    if (ADMIN_ONLY.includes(pathname) && !isAdmin) {
-      const homeUrl = nextUrl.clone()
-      homeUrl.pathname = '/dashboard'
-      return NextResponse.redirect(homeUrl)
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
     }
   }
 

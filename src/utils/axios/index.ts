@@ -3,10 +3,11 @@ import axios from 'axios'
 import packageJson from '../../../package.json'
 import useAuthStore from '@/stores/AuthStore'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'
+const isServer = typeof window === 'undefined'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 const axiosInstance = axios.create({
-  baseURL: API_BASE,
+  baseURL: isServer ? `${APP_URL}/api` : '/api',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -19,7 +20,9 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   config => {
     const token = useAuthStore.getState().accessToken
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   err => Promise.reject(err)
@@ -45,7 +48,9 @@ axiosInstance.interceptors.response.use(
         return new Promise<string>((resolve, reject) => {
           queue.push({ resolve, reject })
         }).then(newToken => {
-          originalReq.headers.Authorization = `Bearer ${newToken}`
+          if (originalReq.headers) {
+            originalReq.headers['Authorization'] = `Bearer ${newToken}`
+          }
           return axiosInstance(originalReq)
         })
       }

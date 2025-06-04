@@ -18,6 +18,7 @@ import {
 import { useAllUsersStore } from '@/stores/useAllUsersStore'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import dayjs from 'dayjs'
+import { useBootstrapAuth } from '@/hooks/useBootstrapAuth'
 
 const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
   ssr: false,
