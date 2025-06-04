@@ -1,65 +1,79 @@
-"use client";
+'use client'
 
-import {
-  AutoComplete,
-  Button,
-  Checkbox,
-  Flex,
-  Form,
-  Input,
-  Typography,
-} from "antd";
-import Link from "next/link";
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Form, Input, notification, Select, Typography } from 'antd'
+import { memo, useEffect, useState, useTransition } from 'react'
+import { registerSchema } from '@/utils/constants/user'
+import { z } from 'zod'
+import { AuthApi } from '@/utils/axios/api-service'
 
-const { Paragraph } = Typography;
+const { Paragraph } = Typography
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
-};
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
+  )
+})
 
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
+const Register = ({ companies }: { companies: { value: string; label: string }[] }) => {
+  const [form] = Form.useForm()
+  const [mounted, setMounted] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
-const Register = () => {
-  const [form] = Form.useForm();
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  const onFinish = (values: unknown) => {
-    console.log("Received values of form: ", values);
-  };
+  if (!mounted) return <LoadingPage />
+
+  const handleFinish = async (values: z.infer<typeof registerSchema>) => {
+    startTransition(async () => {
+      try {
+        const response = await AuthApi.registerUser({
+          name: values.name,
+          email: values.email,
+          company_id: values.company_id,
+          password: values.password
+        })
+
+        if (response.status === 201) {
+          notification.success({
+            message: 'Registrasi Berhasil',
+            description: 'Silakan login untuk melanjutkan.'
+          })
+          window.location.href = '/login'
+        }
+      } catch (error: unknown) {
+        if (error) {
+          const errorMessage = error || 'Something went wrong!'
+          console.error('Login Error:', errorMessage)
+          notification.error({
+            message: 'Registrasi Gagal',
+            description: 'Silakan coba lagi nanti.'
+          })
+        } else {
+          console.error('Network Error:', error)
+        }
+      }
+    })
+  }
 
   return (
-    <Flex
-      vertical
-      gap={48}
-      align="center"
-      style={{ marginBottom: 64 }}
-      className="min-h-screen"
-    >
-      <div className="h-32 w-full bg-blue-600"></div>
-      <Flex vertical style={{ paddingInline: 20 }} className="w-full">
+    <div className="grid min-h-screen grid-cols-1 gap-16 bg-white pb-16 md:grid-cols-2 md:gap-6 md:pb-0">
+      <div className="h-full min-h-32 w-full bg-blue-600 p-8 md:min-h-screen">
+        <Button icon={<ArrowLeftOutlined />} href="/">
+          Back to Home
+        </Button>
+      </div>
+      <div className="flex w-full flex-col bg-white px-5 md:items-center md:justify-center md:px-24">
         <Form
-          {...formItemLayout}
           form={form}
-          name="register"
-          onFinish={onFinish}
-          style={{ maxWidth: 600 }}
+          onFinish={handleFinish}
+          className="w-full"
+          layout="vertical"
           scrollToFirstError
         >
           <Form.Item
@@ -68,12 +82,12 @@ const Register = () => {
             rules={[
               {
                 required: true,
-                message: "Masukkan nama lengkap anda!",
-                whitespace: true,
-              },
+                message: 'Nama lengkap wajib diisi.',
+                whitespace: true
+              }
             ]}
           >
-            <Input />
+            <Input autoComplete="name" placeholder="Masukkan nama lengkap" />
           </Form.Item>
 
           <Form.Item
@@ -81,78 +95,67 @@ const Register = () => {
             label="E-mail"
             rules={[
               {
-                type: "email",
-                message: "E-mail tidak valid!",
-              },
-              {
                 required: true,
-                message: "Masukkan e-mail anda!",
-              },
+                message: 'Masukkan email yang valid.',
+                whitespace: true,
+                type: 'email'
+              }
             ]}
           >
-            <Input />
+            <Input placeholder="contoh@domain.com" autoComplete="email" />
           </Form.Item>
 
           <Form.Item
-            name="phone"
-            label="Nomor Telepon"
-            rules={[
-              { required: true, message: "Masukkan nomor telepon anda!" },
-            ]}
-          >
-            <Input addonBefore={"+62"} style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item
-            name="company"
+            name="company_id"
             label="Nama Perusahaan"
-            rules={[
-              { required: true, message: "Masukkan nama perusahaan anda!" },
-            ]}
+            rules={[{ required: true, message: 'Pilih perusahaan Anda.' }]}
           >
-            <AutoComplete placeholder="Masukkan Nama Perusahaan Anda">
-              <Input />
-            </AutoComplete>
+            <Select
+              showSearch
+              placeholder="Pilih Perusahaan"
+              options={companies}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            label="Kata Sandi"
-            rules={[
-              {
-                required: true,
-                message: "Masukkan kata sandi anda!",
-              },
-            ]}
-            hasFeedback
-          >
-            <Input.Password />
-          </Form.Item>
+          <div className="grid w-full grid-cols-1 md:grid-cols-2 md:gap-6">
+            <Form.Item
+              name="password"
+              label="Kata Sandi"
+              rules={[{ required: true, message: 'Kata sandi wajib diisi.' }]}
+              hasFeedback
+            >
+              <Input.Password
+                placeholder="Masukkan kata sandi"
+                autoComplete="new-password"
+              />
+            </Form.Item>
 
-          <Form.Item
-            name="confirm"
-            label="Konfirmasi Kata Sandi"
-            dependencies={["password"]}
-            hasFeedback
-            rules={[
-              {
-                required: true,
-                message: "Konfirmasi ulang kata sandi anda!",
-              },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
+            <Form.Item
+              name="confirmPassword"
+              label="Konfirmasi Kata Sandi"
+              dependencies={['password']}
+              rules={[
+                { required: true, message: 'Konfirmasi kata sandi wajib diisi.' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('Kata sandi tidak cocok.'))
                   }
-                  return Promise.reject(
-                    new Error("match! Konfirmasi kata sandi anda tidak cocok!")
-                  );
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+                })
+              ]}
+              hasFeedback
+            >
+              <Input.Password
+                placeholder="Ulangi kata sandi"
+                autoComplete="new-password"
+              />
+            </Form.Item>
+          </div>
 
           <Form.Item
             name="agreement"
@@ -162,19 +165,28 @@ const Register = () => {
                 validator: (_, value) =>
                   value
                     ? Promise.resolve()
-                    : Promise.reject(new Error("Should accept agreement")),
-              },
+                    : Promise.reject(new Error('Anda harus setuju dengan perjanjian.'))
+              }
             ]}
-            {...tailFormItemLayout}
           >
-            <Checkbox>
-              I have read the <a href="">agreement</a>
+            <Checkbox onChange={e => e.target.checked}>
+              I have read the{' '}
+              <Link href="/agreement" target="_blank" rel="noopener noreferrer">
+                agreement
+              </Link>
             </Checkbox>
           </Form.Item>
 
-          <Form.Item {...tailFormItemLayout}>
-            <Button type="primary" htmlType="submit" className="w-full">
-              Daftar Sekarang
+          <Form.Item>
+            <Button
+              block
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={isPending}
+              aria-busy={isPending}
+            >
+              {isPending ? 'Tunggu Sebentar' : 'Daftar Sekarang'}
             </Button>
           </Form.Item>
 
@@ -183,9 +195,9 @@ const Register = () => {
             <Link href="/login"> Masuk</Link>
           </Paragraph>
         </Form>
-      </Flex>
-    </Flex>
-  );
-};
+      </div>
+    </div>
+  )
+}
 
-export default Register;
+export default memo(Register)

@@ -1,229 +1,205 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
 
-import { useState } from "react";
-import DashboardLayouts from "../../DashboardLayouts";
-import {
-  Input,
-  Button,
-  Flex,
-  Table,
-  TableColumnsType,
-  TableProps,
-  Tag,
-  Modal,
-  Form,
-  Select,
-  Upload,
-  message,
-} from "antd";
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import DashboardLayouts from '../../DashboardLayouts'
+import { Input, Button, Flex, message } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import DocsRequestTable from './TableDocsRequest'
+import DocsRequestModals from './ModalDocsRequest'
+import { useDocsRequestStore } from '@/stores/useDocsRequestStore'
+import { DocsRequestApi } from '@/utils/axios/api-service'
+import { DataType } from '../utils/table'
+import FilterDocsRequest, { FilterOptions } from './FilterDocsRequest'
+import debounce from 'lodash/debounce'
+import { useAllUsersStore } from '@/stores/useAllUsersStore'
+import { useDocsCategoryStore } from '@/stores/useDocsCategory'
+import { GetAllDocumentRequestParams } from '@/utils/axios/docs/request'
+import type { GetProps } from 'antd'
+import dynamic from 'next/dynamic'
+import dayjs from 'dayjs'
 
-import type { UploadProps } from "antd";
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
+  )
+})
 
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  InboxOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-  SyncOutlined,
-} from "@ant-design/icons";
-import { dataSource, DataType } from "@/utils/constants/mock-data";
+type SearchProps = GetProps<typeof Input.Search>
 
-const { Search } = Input;
+const { Search } = Input
 
-const { Dragger } = Upload;
+interface DocsReqClientProps {
+  initialToken: string
+  isAdmin: boolean
+  currentUser: any
+}
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
+const AllDocsManager: React.FC<DocsReqClientProps> = ({
+  initialToken,
+  isAdmin,
+  currentUser
+}) => {
+  const {
+    pageSize,
+    current,
+    filters,
+    setData,
+    setLoading,
+    setCurrent,
+    setTotal,
+    setFilters,
+    openModal
+  } = useDocsRequestStore()
 
-const columns: TableColumnsType<DataType> = [
-  { title: "Document Name", dataIndex: "name" },
-  { title: "Category", dataIndex: "category" },
-  {
-    title: "Type",
-    dataIndex: "type",
-    render: (item: string) => (
-      <Flex align="center" justify="center">
-        <Tag color="default">{item}</Tag>
-      </Flex>
-    ),
-  },
-  { title: "Upload Date", dataIndex: "upload" },
-  { title: "Due Date", dataIndex: "due" },
-  {
-    title: "Status",
-    dataIndex: "status",
-    render: (item: string) => {
-      const statusColors: Record<
-        string,
-        { color: string; icon: React.ReactNode }
-      > = {
-        Done: { color: "success", icon: <CheckCircleOutlined /> },
-        Pending: { color: "warning", icon: <ClockCircleOutlined /> },
-        Overdue: { color: "error", icon: <CloseCircleOutlined /> },
-        "In Progress": { color: "processing", icon: <SyncOutlined /> },
-        None: { color: "default", icon: <MinusCircleOutlined /> },
-      };
+  const { data: users } = useAllUsersStore()
+  const { data: categories } = useDocsCategoryStore()
 
-      const { color, icon } = statusColors[item] || statusColors["None"];
+  const [searchTerm, setSearchTerm] = useState<string>(filters.name || '')
+  const [mounted, setMounted] = useState(false)
 
-      return (
-        <Flex align="center" justify="center">
-          <Tag icon={icon} color={color}>
-            {item}
-          </Tag>
-        </Flex>
-      );
-    },
-  },
-  {
-    title: "Action",
-    dataIndex: "",
-    key: "x",
-    render: () => (
-      <Flex gap={8} align="center" justify="center">
-        <Button color="primary" variant="solid">
-          View
-        </Button>
-        <Button color="default" type="default">
-          Edit
-        </Button>
-        <Button color="danger" variant="solid">
-          Delete
-        </Button>
-      </Flex>
-    ),
-  },
-];
+  const options: FilterOptions = useMemo(
+    () => ({
+      statuses: [
+        { value: 'pending', label: 'Pending' },
+        { value: 'uploaded', label: 'Uploaded' },
+        { value: 'accepted', label: 'Accepted' },
+        { value: 'rejected', label: 'Rejected' },
+        { value: 'overdue', label: 'Overdue' }
+      ],
+      admins: users
+        .filter(u => u.profile.role === 'admin')
+        .map(u => ({ value: u.id, label: u.name })),
+      targetUsers: users.map(u => ({ value: u.id, label: u.name })),
+      categories: categories.map(cat => ({ value: cat.id, label: cat.name }))
+    }),
+    [users, categories]
+  )
 
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
+  const fetchDocumentRequest = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params: GetAllDocumentRequestParams = {
+        page: current,
+        limit: pageSize,
+        sort: filters.sort,
+        order: filters.order,
+        name: searchTerm || undefined,
+        status: filters.status || undefined,
+        admin_id: filters.admin_id || undefined,
+        target_user_id: isAdmin ? filters.target_user_id || undefined : currentUser.id,
+        category_id: filters.category_id || undefined
+      }
+
+      const response = await DocsRequestApi.getAllDocsRequest(params, initialToken)
+
+      const formatted: DataType[] = response.result.map((item: DataType) => ({
+        ...item,
+        key: item.id,
+        due_date: item?.due_date ? dayjs(item.due_date).format('DD-MMMM-YYYY') : '-',
+        upload_date: item?.upload_date
+          ? dayjs(item.upload_date).format('DD-MMMM-YYYY')
+          : '-'
+      }))
+
+      setData(formatted)
+      setTotal(response.meta.totalItems)
+    } catch (err) {
+      console.error(err)
+      message.error('Failed to fetch document requests.')
+    } finally {
+      setLoading(false)
     }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
+  }, [
+    setLoading,
+    current,
+    pageSize,
+    filters.sort,
+    filters.order,
+    filters.status,
+    filters.admin_id,
+    filters.target_user_id,
+    filters.category_id,
+    searchTerm,
+    isAdmin,
+    currentUser.id,
+    initialToken,
+    setData,
+    setTotal
+  ])
 
-const AllDocsManager = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const debouncedSetSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        setFilters({ ...filters, name: value })
+        setCurrent(1)
+      }, 500),
+    [filters, setFilters, setCurrent]
+  )
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
+  useEffect(() => {
+    setMounted(true)
+    fetchDocumentRequest()
+  }, [fetchDocumentRequest])
 
-  const rowSelection: TableRowSelection<DataType> = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
+  const handleSearchInputChange: SearchProps['onChange'] = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    debouncedSetSearchFilter(value)
+  }
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const onSearch: SearchProps['onSearch'] = (value: string) => {
+    setFilters({ ...filters, name: value })
+    setSearchTerm(value)
+    setCurrent(1)
+  }
 
-  const showLoading = () => {
-    setOpen(true);
-    setLoading(true);
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    setFilters(newFilters)
+    setCurrent(1)
+  }
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
+  if (!mounted) return <LoadingPage />
 
-  const hasSelected = selectedRowKeys.length > 0;
   return (
     <DashboardLayouts>
       <Flex gap="middle" vertical>
         <Flex align="center" justify="space-between" gap="middle">
-          <Flex>
-            <Search placeholder="Search" loading={false} enterButton />
+          <Flex align="center">
+            <Search
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearchInputChange}
+              onSearch={onSearch}
+              enterButton
+              allowClear
+            />
           </Flex>
           <Flex align="center">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={showLoading}
-            >
-              Add New Document
-            </Button>
-            {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
+            {isAdmin && (
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => openModal('create')}
+              >
+                Tambah Permintaan Dokumen
+              </Button>
+            )}
           </Flex>
         </Flex>
-        <Table<DataType>
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={dataSource}
-          className="rounded-lg"
-          bordered
+        <FilterDocsRequest
+          filterValues={{ ...filters }}
+          onFilterChange={handleFilterChange}
+          options={options}
         />
+        <DocsRequestTable token={initialToken} fetchData={fetchDocumentRequest} />
+        <DocsRequestModals token={initialToken} />
       </Flex>
-      <Modal
-        title={"Add New Document"}
-        loading={loading}
-        centered
-        open={open}
-        onCancel={() => setOpen(false)}
-      >
-        <Form layout="vertical">
-          <Form.Item
-            name="email"
-            label="Nama Dokumen"
-            rules={[
-              {
-                type: "email",
-                message: "E-mail tidak valid!",
-              },
-              {
-                required: true,
-                message: "Masukkan e-mail anda!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="Kategori Dokumen"
-            rules={[
-              { required: true, message: "Masukkan nomor telepon anda!" },
-            ]}
-          >
-            <Select></Select>
-          </Form.Item>
-
-          <Form.Item
-            name="company"
-            label="Upload Dokumen"
-            rules={[
-              { required: true, message: "Masukkan nama perusahaan anda!" },
-            ]}
-          >
-            <Dragger {...props}>
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">
-                Tekan atau seret file ke area untuk menguploadnya
-              </p>
-            </Dragger>
-          </Form.Item>
-        </Form>
-      </Modal>
     </DashboardLayouts>
-  );
-};
+  )
+}
 
-export default AllDocsManager;
+export default memo(AllDocsManager)

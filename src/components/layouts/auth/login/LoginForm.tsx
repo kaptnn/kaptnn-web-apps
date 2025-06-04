@@ -1,80 +1,145 @@
-"use client";
+'use client'
 
-import { Button, Checkbox, Form, Input, Flex, Typography } from "antd";
-import Link from "next/link";
-import { Controller } from "react-hook-form";
-import useLoginForm from "./LoginService";
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import axiosInstance from '@/utils/axios'
+import useAuthStore from '@/stores/AuthStore'
+import { z } from 'zod'
+import { ArrowLeftOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Form, Input, Flex, Typography, notification } from 'antd'
+import { memo, useEffect, useState, useTransition } from 'react'
+import { loginSchema } from '@/utils/constants/user'
+import { AuthApi, CompanyApi, UserApi } from '@/utils/axios/api-service'
 
-const { Paragraph } = Typography;
+const { Paragraph } = Typography
+
+const LoadingPage = dynamic(() => import('@/components/elements/LoadingPage'), {
+  ssr: false,
+  loading: () => (
+    <main role="status" aria-live="polite" className="h-screen w-full bg-gray-50" />
+  )
+})
 
 const Login = () => {
-  const { form, isPending, onSubmit } = useLoginForm();
+  const [form] = Form.useForm()
+  const [mounted, setMounted] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const setAuth = useAuthStore(state => state.setAuth)
+  const setUserInfo = useAuthStore(state => state.setUserInfo)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return <LoadingPage />
+
+  const handleFinish = async (values: z.infer<typeof loginSchema>) => {
+    startTransition(async () => {
+      try {
+        const response = await AuthApi.loginUser({
+          email: values.email,
+          password: values.password
+        })
+        if (!response?.access_token) {
+          notification.error({
+            message: 'Login Gagal',
+            description: 'Email atau kata sandi salah.'
+          })
+          window.location.href = '/login'
+          return
+        }
+
+        localStorage.setItem('access_token', response.access_token)
+        localStorage.setItem('refresh_token', response.refresh_token)
+        axiosInstance.defaults.headers.Authorization = `Bearer ${response.access_token}`
+
+        const now = new Date()
+        const accessTokenExp = new Date(now.getTime() + 60 * 60 * 1000)
+        const refreshTokenExp = new Date(now.getTime() + 60 * 60 * 1000 * 24 * 7)
+
+        document.cookie = `access_token=${
+          response.access_token
+        }; expires=${accessTokenExp.toUTCString()}; path=/; secure; samesite=strict`
+        document.cookie = `refresh_token=${
+          response.refresh_token
+        }; expires=${refreshTokenExp.toUTCString()}; path=/; secure; samesite=strict`
+
+        setAuth(response.access_token, response.refresh_token)
+
+        const rawCurrentUserData = await UserApi.getCurrentUser(response.access_token)
+        const rawCompanyByIdData = await CompanyApi.getCompanyById(
+          rawCurrentUserData.company_id,
+          response.access_token
+        )
+
+        setUserInfo({
+          ...rawCurrentUserData,
+          company_name: rawCompanyByIdData.company_name
+        })
+
+        notification.success({
+          message: 'Berhasil Masuk',
+          description: 'Selamat datang kembali!'
+        })
+        window.location.href = '/dashboard'
+      } catch (error: unknown) {
+        let errorMessage = 'Something went wrong!'
+        if (error instanceof Error) {
+          errorMessage = error.message
+        }
+        console.error('Login Error:', errorMessage)
+      }
+    })
+  }
 
   return (
-    <Flex vertical gap={48} align="center" className="min-h-screen mb-16">
-      <div className="h-32 w-full bg-blue-600"></div>
-      <Flex vertical className="w-full px-5">
+    <div className="grid min-h-screen grid-cols-1 gap-16 bg-white md:mb-0 md:grid-cols-2 md:gap-6">
+      <div className="h-full w-full bg-blue-600 p-8 md:min-h-screen">
+        <Button icon={<ArrowLeftOutlined />} href="/">
+          Back to Home
+        </Button>
+      </div>
+      <div className="flex w-full flex-col px-5 md:items-center md:justify-center md:px-24">
         <Form
-          onFinish={form.handleSubmit(onSubmit)}
+          form={form}
+          onFinish={handleFinish}
           className="w-full"
           layout="vertical"
-          style={{ maxWidth: 600 }}
           scrollToFirstError
         >
-          <Form.Item label="E-mail">
-            <Controller
-              name="email"
-              control={form.control}
-              rules={{
-                required: "Masukkan e-mail anda!",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "E-mail tidak valid!",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Input {...field} status={fieldState.error ? "error" : ""} />
-              )}
+          <Form.Item
+            name="email"
+            label="E-mail"
+            rules={[{ required: true, message: 'Email wajib diisi' }]}
+          >
+            <Input
+              autoComplete="email"
+              type="email"
+              placeholder="Masukkan email anda"
             />
           </Form.Item>
 
-          {/* Password Field */}
-          <Form.Item label="Kata Sandi">
-            <Controller
-              name="password"
-              control={form.control}
-              rules={{ required: "Masukkan kata sandi anda!" }}
-              render={({ field, fieldState }) => (
-                <Input.Password
-                  {...field}
-                  status={fieldState.error ? "error" : ""}
-                />
-              )}
+          <Form.Item
+            name="password"
+            label="Kata Sandi"
+            rules={[{ required: true, message: 'Kata sandi wajib diisi' }]}
+          >
+            <Input.Password
+              autoComplete="current-password"
+              placeholder="Masukkan kata sandi anda"
             />
           </Form.Item>
 
-          {/* Remember Me & Forgot Password */}
-          <Form.Item>
+          <Form.Item name="rememberMe">
             <Flex justify="space-between" align="center">
-              <Controller
-                name="rememberMe"
-                control={form.control}
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value} // Fixed Ant Design warning
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  >
-                    Remember me
-                  </Checkbox>
-                )}
-              />
+              <Checkbox onChange={e => e.target.checked}>Remember me</Checkbox>
               <Link href="/forgot-password">Lupa Kata Sandi?</Link>
             </Flex>
           </Form.Item>
 
           <Form.Item>
             <Button block type="primary" htmlType="submit" loading={isPending}>
-              Masuk
+              {isPending ? 'Tunggu Sebentar' : 'Masuk'}
             </Button>
           </Form.Item>
 
@@ -82,9 +147,9 @@ const Login = () => {
             Belum mempunyai akun? <Link href="/register">Daftar Sekarang</Link>
           </Paragraph>
         </Form>
-      </Flex>
-    </Flex>
-  );
-};
+      </div>
+    </div>
+  )
+}
 
-export default Login;
+export default memo(Login)

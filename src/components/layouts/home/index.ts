@@ -1,3 +1,3 @@
-import Home from "./sections/Home";
+import Home from './sections/Home'
 
-export default Home;
+export default Home

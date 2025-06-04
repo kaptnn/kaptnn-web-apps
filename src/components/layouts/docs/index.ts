@@ -1,3 +1,3 @@
-import AllDocsManager from "./sections/AllDocsManager";
+import AllDocsManager from './sections/AllDocsManager'
 
-export default AllDocsManager;
+export default AllDocsManager
