@@ -30,12 +30,14 @@ RUN \
 FROM base AS runner
 WORKDIR /app
 
-ENV NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+ENV NEXT_PUBLIC_API_BASE_URL=http://backend:8000/api
 ENV NODE_ENV=production
 ENV NEXT_ANALYZE=false
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN mkdir -p /app/.next/cache \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs \
+    && chown -R nextjs:nodejs /app/.next
 
 COPY --from=builder /app/public ./public
 
