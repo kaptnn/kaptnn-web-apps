@@ -22,7 +22,7 @@ const baseConfig: NextConfig = {
     optimizePackageImports: ['antd', '@ant-design/icons'],
     serverMinification: true
   },
-  async rewrites() {
+  rewrites: async () => {
     return [
       {
         source: `/api/:path*`,
