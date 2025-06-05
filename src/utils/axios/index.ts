@@ -4,7 +4,7 @@ import packageJson from '../../../package.json'
 import useAuthStore from '@/stores/AuthStore'
 
 const isServer = typeof window === 'undefined'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const APP_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'
 
 const axiosInstance = axios.create({
   baseURL: isServer ? `${APP_URL}/api` : '/api',
