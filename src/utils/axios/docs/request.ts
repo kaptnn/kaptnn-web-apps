@@ -91,6 +91,20 @@ class DocsRequestService {
     }
   }
 
+  public getDocsRequestStatusSummary = async (token?: string, signal?: AbortSignal) => {
+    try {
+      const response = await this.axiosInstance.get(`${API_PATH}/summary/status`, {
+        headers: this.getAuthHeaders(token),
+        signal
+      })
+      return response.data.result
+    } catch (error: any) {
+      console.error('Error fetching companies:', error)
+      const msg = error?.response?.data?.message || 'Failed to fetch companies'
+      throw new Error(msg)
+    }
+  }
+
   public createDocsRequest = async (
     payload: any,
     token?: string,

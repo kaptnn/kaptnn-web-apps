@@ -87,7 +87,7 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     try {
       const [compRes, docReqRes, usersRes, docCatRes] = await Promise.all([
         CompanyApi.getAllCompanies({}, initialToken),
-        DocsRequestApi.getAllDocsRequest({}, initialToken),
+        DocsRequestApi.getDocsRequestStatusSummary(initialToken),
         UserApi.getAllUsers({}, initialToken),
         DocsCategoryApi.getAllDocsCategory({}, initialToken)
       ])
@@ -102,8 +102,7 @@ const Dashboard: React.FC<DashboardClientProps> = ({
       setCompData(formattedCompanies)
       setCompTotal(compRes.meta.totalItems)
 
-      setDocReqData(docReqRes.result)
-      setDocReqTotal(docReqRes.meta.totalItems)
+      setDocReqData(docReqRes)
 
       setUsersData(usersRes.result)
       setUsersTotal(usersRes.meta.totalItems)
@@ -128,7 +127,6 @@ const Dashboard: React.FC<DashboardClientProps> = ({
     setCompData,
     setCompTotal,
     setDocReqData,
-    setDocReqTotal,
     setUsersData,
     setUsersTotal,
     setDocCatData,
@@ -250,7 +248,8 @@ const Dashboard: React.FC<DashboardClientProps> = ({
                     </Flex>
 
                     <Typography.Title level={3} style={{ marginTop: 0 }}>
-                      {docReqTotal} Permintaan
+                      {docReqData.reduce((sum, item) => sum + item.total!, 0)}{' '}
+                      Permintaan
                     </Typography.Title>
 
                     <Flex vertical>
@@ -261,66 +260,30 @@ const Dashboard: React.FC<DashboardClientProps> = ({
                         Detail Data Permintaan Dokumen
                       </Typography.Paragraph>
 
-                      <Flex align="center" justify="space-between" className="w-full">
-                        <Typography.Paragraph style={{ margin: 0 }}>
-                          Pending
-                        </Typography.Paragraph>
-                        <Typography.Link
-                          href=""
-                          className="hover:underline"
-                          style={{ margin: 0 }}
-                        >
-                          {usersTotal}
-                        </Typography.Link>
-                      </Flex>
-                      <Flex align="center" justify="space-between" className="w-full">
-                        <Typography.Paragraph style={{ margin: 0 }}>
-                          Uploaded
-                        </Typography.Paragraph>
-                        <Typography.Link
-                          href=""
-                          className="hover:underline"
-                          style={{ margin: 0 }}
-                        >
-                          {usersTotal}
-                        </Typography.Link>
-                      </Flex>
-                      <Flex align="center" justify="space-between" className="w-full">
-                        <Typography.Paragraph style={{ margin: 0 }}>
-                          Accepted
-                        </Typography.Paragraph>
-                        <Typography.Link
-                          href=""
-                          className="hover:underline"
-                          style={{ margin: 0 }}
-                        >
-                          {usersTotal}
-                        </Typography.Link>
-                      </Flex>
-                      <Flex align="center" justify="space-between" className="w-full">
-                        <Typography.Paragraph style={{ margin: 0 }}>
-                          Rejected
-                        </Typography.Paragraph>
-                        <Typography.Link
-                          href=""
-                          className="hover:underline"
-                          style={{ margin: 0 }}
-                        >
-                          {usersTotal}
-                        </Typography.Link>
-                      </Flex>
-                      <Flex align="center" justify="space-between" className="w-full">
-                        <Typography.Paragraph style={{ margin: 0 }}>
-                          Overdue
-                        </Typography.Paragraph>
-                        <Typography.Link
-                          href=""
-                          className="hover:underline"
-                          style={{ margin: 0 }}
-                        >
-                          {usersTotal}
-                        </Typography.Link>
-                      </Flex>
+                      {docReqData.map((item, index) => {
+                        return (
+                          <Flex
+                            key={index}
+                            align="center"
+                            justify="space-between"
+                            className="w-full"
+                          >
+                            <Typography.Paragraph
+                              style={{ margin: 0 }}
+                              className="capitalize"
+                            >
+                              {item.status}
+                            </Typography.Paragraph>
+                            <Typography.Link
+                              href=""
+                              className="hover:underline"
+                              style={{ margin: 0 }}
+                            >
+                              {item.total}
+                            </Typography.Link>
+                          </Flex>
+                        )
+                      })}
                     </Flex>
                   </Card>
 
