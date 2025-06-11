@@ -7,8 +7,8 @@ import type { GetProps } from 'antd'
 import DashboardLayouts from '../../DashboardLayouts'
 import { PlusOutlined } from '@ant-design/icons'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { DataType } from '../utils/table'
-import { DocsCategoryApi } from '@/utils/axios/api-service'
+import { DataType, SummaryDataType } from '../utils/table'
+import { DocsCategoryApi, DocsRequestApi } from '@/utils/axios/api-service'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import DocsCategoryTable from './TableDocsCategory'
 import DocsCategoryModals from './ModalDocsCategory'
@@ -56,15 +56,27 @@ const DocsCategory: React.FC<DocsCategoryClientProps> = ({
         name: searchTerm || undefined
       }
 
-      const response = await DocsCategoryApi.getAllDocsCategory(params, initialToken)
+      const [docCatRes, docReqSumRes] = await Promise.all([
+        DocsCategoryApi.getAllDocsCategory(params, initialToken),
+        DocsRequestApi.getDocsRequestSummary(initialToken)
+      ])
 
-      const formatted: DataType[] = response.result.map((item: DataType) => ({
-        ...item,
-        key: item.id
-      }))
+      const formatted: DataType[] = docCatRes.result.map((cat: DataType) => {
+        const summary: SummaryDataType = docReqSumRes.find(
+          (s: SummaryDataType) => s.category_id === cat.id
+        )
+
+        return {
+          key: cat.id,
+          id: cat.id,
+          name: cat.name,
+          document_created: summary.total ?? 0,
+          document_finished: summary.accepted ?? 0
+        }
+      })
 
       setData(formatted)
-      setTotal(response.meta.totalItems)
+      setTotal(docCatRes.meta.totalItems)
     } catch (err) {
       console.error(err)
       message.error('Failed to fetch document categories.')

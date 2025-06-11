@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
-import { Button, Dropdown, MenuProps, Table, TableProps } from 'antd'
+import { Button, Dropdown, Flex, MenuProps, Table, TableProps } from 'antd'
 
 export interface DataType {
   key: React.Key
@@ -10,24 +10,47 @@ export interface DataType {
   document_finished: number
 }
 
+export interface SummaryDataType {
+  key: React.Key
+  category_id: string
+  category_name: string
+  total: number
+  accepted: number
+}
+
 export type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection']
 
 export const columns = (
   onAction: (type: 'view' | 'edit' | 'delete', record: DataType) => void
 ) => [
   Table.SELECTION_COLUMN,
-  { title: 'Nama Kategori', dataIndex: 'name', key: 'name', sorter: true },
+  {
+    title: 'Nama Kategori',
+    dataIndex: 'name',
+    key: 'name',
+    sorter: true
+  },
   {
     title: 'Jumlah Dokumen Terbuat',
     dataIndex: 'document_created',
     key: 'document_created',
-    sorter: true
+    sorter: true,
+    render: (item: number) => (
+      <Flex align="center" justify="start">
+        {item} Dokumen
+      </Flex>
+    )
   },
   {
     title: 'Jumlah Dokumen Selesai',
     dataIndex: 'document_finished',
     key: 'document_finished',
-    sorter: true
+    sorter: true,
+    render: (item: number) => (
+      <Flex align="center" justify="start">
+        {item} Dokumen
+      </Flex>
+    )
   },
   {
     title: 'Action',

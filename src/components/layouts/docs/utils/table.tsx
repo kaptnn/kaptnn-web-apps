@@ -21,6 +21,7 @@ export interface DataType {
   upload_date: string
   status: string
   type: string
+  total?: number
 }
 
 const statusMap: Record<string, { color: string; icon: React.ReactNode }> = {
