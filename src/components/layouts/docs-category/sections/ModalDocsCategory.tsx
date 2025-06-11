@@ -2,7 +2,8 @@ import { Modal, Form, Input, message, Typography } from 'antd'
 import { useDocsCategoryStore } from '@/stores/useDocsCategory'
 import { memo, useCallback, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { DocsCategoryApi } from '@/utils/axios/api-service'
+import { DocsCategoryApi, DocsRequestApi } from '@/utils/axios/api-service'
+import { DataType, SummaryDataType } from '../utils/table'
 
 interface ModalComponentProps {
   token: string
@@ -25,11 +26,26 @@ const DocsCategoryModals: React.FC<ModalComponentProps> = ({ token }) => {
   const fetchData = useCallback(async () => {
     setDocCatLoading(true)
     try {
-      const [docCatRes] = await Promise.all([
-        DocsCategoryApi.getAllDocsCategory({}, token)
+      const [docCatRes, docReqSumRes] = await Promise.all([
+        DocsCategoryApi.getAllDocsCategory({}, token),
+        DocsRequestApi.getDocsRequestSummary(token)
       ])
 
-      setDocCatData(docCatRes.result)
+      const formatted: DataType[] = docCatRes.result.map((cat: DataType) => {
+        const summary: SummaryDataType = docReqSumRes.find(
+          (s: SummaryDataType) => s.category_id === cat.id
+        )
+
+        return {
+          key: cat.id,
+          id: cat.id,
+          name: cat.name,
+          document_created: summary.total ?? 0,
+          document_finished: summary.accepted ?? 0
+        }
+      })
+
+      setDocCatData(formatted)
       setDocCatTotal(docCatRes.meta.totalItems)
     } catch (error) {
       console.error('Dashboard fetch error:', error)
