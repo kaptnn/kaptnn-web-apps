@@ -25,6 +25,8 @@ export interface DataType {
   email: string
   company_id: string
   company_name: string
+  role?: string
+  total?: number
   profile: UserProfileDataType
 }
 
