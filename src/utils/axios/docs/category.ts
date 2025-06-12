@@ -92,6 +92,23 @@ class DocsCategoryService {
     }
   }
 
+  public getDocsCategoryCount = async (token?: string, signal?: AbortSignal) => {
+    try {
+      const response = await this.axiosInstance.get(
+        `/v1/document-categories/summary/category`,
+        {
+          headers: this.getAuthHeaders(token),
+          signal
+        }
+      )
+      return response.data.result
+    } catch (error: any) {
+      console.error('Error fetching docs category:', error)
+      const msg = error?.response?.data?.message || 'Failed to fetch docs category'
+      throw new Error(msg)
+    }
+  }
+
   public getDocsCategoryById = async (
     docsCategoryId: string,
     token?: string,

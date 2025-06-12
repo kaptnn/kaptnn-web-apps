@@ -99,6 +99,20 @@ class CompanyService {
     }
   }
 
+  public getCompanyUserCount = async (token?: string, signal?: AbortSignal) => {
+    try {
+      const response = await this.axiosInstance.get(`/v1/companies/summary/user`, {
+        headers: this.getAuthHeaders(token),
+        signal
+      })
+      return response.data.result
+    } catch (error: any) {
+      console.error('Error fetching companies:', error)
+      const msg = error?.response?.data?.message || 'Failed to fetch companies'
+      throw new Error(msg)
+    }
+  }
+
   public getCompanyByCurrentUser = async (
     companyId: string,
     token?: string,

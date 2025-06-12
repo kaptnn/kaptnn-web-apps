@@ -77,6 +77,20 @@ class UserService {
     }
   }
 
+  public getUserProfileRoleCount = async (token?: string, signal?: AbortSignal) => {
+    try {
+      const response = await this.axiosInstance.get(`/v1/users/summary/role`, {
+        headers: this.getAuthHeaders(token),
+        signal
+      })
+      return response.data.result
+    } catch (error: any) {
+      console.error('Error fetching users:', error)
+      const msg = error?.response?.data?.message || 'Failed to fetch users'
+      throw new Error(msg)
+    }
+  }
+
   public updateCurrentUserProfile = async (
     payload: UpdateUserProfilePayload,
     token?: string,
